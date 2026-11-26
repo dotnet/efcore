@@ -19,6 +19,33 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
+    public virtual void Owned_collection_annotated_as_nullable_is_not_configured_as_nullable()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<NullableItemsOwner>().OwnsMany(o => o.Items);
+
+        var model = Validate(modelBuilder);
+
+        // Only relational providers configure owned collections annotated as nullable as nullable
+        Assert.False(model.FindEntityType(typeof(NullableItemsOwner))!.FindNavigation(nameof(NullableItemsOwner.Items))!.IsNullable);
+    }
+
+    [Fact]
+    public virtual void Detects_nullable_owned_collection_navigation()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.OwnsMany(c => c.Orders, ob => ob.Ignore(o => o.Customer));
+            b.Navigation(c => c.Orders).IsRequired(false);
+        });
+
+        VerifyError(
+            CosmosStrings.NullableCollectionNavigationNotSupported(nameof(Customer.Orders), nameof(Customer)),
+            modelBuilder);
+    }
+
+    [Fact]
     public virtual void Passes_on_valid_keyless_entity_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -997,4 +1024,15 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
     protected override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;
+
+    protected class NullableItemsOwner
+    {
+        public int Id { get; set; }
+        public List<NullableItemsElement>? Items { get; set; }
+    }
+
+    protected class NullableItemsElement
+    {
+        public string? Name { get; set; }
+    }
 }

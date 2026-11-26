@@ -414,6 +414,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 properties, entityType);
 
         /// <summary>
+        ///     The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but this is not supported by the Azure Cosmos DB provider. Configure the navigation as required using 'IsRequired()'. See https://github.com/dotnet/efcore/issues/35916 for more information.
+        /// </summary>
+        public static string NullableCollectionNavigationNotSupported(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NullableCollectionNavigationNotSupported", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.
         /// </summary>
         public static string NullTypeMappingInSqlTree(object? sqlExpression)

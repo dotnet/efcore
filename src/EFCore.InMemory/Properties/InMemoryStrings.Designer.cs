@@ -72,6 +72,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 requiredProperties, entityType);
 
         /// <summary>
+        ///     The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but this is not supported by the in-memory provider. Configure the navigation as required using 'IsRequired()'.
+        /// </summary>
+        public static string NullableCollectionNavigationNotSupported(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NullableCollectionNavigationNotSupported", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}' with the key value '{keyValue}'.
         /// </summary>
         public static string NullabilityErrorExceptionSensitive(object? requiredProperties, object? entityType, object? keyValue)

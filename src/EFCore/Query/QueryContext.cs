@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class QueryContext
 {
     private IStateManager? _stateManager;
+    private HashSet<(InternalEntityEntry, INavigation)>? _pendingCollectionNullness;
 
     /// <summary>
     ///     <para>
@@ -102,9 +104,15 @@ public abstract class QueryContext
     /// </summary>
     /// <param name="standAlone">Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution.</param>
     public virtual void InitializeStateManager(bool standAlone = false)
-        => _stateManager ??= standAlone
+    {
+        _stateManager ??= standAlone
             ? new StateManager(Dependencies.StateManager.Dependencies)
             : Dependencies.StateManager;
+
+        // This is called each time the query is executed. Entities that were started being tracked by an earlier execution
+        // are tracked by then, and can have unsaved changes.
+        _pendingCollectionNullness?.Clear();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -145,8 +153,112 @@ public abstract class QueryContext
             IEntityType entityType,
             object entity,
             in ISnapshot snapshot)
+    {
         // InitializeStateManager will populate the field before calling here
-        => _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
+        var entry = _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
+
+        // The null-ness of the nullable collections of an entity is only loaded once, by the query that starts tracking it. Otherwise,
+        // the current values are kept, including an unsaved change between null and a non-null collection.
+        if (entityType is IRuntimeEntityType { NullableCollectionCount: > 0 })
+        {
+            foreach (var navigation in entityType.GetNavigations())
+            {
+                if (navigation.IsNullable)
+                {
+                    (_pendingCollectionNullness ??= []).Add((entry, navigation));
+                }
+            }
+        }
+
+        return entry;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Gets a value indicating whether the stored null-ness of a nullable collection navigation is applied to the entity with the
+    ///     given entry: for an entity that is not tracked, or that was started being tracked by this query and whose null-ness hasn't
+    ///     been loaded yet. Otherwise, the current values of the entity are kept, including an unsaved change between null and a
+    ///     non-null collection, and the caller doesn't change the collection.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    public virtual bool CanLoadCollectionNullness(INavigation navigation, InternalEntityEntry? entry)
+        => entry == null
+            || _pendingCollectionNullness?.Contains((entry, navigation)) == true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Sets the loaded null-ness of a nullable collection navigation and records it as the value that was read from the
+    ///     database. If <paramref name="storedAsNull" /> is <see langword="false" />, the caller has already created and populated
+    ///     the collection. Must only be called if <see cref="CanLoadCollectionNullness" /> returns <see langword="true" />.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    public virtual void SetCollectionNullnessLoaded(INavigation navigation, object entity, InternalEntityEntry? entry, bool storedAsNull)
+    {
+        if (entry == null)
+        {
+            if (storedAsNull)
+            {
+                ((IRuntimePropertyBase)navigation).MaterializationSetter.SetClrValue(entity, null);
+            }
+
+            return;
+        }
+
+        // If the query returns the same entity again, changes made to the navigation in the meantime aren't overwritten
+        _pendingCollectionNullness!.Remove((entry, navigation));
+
+        var recordOriginal = navigation.GetOriginalValueIndex() >= 0;
+        if (storedAsNull)
+        {
+            // The original value is recorded first so that a setter raising notifications isn't seen as a change.
+            if (recordOriginal)
+            {
+                entry.SetOriginalValue(navigation, null, skipChangeDetection: true);
+            }
+
+            ((IRuntimePropertyBase)navigation).MaterializationSetter.SetClrValue(entity, null);
+        }
+
+        // A setter can have replaced null, in which case that is the value that has been loaded.
+        if (recordOriginal)
+        {
+            var currentValue = navigation.GetGetter().GetClrValue(entity);
+            if (!storedAsNull
+                || currentValue != null)
+            {
+                entry.SetOriginalValue(navigation, currentValue, skipChangeDetection: true);
+            }
+        }
+
+        // The collection of an entity that uses notifications can have been created by the query after the entity started being
+        // tracked, in which case nothing has subscribed to it. Unsubscribing first avoids subscribing twice to a collection that
+        // was already subscribed to.
+        if (!storedAsNull
+            && entry.EntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot
+            && navigation.GetGetter().GetClrValue(entity) != null)
+        {
+            var subscriber = entry.StateManager.Dependencies.InternalEntityEntrySubscriber;
+            subscriber.UnsubscribeCollectionChanged(entry, navigation);
+            subscriber.SubscribeCollectionChanged(entry, navigation);
+        }
+
+        // Loading the collection must not leave the navigation looking modified because of a change notification that was
+        // raised by the entity while the collection was set. The navigation was known not to be modified before it was loaded.
+        if (entry.IsModified(navigation))
+        {
+            entry.SetNavigationModified(navigation, isModified: false, acceptChanges: true);
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

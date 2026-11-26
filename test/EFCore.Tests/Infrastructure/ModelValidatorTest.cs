@@ -1309,6 +1309,32 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
+    public virtual void Detects_nullable_navigation_that_is_not_a_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Order>().HasOne(o => o.Customer).WithMany(c => c.Orders);
+        modelBuilder.Model.FindEntityType(typeof(Order))!.FindNavigation(nameof(Order.Customer))!.SetIsNullable(true);
+
+        VerifyError(
+            CoreStrings.NullableNavigationNotCollection(nameof(Order.Customer), nameof(Order)),
+            modelBuilder);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Detects_IsRequired_on_a_collection_navigation_that_is_not_owned(bool required)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer);
+        modelBuilder.Entity<Customer>().Navigation(c => c.Orders).IsRequired(required);
+
+        VerifyError(
+            CoreStrings.NonOwnedCollectionNavigationIsRequired(nameof(Customer.Orders), nameof(Customer)),
+            modelBuilder);
+    }
+
+    [Fact]
     public virtual void Detects_value_type_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();

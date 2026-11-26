@@ -4319,13 +4319,13 @@
           "Member": "static string NonNotifyingCollection(object? navigation, object? entityType, object? collectionType, object? changeTrackingStrategy);"
         },
         {
+          "Member": "static string NonOwnedCollectionNavigationIsRequired(object? navigation, object? entityType);"
+        },
+        {
           "Member": "static string NonQueryTranslationFailed(object? expression);"
         },
         {
           "Member": "static string NonUniqueRequiredDependentForeignKey(object? foreignKeyProperties, object? declaringEntityType);"
-        },
-        {
-          "Member": "static string NonUniqueRequiredDependentNavigation(object? principalEntityType, object? principalNavigation);"
         },
         {
           "Member": "static string NoParameterlessConstructor(object? entityType);"
@@ -4361,7 +4361,13 @@
           "Member": "static string NoValueGenerator(object? property, object? entityType, object? propertyType);"
         },
         {
+          "Member": "static string NullableCollectionNavigationNoSetter(object? navigation, object? entityType);"
+        },
+        {
           "Member": "static string NullableKey(object? entityType, object? property);"
+        },
+        {
+          "Member": "static string NullableNavigationNotCollection(object? navigation, object? entityType);"
         },
         {
           "Member": "static string NullRequiredComplexProperty(object? type, object? property);"
@@ -10827,10 +10833,16 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetInverseConfigurationSource();"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsNullableConfigurationSource();"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionNavigation? SetInverse(string? inverseName, bool fromDataAnnotation = false);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionNavigation? SetInverse(System.Reflection.MemberInfo? inverse, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "bool? SetIsNullable(bool? nullable, bool fromDataAnnotation = false);"
         }
       ],
       "Properties": [
@@ -13805,6 +13817,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation? SetInverse(System.Reflection.MemberInfo? inverse);"
+        },
+        {
+          "Member": "void SetIsNullable(bool? nullable);"
         }
       ],
       "Properties": [
@@ -15366,6 +15381,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyNavigation? Inverse { get; }"
         },
         {
+          "Member": "bool IsNullable { get; }"
+        },
+        {
           "Member": "bool IsOnDependent { get; }"
         },
         {
@@ -16203,6 +16221,9 @@
         },
         {
           "Member": "bool IsModified(Microsoft.EntityFrameworkCore.Metadata.IComplexProperty property);"
+        },
+        {
+          "Member": "bool IsModified(Microsoft.EntityFrameworkCore.Metadata.INavigation navigation);"
         },
         {
           "Member": "bool IsStoreGenerated(Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
@@ -18009,6 +18030,9 @@
         },
         {
           "Member": "virtual void ValidateMutableKey(Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
+          "Member": "virtual void ValidateNavigation(Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "virtual void ValidateNonNullPrimaryKey(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -21245,10 +21269,13 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RequiredNavigationAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NavigationAttributeConventionBase<System.ComponentModel.DataAnnotations.RequiredAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.INavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.ISkipNavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyPrincipalEndChangedConvention",
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RequiredNavigationAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NavigationAttributeConventionBase<System.ComponentModel.DataAnnotations.RequiredAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.INavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.ISkipNavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyPrincipalEndChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention",
       "Methods": [
         {
           "Member": "RequiredNavigationAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
         }
       ]
     },
@@ -21502,7 +21529,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeKey AddKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation AddNavigation(string name, Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey foreignKey, bool onDependent, System.Type clrType, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField, bool eagerLoaded = false, bool lazyLoadingEnabled = true);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation AddNavigation(string name, Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey foreignKey, bool onDependent, System.Type clrType, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField, bool eagerLoaded = false, bool lazyLoadingEnabled = true, bool nullable = false);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeServiceProperty AddServiceProperty(string name, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, System.Type? serviceType = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField);"

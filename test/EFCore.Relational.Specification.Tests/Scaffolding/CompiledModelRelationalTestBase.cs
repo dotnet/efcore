@@ -5,6 +5,7 @@
 
 using System.Data;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
@@ -76,6 +77,12 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                         ob.ToTable("ManyOwned");
                     }
                 });
+
+            if (jsonColumns)
+            {
+                // Distinguishes a null collection from an empty one, Issue #33452
+                eb.Navigation("ManyOwned").IsRequired(false);
+            }
 
             eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
                 .HasForeignKey<DependentBase<byte?>>()
@@ -243,6 +250,10 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         var referenceOwnership = referenceOwnedNavigation.ForeignKey;
         var ownedCollectionNavigation = principalDerived.GetDeclaredNavigations().Last();
         var collectionOwnership = ownedCollectionNavigation.ForeignKey;
+        Assert.Equal(jsonColumns, ownedCollectionNavigation.IsNullable);
+        Assert.Equal(jsonColumns ? 1 : 0, ((IRuntimeEntityType)principalDerived).NullableCollectionCount);
+        Assert.Equal(0, ((IRuntimeEntityType)principalBase).NullableCollectionCount);
+        Assert.Equal(jsonColumns, ownedCollectionNavigation.GetOriginalValueIndex() >= 0);
 
         var tptForeignKey = principalDerived.GetForeignKeys().SingleOrDefault();
         if (jsonColumns)

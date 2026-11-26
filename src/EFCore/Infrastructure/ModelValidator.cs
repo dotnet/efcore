@@ -109,6 +109,11 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ValidateProperty(property, entityType, logger);
         }
 
+        foreach (var navigation in entityType.GetDeclaredNavigations())
+        {
+            ValidateNavigation(navigation, logger);
+        }
+
         foreach (var skipNavigation in entityType.GetDeclaredSkipNavigations())
         {
             ValidateSkipNavigation(skipNavigation, logger);
@@ -447,6 +452,44 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateSkipNavigationIsCollection(skipNavigation, logger);
         ValidateSkipNavigationForeignKey(skipNavigation, logger);
         ValidateSkipNavigationInverse(skipNavigation, logger);
+    }
+
+    /// <summary>
+    ///     Validates a navigation.
+    /// </summary>
+    /// <param name="navigation">The navigation to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateNavigation(
+        INavigation navigation,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        // Only an owned collection can be stored with its owner, and so be null as distinct from empty. For any other collection,
+        // this was configured explicitly, likely expecting it to configure the relationship.
+        if (navigation.IsCollection
+            && !navigation.ForeignKey.IsOwnership
+            && navigation.FindAnnotation(CoreAnnotationNames.NullableCollection) != null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.NonOwnedCollectionNavigationIsRequired(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        }
+
+        if (!navigation.IsNullable)
+        {
+            return;
+        }
+
+        if (!navigation.IsCollection)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.NullableNavigationNotCollection(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        }
+
+        // A stored null is materialized by setting the navigation to null, which a getter-only collection can't do
+        if (!navigation.HasMaterializationSetter())
+        {
+            throw new InvalidOperationException(
+                CoreStrings.NullableCollectionNavigationNoSetter(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        }
     }
 
     /// <summary>

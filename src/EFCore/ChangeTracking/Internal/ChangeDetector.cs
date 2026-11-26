@@ -76,8 +76,20 @@ public class ChangeDetector : IChangeDetector
                 break;
 
             case INavigationBase navigation when propertyBase.GetRelationshipIndex() != -1:
-                DetectNavigationChange(
-                    entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation"), navigation);
+                var navigationEntry = entry as InternalEntityEntry
+                    ?? throw new UnreachableException("Complex type entry with a navigation");
+                DetectNavigationChange(navigationEntry, navigation);
+
+                // ChangingAndChangedNotifications: no original value is kept, so, like for properties, any change notification
+                // marks a nullable collection navigation as modified.
+                if (setModified
+                    && navigation is INavigation { IsNullable: true } nullableCollection
+                    && nullableCollection.GetOriginalValueIndex() < 0
+                    && entry.EntityState is EntityState.Unchanged or EntityState.Modified)
+                {
+                    navigationEntry.SetNavigationModified(nullableCollection);
+                }
+
                 break;
         }
     }
@@ -110,6 +122,13 @@ public class ChangeDetector : IChangeDetector
             if (propertyBase is IProperty asProperty
                 && asProperty.GetOriginalValueIndex() != -1)
             {
+                entry.EnsureOriginalValues();
+            }
+            else if (propertyBase is INavigation { IsNullable: true } nullableCollection
+                     && nullableCollection.GetOriginalValueIndex() != -1)
+            {
+                // The null-ness of a nullable collection is compared with its original value, so, like for properties, the
+                // original values must be captured before the first change, even when that change is not to a property.
                 entry.EnsureOriginalValues();
             }
 
@@ -976,10 +995,16 @@ public class ChangeDetector : IChangeDetector
 
                 stateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(entry, navigationBase, added, removed);
 
+                if (navigationBase is INavigation { IsNullable: true } changedNullableCollection)
+                {
+                    DetectCollectionNullnessChange(entry, changedNullableCollection);
+                }
+
                 return true;
             }
 
-            return false;
+            return navigationBase is INavigation { IsNullable: true } nullableCollection
+                && DetectCollectionNullnessChange(entry, nullableCollection);
         }
 
         if (!ReferenceEquals(currentValue, snapshotValue))
@@ -1002,6 +1027,37 @@ public class ChangeDetector : IChangeDetector
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool DetectCollectionNullnessChange(InternalEntityEntry entry, INavigation navigation)
+    {
+        // For navigations with IsNullable, a change between null and a non-null collection is tracked against the
+        // original value, like other properties. Added entries write the whole collection anyway.
+        if (!navigation.IsNullable
+            || navigation.GetOriginalValueIndex() < 0
+            || entry.EntityState is not (EntityState.Unchanged or EntityState.Modified)
+            || !entry.HasOriginalValuesSnapshot)
+        {
+            return false;
+        }
+
+        // Like for properties, once the navigation is modified, whether by detecting a change or because the state was
+        // explicitly set to Modified, it stays modified until the changes are saved or the state is reset.
+        if (entry.IsModified(navigation)
+            || (entry[navigation] is null) == (entry.GetOriginalValue(navigation) is null))
+        {
+            return false;
+        }
+
+        entry.SetNavigationModified(navigation, true);
+
+        return true;
     }
 
     /// <summary>

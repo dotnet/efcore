@@ -512,6 +512,120 @@ public class InternalEntrySubscriberTest
         Assert.Equal(2, testListener.Changed.Count);
     }
 
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Attaching_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = null };
+
+        context.Attach(parent);
+
+        Assert.Null(parent.Children);
+        context.ChangeTracker.DetectChanges();
+        Assert.Null(parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Adding_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = null };
+
+        context.Add(parent);
+
+        Assert.Null(parent.Children);
+
+        context.SaveChanges();
+
+        Assert.Null(parent.Children);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Detaching_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        context.Entry(parent).State = EntityState.Detached;
+
+        Assert.Null(parent.Children);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Entry_subscribes_to_INotifyCollectionChanged_of_a_collection_assigned_to_a_null_nullable_collection_navigation(
+        ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        var children = new ObservableHashSet<NotifyingNullableCollectionChild>();
+        parent.Children = children;
+        var child = new NotifyingNullableCollectionChild();
+        children.Add(child);
+
+        Assert.Same(children, parent.Children);
+        Assert.Equal(EntityState.Added, context.Entry(child).State);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Entry_unsubscribes_to_INotifyCollectionChanged_of_a_collection_replaced_by_null_in_a_nullable_collection_navigation(
+        ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var children = new ObservableHashSet<NotifyingNullableCollectionChild>();
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = children };
+        context.Attach(parent);
+
+        parent.Children = null;
+        var child = new NotifyingNullableCollectionChild { Id = 2 };
+        children.Add(child);
+
+        Assert.Null(parent.Children);
+        Assert.Equal(EntityState.Detached, context.Entry(child).State);
+    }
+
+    [Fact]
+    public void Collection_restored_by_unmodifying_a_nullable_collection_navigation_of_a_ChangedNotifications_entity_is_tracked_once()
+    {
+        using var context = NotifyingNullableCollectionContext.Create(ChangeTrackingStrategy.ChangedNotifications);
+        var children = new ObservableHashSet<NotifyingNullableCollectionChild>();
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = children };
+        context.Attach(parent);
+
+        // Without changing notifications, the replaced collection is never unsubscribed from, and restoring it subscribes again
+        parent.Children = null;
+        context.Entry(parent).Collection(p => p.Children!).IsModified = false;
+        Assert.Same(children, parent.Children);
+
+        var child = new NotifyingNullableCollectionChild();
+        children.Add(child);
+        Assert.Equal(EntityState.Added, context.Entry(child).State);
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+        children.Remove(child);
+        Assert.Equal(EntityState.Detached, context.Entry(child).State);
+        Assert.Single(context.ChangeTracker.Entries());
+    }
+
     private class TestPropertyListener : IChangeDetector
     {
         public List<Tuple<IInternalEntry, IPropertyBase>> Changing { get; } = [];
@@ -583,6 +697,9 @@ public class InternalEntrySubscriberTest
 
         public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty)
             => throw new NotImplementedException();
+
+        public bool DetectCollectionNullnessChange(InternalEntityEntry entry, INavigation navigation)
+            => false;
     }
 
     private class TestNavigationListener : INavigationFixer

@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
 ///     A convention that configures the principal side of the relationship as required if the
-///     <see cref="RequiredAttribute" /> is applied on the navigation property to the principal entity type.
+///     <see cref="RequiredAttribute" /> is applied on the navigation property to the principal entity type, and configures an owned
+///     collection navigation with the <see cref="RequiredAttribute" /> as not nullable, see <see cref="IReadOnlyNavigation.IsNullable" />.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
@@ -16,7 +17,8 @@ public class RequiredNavigationAttributeConvention :
     NavigationAttributeConventionBase<RequiredAttribute>,
     INavigationAddedConvention,
     ISkipNavigationAddedConvention,
-    IForeignKeyPrincipalEndChangedConvention
+    IForeignKeyPrincipalEndChangedConvention,
+    IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RequiredNavigationAttributeConvention" />.
@@ -66,7 +68,7 @@ public class RequiredNavigationAttributeConvention :
         var foreignKey = navigation.ForeignKey;
         if (navigation.IsCollection)
         {
-            Dependencies.Logger.RequiredAttributeOnCollection(navigation);
+            // Whether the collection is owned is only known once the model is built, see ProcessModelFinalizing
             return;
         }
 
@@ -77,6 +79,35 @@ public class RequiredNavigationAttributeConvention :
         else
         {
             foreignKey.Builder.IsRequiredDependent(true, fromDataAnnotation: true);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+        {
+            foreach (var navigation in entityType.GetDeclaredNavigations())
+            {
+                if (!navigation.IsCollection
+                    || !GetAttributes<RequiredAttribute>(entityType, navigation).Any())
+                {
+                    continue;
+                }
+
+                if (navigation.ForeignKey.IsOwnership)
+                {
+                    // For an owned collection, it means that the collection can't be null as distinct from empty. This is not
+                    // applied if it was configured explicitly.
+                    navigation.Builder.IsRequired(true, fromDataAnnotation: true);
+                }
+                else
+                {
+                    Dependencies.Logger.RequiredAttributeOnCollection(navigation);
+                }
+            }
         }
     }
 

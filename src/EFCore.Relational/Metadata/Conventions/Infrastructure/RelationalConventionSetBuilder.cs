@@ -76,6 +76,7 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new SharedTableConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new RelationalMapToJsonConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new NullableJsonCollectionConvention(Dependencies));
 
         conventionSet.Replace<ValueGenerationConvention>(
             new RelationalValueGenerationConvention(Dependencies, RelationalDependencies));

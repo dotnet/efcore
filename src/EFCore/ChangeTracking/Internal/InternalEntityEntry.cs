@@ -266,6 +266,112 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
+    {
+        if (StructuralType.NullableCollectionCount > 0)
+        {
+            if (newState == EntityState.Modified
+                && modifyProperties)
+            {
+                // Like all properties, the null-ness of nullable collection navigations is saved when the state is set to Modified.
+                FlagNullableCollections(isModified: true);
+            }
+            else if (oldState != newState)
+            {
+                switch (newState)
+                {
+                    case EntityState.Added:
+                        // All values are written for an Added entity, so there is nothing to track.
+                        FlagNullableCollections(isModified: false);
+                        break;
+                    case EntityState.Unchanged when oldState == EntityState.Added:
+                        // Like for properties, the current values become the ones that are saved.
+                        AcceptNullableCollections();
+                        break;
+                    case EntityState.Unchanged when oldState == EntityState.Modified && !acceptChanges:
+                        // Like for properties, the changes are rejected by restoring the original values.
+                        RejectNullableCollections();
+                        break;
+                }
+            }
+        }
+
+        base.SetEntityState(oldState, newState, acceptChanges, modifyProperties);
+    }
+
+    private void FlagNullableCollections(bool isModified)
+    {
+        foreach (var navigation in EntityType.GetNavigations())
+        {
+            if (navigation.IsNullable)
+            {
+                PropertyStateData.FlagProperty(navigation.GetIndex(), PropertyFlag.NavigationModified, isModified);
+            }
+        }
+    }
+
+    private void AcceptNullableCollections()
+    {
+        foreach (var navigation in EntityType.GetNavigations())
+        {
+            if (navigation.IsNullable
+                && navigation.GetOriginalValueIndex() >= 0)
+            {
+                SetOriginalValue(navigation, this[navigation], skipChangeDetection: true);
+            }
+        }
+    }
+
+    private void RejectNullableCollections()
+    {
+        foreach (var navigation in EntityType.GetNavigations())
+        {
+            if (navigation.IsNullable
+                && navigation.GetOriginalValueIndex() >= 0)
+            {
+                RevertCollectionNullness(navigation);
+            }
+        }
+    }
+
+    // Replacing a collection with another one is not a change that is tracked, so only a change between null and a non-null
+    // collection is reverted. Any change to the elements of the collection is found by change detection as usual.
+    private void RevertCollectionNullness(INavigation navigation)
+    {
+        var originalValue = GetOriginalValue(navigation);
+        var currentValue = this[navigation];
+        if ((originalValue == null) == (currentValue == null))
+        {
+            return;
+        }
+
+        // The collection is set directly rather than through the entity, so the entity doesn't raise notifications that would
+        // make the subscriptions to the collections follow the change.
+        var subscriber = EntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot
+            ? StateManager.Dependencies.InternalEntityEntrySubscriber
+            : null;
+        if (currentValue != null)
+        {
+            subscriber?.UnsubscribeCollectionChanged(this, navigation);
+        }
+
+        SetProperty(navigation, originalValue, isMaterialization: false, setModified: false);
+
+        if (originalValue != null
+            && subscriber != null)
+        {
+            // Unsubscribing first avoids subscribing twice to a collection that was never unsubscribed from
+            subscriber.UnsubscribeCollectionChanged(this, navigation);
+            subscriber.SubscribeCollectionChanged(this, navigation);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override void OnStateChanging(EntityState newState)
     {
         base.OnStateChanging(newState);
@@ -1058,6 +1164,60 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
                     // Note: ignoring Move since index not important
             }
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool IsModified(INavigation navigation)
+    {
+        EntityType.CheckContains(navigation);
+
+        // Like for properties, only an entity in the Modified state can have a modified navigation
+        return EntityState == EntityState.Modified
+            && PropertyStateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.NavigationModified);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void SetNavigationModified(INavigation navigation, bool isModified = true, bool acceptChanges = false)
+    {
+        EntityType.CheckContains(navigation);
+
+        var index = navigation.GetIndex();
+
+        if (!isModified
+            && navigation.GetOriginalValueIndex() >= 0
+            && EntityState != EntityState.Detached)
+        {
+            if (acceptChanges
+                || EntityState is not (EntityState.Unchanged or EntityState.Modified))
+            {
+                // The current null-ness is taken as the one that is already saved. Otherwise, it would be detected as a change again.
+                SetOriginalValue(navigation, this[navigation], skipChangeDetection: true);
+            }
+            else
+            {
+                // Like for properties, the change is reverted by restoring the original value
+                RevertCollectionNullness(navigation);
+            }
+        }
+
+        if (PropertyStateData.IsPropertyFlagged(index, PropertyFlag.NavigationModified) == isModified)
+        {
+            return;
+        }
+
+        PropertyStateData.FlagProperty(index, PropertyFlag.NavigationModified, isModified);
+
+        OnModifiedFlagChanged(isModified);
     }
 
     /// <summary>

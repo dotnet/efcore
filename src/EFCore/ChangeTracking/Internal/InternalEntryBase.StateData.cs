@@ -72,7 +72,20 @@ public partial class InternalEntryBase
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </remarks>
-        IsPropertyNotLoaded = 6
+        IsPropertyNotLoaded = 6,
+
+        /// <summary>
+        ///     Tracks whether the null-ness of a collection navigation (<see langword="null" /> versus a non-null collection) has been
+        ///     modified, for navigations with <see cref="IReadOnlyNavigation.IsNullable" /> equal to <see langword="true" />.
+        ///     Used only in navigation slots, which are indexed by navigation index.
+        /// </summary>
+        /// <remarks>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </remarks>
+        NavigationModified = 7
     }
 
     /// <summary>
@@ -88,10 +101,10 @@ public partial class InternalEntryBase
     ///     </para>
     ///     <para>
     ///         Property flags use bits: Modified (0), Null (1), Unknown (2), IsTemporary (4),
-    ///         IsStoreGenerated (5), IsPropertyNotLoaded (6). Bit 7 is unused/reserved.
+    ///         IsStoreGenerated (5), IsPropertyNotLoaded (6).
     ///     </para>
     ///     <para>
-    ///         Navigation flags use bit: IsLoaded (3). Since property flags and navigation flags occupy
+    ///         Navigation flags use bits: IsLoaded (3), NavigationModified (7). Since property flags and navigation flags occupy
     ///         distinct bits within the same 8-bit slot, they share the same slot array without conflict.
     ///     </para>
     /// </remarks>

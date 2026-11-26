@@ -47,6 +47,27 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
     IReadOnlyForeignKey ForeignKey { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether this collection navigation can be <see langword="null" /> as distinct from empty.
+    ///     When <see langword="true" />, <see langword="null" /> and an empty collection are tracked, saved and
+    ///     materialized as different values, and changing from one to the other is a change that is saved to the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This is configured with <see cref="Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder.IsRequired" />
+    ///         (<see langword="false" /> makes the collection nullable). Relational database providers also configure owned collections
+    ///         mapped to JSON as nullable when the navigation is annotated as nullable and can be set to <see langword="null" />.
+    ///     </para>
+    ///     <para>
+    ///         This can only be set for owned collection navigations that are stored with their owner, for example as a JSON array.
+    ///         Model validation fails for collection navigations that are not owned. Database providers that don't support this are
+    ///         responsible for rejecting it during model validation, otherwise a change between <see langword="null" /> and an empty
+    ///         collection is tracked but not saved.
+    ///     </para>
+    /// </remarks>
+    bool IsNullable
+        => (bool?)this[CoreAnnotationNames.NullableCollection] ?? false;
+
+    /// <summary>
     ///     Gets a value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
     /// </summary>
     bool IsOnDependent
@@ -139,6 +160,11 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
             if (IsCollection)
             {
                 builder.Append(" Collection");
+
+                if (IsNullable)
+                {
+                    builder.Append(" Nullable");
+                }
             }
             else if ((IsOnDependent && ForeignKey.IsRequired)
                      || (!IsOnDependent && ForeignKey.IsRequiredDependent))

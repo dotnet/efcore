@@ -159,7 +159,19 @@ public class InternalNavigationBuilder :
                 ? foreignKey.Builder.CanSetIsRequired(required, configurationSource)
                 : foreignKey.Builder.CanSetIsRequiredDependent(required, configurationSource))
             : Metadata.IsOnDependent
-            && foreignKey.Builder.CanSetIsRequired(required, configurationSource);
+                ? foreignKey.Builder.CanSetIsRequired(required, configurationSource)
+                // Only owned collections can be stored inline with their owner, so conventions don't configure others
+                : (configurationSource == ConfigurationSource.Explicit || foreignKey.IsOwnership)
+                && CanSetIsNullable(required.HasValue ? !required : null, configurationSource);
+    }
+
+    // For a collection navigation, being optional means that null is a value that is different from an empty collection
+    private bool CanSetIsNullable(bool? nullable, ConfigurationSource configurationSource)
+    {
+        IConventionNavigation conventionNavigation = Metadata;
+
+        return configurationSource.Overrides(conventionNavigation.GetIsNullableConfigurationSource())
+            || conventionNavigation.IsNullable == nullable;
     }
 
     /// <summary>
@@ -189,12 +201,24 @@ public class InternalNavigationBuilder :
                 : Metadata.IsOnDependent
                     ? foreignKey.Builder.IsRequired(required, configurationSource)!
                         .Metadata.DependentToPrincipal!.Builder
-                    : throw new InvalidOperationException(
-                        CoreStrings.NonUniqueRequiredDependentNavigation(
-                            foreignKey.PrincipalEntityType.DisplayName(), Metadata.Name));
+                    : SetIsNullable(required.HasValue ? !required : null, configurationSource);
         }
 
         return null;
+    }
+
+    private InternalNavigationBuilder SetIsNullable(bool? nullable, ConfigurationSource configurationSource)
+    {
+        if (configurationSource == ConfigurationSource.Explicit)
+        {
+            ((IMutableNavigation)Metadata).SetIsNullable(nullable);
+        }
+        else
+        {
+            ((IConventionNavigation)Metadata).SetIsNullable(nullable, configurationSource == ConfigurationSource.DataAnnotation);
+        }
+
+        return this;
     }
 
     IConventionPropertyBase IConventionPropertyBaseBuilder<IConventionNavigationBuilder>.Metadata

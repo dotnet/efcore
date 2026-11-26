@@ -575,7 +575,8 @@ public partial class OwnedType0EntityType
             onDependent: false,
             typeof(IList<CompiledModelTestBase.OwnedType>),
             fieldInfo: typeof(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>).GetField("ManyOwned", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-            eagerLoaded: true);
+            eagerLoaded: true,
+            nullable: true);
 
         manyOwned.SetGetter(
             IList<CompiledModelTestBase.OwnedType> (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> instance) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.ManyOwned(instance),
@@ -599,7 +600,7 @@ public partial class OwnedType0EntityType
             IList<CompiledModelTestBase.OwnedType> (IInternalEntry entry) => entry.GetCurrentValue<IList<CompiledModelTestBase.OwnedType>>(manyOwned));
         manyOwned.SetPropertyIndexes(
             index: 3,
-            originalValueIndex: -1,
+            originalValueIndex: 16,
             shadowIndex: -1,
             relationshipIndex: 5,
             storeGenerationIndex: -1);

@@ -162,6 +162,26 @@ public class RelationalModelValidator(
     }
 
     /// <summary>
+    ///     Validates a navigation.
+    /// </summary>
+    /// <param name="navigation">The navigation to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected override void ValidateNavigation(
+        INavigation navigation,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateNavigation(navigation, logger);
+
+        if (navigation.IsNullable
+            && !navigation.TargetEntityType.IsMappedToJson())
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.NullableCollectionNavigationNotMappedToJson(
+                    navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        }
+    }
+
+    /// <summary>
     ///     Logs a warning if triggers are defined on a non-root entity type using TPH mapping strategy.
     /// </summary>
     /// <param name="entityType">The entity type to validate.</param>

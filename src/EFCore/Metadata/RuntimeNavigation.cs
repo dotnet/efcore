@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
 {
+    private readonly bool _nullable;
+
     // Warning: Never access these fields directly as access needs to be thread-safe
     private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
@@ -34,7 +36,8 @@ public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
         RuntimeForeignKey foreignKey,
         PropertyAccessMode propertyAccessMode,
         bool eagerLoaded,
-        bool lazyLoadingEnabled)
+        bool lazyLoadingEnabled,
+        bool nullable = false)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
     {
         ClrType = clrType;
@@ -48,6 +51,9 @@ public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
         {
             SetAnnotation(CoreAnnotationNames.LazyLoadingEnabled, false);
         }
+
+        // Read frequently by change tracking and query, so it is stored in a field rather than as an annotation
+        _nullable = nullable;
     }
 
     /// <summary>
@@ -133,6 +139,13 @@ public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
         => new(
             () => ((IReadOnlyNavigation)this).ToDebugString(),
             () => ((IReadOnlyNavigation)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+
+    /// <inheritdoc />
+    bool IReadOnlyNavigation.IsNullable
+    {
+        [DebuggerStepThrough]
+        get => _nullable;
+    }
 
     /// <inheritdoc />
     IReadOnlyForeignKey IReadOnlyNavigation.ForeignKey

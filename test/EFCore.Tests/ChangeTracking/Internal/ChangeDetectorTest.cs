@@ -1738,6 +1738,822 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public void Detects_change_of_nullable_collection_navigation_between_null_and_non_null(bool startNull, bool withChild)
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent
+        {
+            Id = 1,
+            Children = startNull ? null : withChild ? [new NullableCollectionChild { Id = 2 }] : []
+        };
+        context.Attach(parent);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+
+        parent.Children = startNull ? [] : null;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Ignores_replacement_of_nullable_collection_navigation_by_another_non_null_collection()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        parent.Children = [new NullableCollectionChild { Id = 2 }];
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Ignores_change_from_empty_to_null_of_collection_navigation_that_is_not_nullable()
+    {
+        using var context = new NotNullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Reverting_a_nullness_change_before_saving_keeps_the_modification_like_for_a_property()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+
+        parent.Children = [];
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Unmodifying_a_nullable_collection_navigation_through_the_internal_entry_reverts_and_is_not_detected_again(
+        bool detectChanges)
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var children = new List<NullableCollectionChild>();
+        var parent = new NullableCollectionParent { Id = 1, Children = children };
+        context.Attach(parent);
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+
+        var entry = context.Entry(parent);
+        entry.GetInfrastructure().SetNavigationModified(
+            (INavigation)entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, isModified: false);
+        if (detectChanges)
+        {
+            context.ChangeTracker.DetectChanges();
+        }
+
+        Assert.Same(children, parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Unmodifying_a_nullable_collection_navigation_can_accept_the_current_value_instead_of_reverting()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+
+        var entry = context.Entry(parent);
+        entry.GetInfrastructure().SetNavigationModified(
+            (INavigation)entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, isModified: false, acceptChanges: true);
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Null(parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Unmodifying_an_unrelated_property_does_not_revert_a_nullness_change()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Name = "A", Children = [] };
+        context.Attach(parent);
+
+        parent.Name = "B";
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+
+        context.Entry(parent).Property(p => p.Name).IsModified = false;
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Detecting_nullness_changes_repeatedly_keeps_the_same_result()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Accepting_a_nullness_change_resets_the_baseline(bool save)
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        if (save)
+        {
+            context.Add(parent);
+            context.SaveChanges();
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        }
+        else
+        {
+            context.Attach(parent);
+        }
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        if (save)
+        {
+            context.SaveChanges();
+        }
+        else
+        {
+            context.ChangeTracker.AcceptAllChanges();
+        }
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+
+        parent.Children = [];
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Setting_state_to_Modified_flags_a_nullable_collection_navigation(bool empty)
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = empty ? [] : null };
+        context.Attach(parent);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        context.Entry(parent).State = EntityState.Modified;
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Update_flags_a_collection_navigation_of_a_disconnected_entity_only_if_nullable(bool nullable)
+    {
+        using DbContext context = nullable
+            ? new NullableCollectionNavigationContext()
+            : new NotNullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = null };
+
+        context.Update(parent);
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.Equal(nullable, NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Flag_of_a_nullable_collection_navigation_set_by_an_explicit_Modified_state_survives_DetectChanges()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = null };
+        context.Update(parent);
+
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
+    public void Setting_state_from_Modified_clears_the_flag_of_a_nullable_collection_navigation(EntityState state)
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = null };
+        context.Update(parent);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        context.Entry(parent).State = state;
+
+        Assert.Equal(state, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+        Assert.False(context.Entry(parent).Collection(p => p.Children!).IsModified);
+    }
+
+    [Fact]
+    public void Saving_an_explicitly_modified_entity_clears_the_flag_of_a_nullable_collection_navigation()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Add(parent);
+        context.SaveChanges();
+
+        context.Entry(parent).State = EntityState.Modified;
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        context.SaveChanges();
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Setting_the_original_value_of_a_nullable_collection_navigation_to_null_detects_a_nullness_change(bool startNull)
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = startNull ? null : [] };
+        context.Attach(parent);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        var entry = context.Entry(parent);
+        entry.GetInfrastructure().SetOriginalValue(entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, null);
+
+        // Setting the original value to match the current value is not a change.
+        Assert.Equal(startNull ? EntityState.Unchanged : EntityState.Modified, context.Entry(parent).State);
+        Assert.Equal(!startNull, NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Setting_the_original_value_of_a_nullable_collection_navigation_does_not_unmodify_a_detected_change()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        var entry = context.Entry(parent);
+        entry.GetInfrastructure().SetOriginalValue(entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, null);
+
+        // Like for properties, changing the original value does not unmodify what was already modified.
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Setting_state_to_Unchanged_after_a_detected_nullness_change_is_not_detected_again()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [new NullableCollectionChild { Id = 2 }] };
+        context.Attach(parent);
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        context.Entry(parent).State = EntityState.Unchanged;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Detects_nullness_change_of_an_entity_with_more_original_values_than_fit_in_one_snapshot()
+    {
+        using var context = new ManyPropertiesNullableCollectionContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+        var entry = context.Entry(parent);
+        entry.Property<int>("P27").CurrentValue = 27;
+        entry.Property<int>("P27").OriginalValue = 27;
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+
+        // The original values are split across several snapshots, and the navigation starts the second one
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+        Assert.NotNull(((InternalEntityEntry)entry.GetInfrastructure()).GetOriginalValue(entry.Metadata.FindNavigation("Children")!));
+        Assert.Equal(27, entry.Property<int>("P27").OriginalValue);
+    }
+
+    private class ManyPropertiesNullableCollectionContext : NullableCollectionNavigationContext
+    {
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // With Id and Name, the navigation is the 31st original value
+            for (var i = 0; i < Snapshot.MaxGenericTypes - 2; i++)
+            {
+                modelBuilder.Entity<NullableCollectionParent>().Property<int>("P" + i);
+            }
+        }
+    }
+
+    [Fact]
+    public void Setting_state_to_Unchanged_rejects_a_nullness_change_like_a_property_change()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Name = "A", Children = null };
+        context.Attach(parent);
+
+        // Neither change has been detected yet
+        parent.Children = [];
+        parent.Name = "B";
+        context.Entry(parent).State = EntityState.Modified;
+        context.Entry(parent).State = EntityState.Unchanged;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal("A", parent.Name);
+        Assert.Null(parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Setting_an_Added_entity_with_a_nullness_change_to_Unchanged_accepts_the_change()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = null };
+        context.Add(parent);
+        parent.Children = [];
+        context.ChangeTracker.DetectChanges();
+
+        context.Entry(parent).State = EntityState.Unchanged;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.NotNull(parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Original_value_of_a_nullable_collection_navigation_is_not_a_copy_of_the_collection()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var children = new List<NullableCollectionChild> { new() { Id = 2 } };
+        var parent = new NullableCollectionParent { Id = 1, Children = children };
+        context.Attach(parent);
+
+        var entry = context.Entry(parent);
+        var original = entry.GetInfrastructure().GetOriginalValue(
+            entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!);
+
+        Assert.Same(children, original);
+    }
+
+    [Fact]
+    public void Detects_nullness_change_of_a_navigation_declared_on_a_base_type_for_a_derived_entity()
+    {
+        using var context = new DerivedNullableCollectionNavigationContext();
+        var parent = new DerivedNullableCollectionParent { Id = 1, Children = [], Extra = "X" };
+        context.Attach(parent);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Nullness_change_of_a_derived_entity_does_not_affect_its_other_properties()
+    {
+        using var context = new DerivedNullableCollectionNavigationContext();
+        var parent = new DerivedNullableCollectionParent { Id = 1, Children = [], Extra = "X" };
+        context.Attach(parent);
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+
+        var entry = context.Entry(parent);
+        Assert.False(entry.Property(p => p.Extra).IsModified);
+        Assert.False(entry.Property(p => p.Name).IsModified);
+    }
+
+    [Fact]
+    public void Changing_the_nullness_of_an_Added_entity_does_not_flag_the_navigation()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = null };
+        context.Add(parent);
+
+        parent.Children = [];
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Added, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Deleting_an_entity_with_a_detected_nullness_change_saves_without_error()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Add(parent);
+        context.SaveChanges();
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        context.Remove(parent);
+        context.SaveChanges();
+
+        Assert.Equal(EntityState.Detached, context.Entry(parent).State);
+    }
+
+    [Fact]
+    public void Ignores_nullness_change_on_a_Deleted_entity()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+        context.Entry(parent).State = EntityState.Deleted;
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Deleted, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Pending_change_from_null_to_empty_is_kept_by_a_second_DetectChanges()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = null };
+        context.Attach(parent);
+        parent.Children = [];
+        context.ChangeTracker.DetectChanges();
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        parent.Children = [new NullableCollectionChild { Id = 5 }];
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, false)]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, true)]
+    public void Handles_notification_of_nullable_collection_navigation_change_between_null_and_empty(
+        ChangeTrackingStrategy strategy,
+        bool startNull)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = startNull ? null : [] };
+        context.Attach(parent);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+
+        parent.Children = startNull ? [] : null;
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Handles_notification_of_replacing_a_nullable_collection_navigation_with_another_collection_as_no_nullness_change()
+    {
+        using var context = NotifyingNullableCollectionContext.Create(ChangeTrackingStrategy.ChangedNotifications);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        parent.Children = [new NotifyingNullableCollectionChild { Id = 2 }];
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, true)]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, false)]
+    public void Brings_in_elements_on_notification_of_a_populated_collection_assigned_to_a_nullable_collection_navigation(
+        ChangeTrackingStrategy strategy,
+        bool startNull)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var tracked = new NotifyingNullableCollectionChild { Id = 100 };
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = startNull ? null : [tracked] };
+        context.Attach(parent);
+
+        var child = new NotifyingNullableCollectionChild();
+        parent.Children = startNull ? [child] : [tracked, child];
+
+        Assert.Equal(EntityState.Added, context.Entry(child).State);
+        Assert.Equal(1, context.Entry(child).Property<int>("NotifyingNullableCollectionParentId").CurrentValue);
+        if (!startNull)
+        {
+            Assert.Equal(EntityState.Unchanged, context.Entry(tracked).State);
+        }
+
+        // Without original values, any assignment marks the navigation as modified
+        Assert.Equal(
+            startNull || strategy == ChangeTrackingStrategy.ChangingAndChangedNotifications,
+            NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        // Adding to the assigned collection is also tracked
+        var another = new NotifyingNullableCollectionChild();
+        parent.Children!.Add(another);
+        Assert.Equal(EntityState.Added, context.Entry(another).State);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, true)]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, false)]
+    public void Removes_elements_on_notification_of_a_populated_nullable_collection_navigation_being_replaced(
+        ChangeTrackingStrategy strategy,
+        bool toNull)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var removed = new NotifyingNullableCollectionChild { Id = 2 };
+        var kept = new NotifyingNullableCollectionChild { Id = 3 };
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = [removed, kept] };
+        context.Attach(parent);
+
+        parent.Children = toNull ? null : [kept];
+
+        // Like for snapshot change tracking, an owned element that is removed is deleted
+        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+        Assert.Equal(toNull ? EntityState.Deleted : EntityState.Unchanged, context.Entry(kept).State);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Removes_elements_on_notification_of_a_nullable_collection_navigation_replaced_more_than_once(
+        ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        var child = new NotifyingNullableCollectionChild();
+        parent.Children = [child];
+        Assert.Equal(EntityState.Added, context.Entry(child).State);
+
+        // The elements of the collection that is replaced aren't the ones the navigation had originally
+        parent.Children = null;
+        Assert.Equal(EntityState.Detached, context.Entry(child).State);
+        Assert.Single(context.ChangeTracker.Entries());
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, false)]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, true)]
+    public void Rejecting_a_nullness_change_on_notification_restores_the_elements_and_tracks_the_restored_collection(
+        ChangeTrackingStrategy strategy,
+        bool setUnchanged)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var child = new NotifyingNullableCollectionChild { Id = 2 };
+        var children = new ObservableHashSet<NotifyingNullableCollectionChild> { child };
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = children };
+        context.Attach(parent);
+
+        parent.Children = null;
+        Assert.Equal(EntityState.Deleted, context.Entry(child).State);
+
+        if (setUnchanged)
+        {
+            context.Entry(parent).State = EntityState.Unchanged;
+        }
+        else
+        {
+            context.Entry(parent).Collection(p => p.Children!).IsModified = false;
+        }
+
+        Assert.Same(children, parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        // Like an owned element that is removed and added back, the element is undeleted
+        Assert.Equal(EntityState.Modified, context.Entry(child).State);
+
+        var added = new NotifyingNullableCollectionChild();
+        children.Add(added);
+        Assert.Equal(EntityState.Added, context.Entry(added).State);
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Rejecting_a_nullness_change_restores_the_elements(bool setUnchanged)
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var child = new NullableCollectionChild { Id = 2 };
+        var children = new List<NullableCollectionChild> { child };
+        var parent = new NullableCollectionParent { Id = 1, Children = children };
+        context.Attach(parent);
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Deleted, context.Entry(child).State);
+
+        if (setUnchanged)
+        {
+            context.Entry(parent).State = EntityState.Unchanged;
+        }
+        else
+        {
+            context.Entry(parent).Collection(p => p.Children!).IsModified = false;
+        }
+
+        Assert.Same(children, parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        // Like an owned element that is removed and added back, the element is undeleted
+        Assert.Equal(EntityState.Modified, context.Entry(child).State);
+
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.Equal(EntityState.Modified, context.Entry(child).State);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Modified_flag_of_a_nullable_collection_whose_index_is_past_the_last_property_is_cleared(bool acceptChanges)
+    {
+        using var context = new ManyNullableCollectionsContext();
+        var parent = new ManyNullableCollectionsParent { Id = 1, First = [], Second = [], Third = [] };
+        context.Attach(parent);
+        var entry = context.Entry(parent);
+
+        // With a single property, the flag of the last navigation is stored in a slot that no property uses
+        Assert.Equal(1, entry.Metadata.GetProperties().Count());
+        parent.Third = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(entry.Collection(p => p.Third!).IsModified);
+
+        if (acceptChanges)
+        {
+            context.ChangeTracker.AcceptAllChanges();
+            Assert.Null(parent.Third);
+        }
+        else
+        {
+            entry.State = EntityState.Unchanged;
+            Assert.NotNull(parent.Third);
+        }
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+        Assert.False(entry.Collection(p => p.Third!).IsModified);
+
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Unchanged, entry.State);
+    }
+
+    private class ManyNullableCollectionsParent
+    {
+        public int Id { get; set; }
+        public List<NullableCollectionChild>? First { get; set; }
+        public List<NullableCollectionChild>? Second { get; set; }
+        public List<NullableCollectionChild>? Third { get; set; }
+    }
+
+    private class ManyNullableCollectionsContext : DbContext
+    {
+        public ManyNullableCollectionsContext()
+            => ChangeTracker.AutoDetectChangesEnabled = false;
+
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ReplaceService<IModelValidator, ModelValidator>();
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<ManyNullableCollectionsParent>(b =>
+            {
+                b.OwnsMany(p => p.First);
+                b.OwnsMany(p => p.Second);
+                b.OwnsMany(p => p.Third);
+                b.Navigation(p => p.First).IsRequired(false);
+                b.Navigation(p => p.Second).IsRequired(false);
+                b.Navigation(p => p.Third).IsRequired(false);
+            });
+    }
+
+    [Fact]
+    public void Nullness_change_is_not_reported_as_modified_for_an_entity_that_is_not_Modified()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        // Like for properties, the navigation of a deleted entity isn't modified
+        context.Remove(parent);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+        Assert.False(context.Entry(parent).Collection(p => p.Children!).IsModified);
+
+        // Nor is the navigation of an added entity
+        var added = new NullableCollectionParent { Id = 2, Children = null };
+        context.Add(added);
+        context.Entry(added).Collection(p => p.Children!).IsModified = true;
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, added));
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Update_flags_a_notifying_nullable_collection_navigation_of_a_disconnected_entity(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = null };
+
+        context.Update(parent);
+
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Saving_a_notifying_nullness_change_resets_the_baseline(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = [] };
+        context.Add(parent);
+        context.SaveChanges();
+
+        parent.Children = null;
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+        context.SaveChanges();
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        parent.Children = [];
+        Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
     private class Category
     {
         public int Id { get; set; }

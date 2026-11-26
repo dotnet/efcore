@@ -3396,6 +3396,43 @@ public partial class EntityTypeTest
 #pragma warning restore 67
     }
 
+    [Theory]
+    [InlineData(true, 1)]
+    [InlineData(false, 0)]
+    public void NullableCollectionCount_counts_nullable_collection_navigations_including_inherited_ones(bool nullable, int expectedCount)
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<NullableCollectionParent>().HasMany(p => p.Children).WithOne();
+        modelBuilder.Entity<NullableCollectionParent>().Navigation(p => p.Children).IsRequired(!nullable);
+        modelBuilder.Entity<DerivedNullableCollectionParent>();
+
+        // The in-memory provider rejects nullable collection navigations, but the model metadata is what is tested here.
+        var model = modelBuilder.FinalizeModel(designTime: false, skipValidation: true);
+        var runtimeModel = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IModel>();
+
+        var parent = runtimeModel.FindEntityType(typeof(NullableCollectionParent))!;
+        Assert.Equal(nullable, parent.FindNavigation(nameof(NullableCollectionParent.Children))!.IsNullable);
+        Assert.Equal(expectedCount, ((IRuntimeEntityType)parent).NullableCollectionCount);
+        Assert.Equal(
+            expectedCount,
+            ((IRuntimeEntityType)runtimeModel.FindEntityType(typeof(DerivedNullableCollectionParent))!).NullableCollectionCount);
+        Assert.Equal(
+            0, ((IRuntimeEntityType)runtimeModel.FindEntityType(typeof(NullableCollectionChild))!).NullableCollectionCount);
+    }
+
+    private class NullableCollectionParent
+    {
+        public int Id { get; set; }
+        public List<NullableCollectionChild>? Children { get; set; }
+    }
+
+    private class DerivedNullableCollectionParent : NullableCollectionParent;
+
+    private class NullableCollectionChild
+    {
+        public int Id { get; set; }
+    }
+
     private class AnotherEntity
     {
         public int Id { get; set; }

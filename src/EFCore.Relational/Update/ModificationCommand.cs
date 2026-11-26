@@ -684,8 +684,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             var modifiedMembers = entry.EntityType.GetFlattenedProperties().Where(entry.IsModified).ToList();
 
-            // Patch one scalar at a time, except for complex collections and null changes of complex properties
+            // Patch one scalar at a time, except for complex collections, null changes of complex properties
+            // and null changes of nullable collections
             if (modifiedMembers.Count == 1
+                && !HasModifiedNullableCollection(entry)
                 && !entry.EntityType.GetFlattenedComplexProperties().Any(cp => cp.IsCollection && entry.IsModified(cp))
                 && GetComplexPropertyPath(entry, modifiedMembers[0]) is { } complexPropertyPath)
             {
@@ -711,6 +713,28 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             // parent entity got deleted, no need to do any json-specific processing
             return currentEntry?.EntityState == EntityState.Deleted ? null : result;
+
+            // A change between null and a non-null collection can't be expressed as an update of a single property
+            static bool HasModifiedNullableCollection(IUpdateEntry entry)
+            {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                if (entry.EntityType is IRuntimeEntityType { NullableCollectionCount: 0 })
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                {
+                    return false;
+                }
+
+                foreach (var navigation in entry.EntityType.GetNavigations())
+                {
+                    if (navigation.IsNullable
+                        && entry.IsModified(navigation))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
 
             // The complex properties containing the property, outermost first, or null if any of them is or was null
             static List<IComplexProperty>? GetComplexPropertyPath(IUpdateEntry entry, IProperty property)
@@ -812,7 +836,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
                              .Where(n => n.IsCollection
                                  && n.TargetEntityType.IsMappedToJson()
-                                 && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
+                                 && entry.GetCurrentValue(n) as IEnumerable is var collection
+                                 && (collection?.Any() == false
+                                     || (n.IsNullable
+                                         // A replacement of an entity with the same key doesn't have its own modified flag.
+                                         && (entry.IsModified(n)
+                                             || (entry.SharedIdentityEntry != null && collection is null))))))
                 {
                     var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
                     var jsonCollectionColumn =

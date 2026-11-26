@@ -2610,20 +2610,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
+        ///     The collection navigation '{entityType}.{navigation}' is configured using 'IsRequired', but it is not owned. For a collection navigation, 'IsRequired' configures whether an owned collection can be null as distinct from empty. To configure whether the relationship is required, call 'IsRequired' on the relationship instead, for example 'HasMany(...).WithOne(...).IsRequired()'.
+        /// </summary>
+        public static string NonOwnedCollectionNavigationIsRequired(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NonOwnedCollectionNavigationIsRequired", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     The foreign key {foreignKeyProperties} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.
         /// </summary>
         public static string NonUniqueRequiredDependentForeignKey(object? foreignKeyProperties, object? declaringEntityType)
             => string.Format(
                 GetString("NonUniqueRequiredDependentForeignKey", nameof(foreignKeyProperties), nameof(declaringEntityType)),
                 foreignKeyProperties, declaringEntityType);
-
-        /// <summary>
-        ///     '{principalEntityType}.{principalNavigation}' cannot be configured as required since it was configured as a collection.
-        /// </summary>
-        public static string NonUniqueRequiredDependentNavigation(object? principalEntityType, object? principalNavigation)
-            => string.Format(
-                GetString("NonUniqueRequiredDependentNavigation", nameof(principalEntityType), nameof(principalNavigation)),
-                principalEntityType, principalNavigation);
 
         /// <summary>
         ///     A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}', Entity Framework requires that a parameterless constructor be declared.
@@ -2732,12 +2732,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, propertyType);
 
         /// <summary>
+        ///     The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but it has no setter or backing field that can be used to set it to null. Add a setter or a backing field, or configure the navigation as required using 'IsRequired()'.
+        /// </summary>
+        public static string NullableCollectionNavigationNoSetter(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NullableCollectionNavigationNoSetter", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.
         /// </summary>
         public static string NullableKey(object? entityType, object? property)
             => string.Format(
                 GetString("NullableKey", nameof(entityType), nameof(property)),
                 entityType, property);
+
+        /// <summary>
+        ///     The navigation '{entityType}.{navigation}' is configured to distinguish null from an empty collection, but it is not a collection navigation. Remove this configuration.
+        /// </summary>
+        public static string NullableNavigationNotCollection(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NullableNavigationNotCollection", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
 
         /// <summary>
         ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. See https://aka.ms/efcore-docs-complex-types for more information.

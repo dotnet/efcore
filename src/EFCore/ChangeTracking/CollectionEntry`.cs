@@ -92,11 +92,7 @@ public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
     ///     </para>
     /// </remarks>
     public new virtual IQueryable<TRelatedEntity> Query()
-    {
-        InternalEntityEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
-
-        return (IQueryable<TRelatedEntity>)base.Query();
-    }
+        => (IQueryable<TRelatedEntity>)base.Query();
 
     /// <summary>
     ///     The <see cref="EntityEntry{T}" /> of an entity this navigation targets.

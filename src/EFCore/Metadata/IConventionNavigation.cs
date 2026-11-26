@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -22,6 +24,24 @@ public interface IConventionNavigation : IReadOnlyNavigation, IConventionNavigat
     /// </summary>
     /// <exception cref="InvalidOperationException">If the property has been removed from the model.</exception>
     new IConventionNavigationBuilder Builder { get; }
+
+    /// <summary>
+    ///     Sets a value indicating whether this collection navigation can be <see langword="null" /> as distinct from empty.
+    /// </summary>
+    /// <param name="nullable">
+    ///     A value indicating whether the collection can be <see langword="null" />, or <see langword="null" /> to reset to the default.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    bool? SetIsNullable(bool? nullable, bool fromDataAnnotation = false)
+        => (bool?)SetOrRemoveAnnotation(CoreAnnotationNames.NullableCollection, nullable, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyNavigation.IsNullable" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyNavigation.IsNullable" />.</returns>
+    ConfigurationSource? GetIsNullableConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.NullableCollection)?.GetConfigurationSource();
 
     /// <summary>
     ///     Gets the type that this navigation property belongs to.
