@@ -2631,6 +2631,77 @@ PRAGMA foreign_keys = 1;
         public string? Name { get; set; }
     }
 
+    [Fact]
+    public virtual async Task Drop_table_with_foreign_key_cycle()
+    {
+        var context = CreateContext();
+        var serviceProvider = ((IInfrastructure<IServiceProvider>)context).Instance;
+        var migrationsSqlGenerator = serviceProvider.GetRequiredService<IMigrationsSqlGenerator>();
+        var modelDiffer = serviceProvider.GetRequiredService<IMigrationsModelDiffer>();
+        var migrationsCommandExecutor = serviceProvider.GetRequiredService<IMigrationCommandExecutor>();
+        var connection = serviceProvider.GetRequiredService<IRelationalConnection>();
+        var databaseModelFactory = serviceProvider.GetRequiredService<IDatabaseModelFactory>();
+        var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
+
+        var sourceModelBuilder = Fixture.TestHelpers.CreateConventionBuilder();
+        sourceModelBuilder.Entity(
+            "Revision", e =>
+            {
+                e.Property<int>("Id");
+                e.Property<int>("OwnerId");
+                e.HasKey("Id");
+                e.HasOne("Owner").WithMany().HasForeignKey("OwnerId");
+            });
+        sourceModelBuilder.Entity(
+            "Owner", e =>
+            {
+                e.Property<int>("Id");
+                e.Property<int>("CurrentRevisionId");
+                e.HasKey("Id");
+                e.HasOne("Revision").WithMany().HasForeignKey("CurrentRevisionId");
+            });
+
+        var sourceModel = modelRuntimeInitializer.Initialize(
+            (IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
+
+        var targetModelBuilder = Fixture.TestHelpers.CreateConventionBuilder();
+        var targetModel = modelRuntimeInitializer.Initialize(
+            (IModel)targetModelBuilder.Model, designTime: true, validationLogger: null);
+
+        var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
+
+        try
+        {
+            await migrationsCommandExecutor.ExecuteNonQueryAsync(
+                migrationsSqlGenerator.Generate(
+                    modelDiffer.GetDifferences(null, sourceModel.GetRelationalModel()),
+                    sourceModel),
+                connection);
+
+            await context.Database.ExecuteSqlRawAsync(
+                """
+PRAGMA foreign_keys = 0;
+INSERT INTO "Owner" ("Id", "CurrentRevisionId") VALUES (1, 1);
+INSERT INTO "Revision" ("Id", "OwnerId") VALUES (1, 1);
+PRAGMA foreign_keys = 1;
+""");
+
+            await migrationsCommandExecutor.ExecuteNonQueryAsync(
+                migrationsSqlGenerator.Generate(operations, targetModel),
+                connection);
+
+            var scaffoldedModel = databaseModelFactory.Create(
+                context.Database.GetDbConnection(),
+                new DatabaseModelFactoryOptions());
+
+            Assert.Empty(scaffoldedModel.Tables);
+        }
+        finally
+        {
+            await Fixture.TestStore.CleanAsync(context);
+        }
+    }
+
     protected virtual async Task AssertNotSupportedAsync(Func<Task> action, string? message = null)
     {
         var ex = await Assert.ThrowsAsync<NotSupportedException>(action);

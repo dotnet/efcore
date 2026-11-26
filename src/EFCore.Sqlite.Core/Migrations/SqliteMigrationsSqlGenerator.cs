@@ -275,6 +275,14 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 skippedRebuilds.Add(key);
 
+                if (operations.OfType<DropTableOperation>().Any(d => d.Name == key.Table && d.Schema == key.Schema))
+                {
+                    foreach (var operationToReplace in rebuildContext.OperationsToReplace)
+                    {
+                        operations.Remove(operationToReplace);
+                    }
+                }
+
                 continue;
             }
 
@@ -454,6 +462,40 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             rebuilds.Remove(skippedRebuild);
         }
+
+        var operationsWithPragmas = new List<MigrationOperation>();
+        var inDropTable = false;
+        for (var i = 0; i < operations.Count; i++)
+        {
+            var op = operations[i];
+            if (op is DropTableOperation)
+            {
+                if (!inDropTable)
+                {
+                    operationsWithPragmas.Add(new SqlOperation { Sql = "PRAGMA foreign_keys = 0;", SuppressTransaction = true });
+                    inDropTable = true;
+                }
+
+                operationsWithPragmas.Add(op);
+            }
+            else
+            {
+                if (inDropTable)
+                {
+                    operationsWithPragmas.Add(new SqlOperation { Sql = "PRAGMA foreign_keys = 1;", SuppressTransaction = true });
+                    inDropTable = false;
+                }
+
+                operationsWithPragmas.Add(op);
+            }
+        }
+
+        if (inDropTable)
+        {
+            operationsWithPragmas.Add(new SqlOperation { Sql = "PRAGMA foreign_keys = 1;", SuppressTransaction = true });
+        }
+
+        operations = operationsWithPragmas;
 
         if (rebuilds.Any())
         {
