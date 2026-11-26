@@ -153,6 +153,15 @@ public class NavigationAttributeConventionTest
 
         Assert.False(relationshipBuilder.Metadata.IsRequired);
 
+        // Whether the collection is owned is only known once the model is built
+        Assert.Empty(ListLoggerFactory.Log);
+        new RequiredNavigationAttributeConvention(CreateDependencies()).ProcessModelFinalizing(
+            principalEntityTypeBuilder.ModelBuilder,
+            new ConventionContext<IConventionModelBuilder>(principalEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
+
+        Assert.False(relationshipBuilder.Metadata.IsRequired);
+        Assert.False(((IReadOnlyNavigation)navigation!).IsNullable);
+
         var logEntry = ListLoggerFactory.Log.Single();
         Assert.Equal(LogLevel.Debug, logEntry.Level);
         Assert.Equal(

@@ -160,7 +160,9 @@ public class InternalNavigationBuilder :
                 : foreignKey.Builder.CanSetIsRequiredDependent(required, configurationSource))
             : Metadata.IsOnDependent
                 ? foreignKey.Builder.CanSetIsRequired(required, configurationSource)
-                : CanSetIsNullable(required.HasValue ? !required : null, configurationSource);
+                // Only owned collections can be stored inline with their owner, so conventions don't configure others
+                : (configurationSource == ConfigurationSource.Explicit || foreignKey.IsOwnership)
+                && CanSetIsNullable(required.HasValue ? !required : null, configurationSource);
     }
 
     // For a collection navigation, being optional means that null is a value that is different from an empty collection

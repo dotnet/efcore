@@ -158,6 +158,11 @@ public class InternalNavigationBuilderTest
     public void Can_only_override_lower_or_equal_source_IsRequired_on_collection_navigation()
     {
         var builder = CreateInternalNavigationBuilder();
+
+        // Only owned collections can be configured by conventions or data annotations
+        builder = builder.Metadata.ForeignKey.Builder.IsOwnership(true, ConfigurationSource.Explicit)!
+            .Metadata.PrincipalToDependent!.Builder;
+
         IConventionNavigation metadata = builder.Metadata;
 
         Assert.False(metadata.IsNullable);
@@ -188,7 +193,6 @@ public class InternalNavigationBuilderTest
 
         Assert.False(metadata.IsNullable);
         Assert.Null(metadata.GetIsNullableConfigurationSource());
-        Assert.False(metadata.ForeignKey.IsRequired);
     }
 
     [Fact]

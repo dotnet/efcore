@@ -1962,7 +1962,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         [InlineData(CollectionNullability.Nullable, false, null, false)]
         [InlineData(CollectionNullability.Nullable, true, true, false)]
         [InlineData(CollectionNullability.NonNullable, true, false, true)]
-        public virtual void Owned_collection_mapped_to_json_can_be_null_when_it_is_annotated_as_nullable(
+        [InlineData(CollectionNullability.Oblivious, true, false, true)]
+        [InlineData(CollectionNullability.RequiredAttribute, true, null, false)]
+        public virtual void Owned_collection_nullability_is_configured_by_annotation_and_IsRequired(
             CollectionNullability nullability,
             bool mapToJson,
             bool? required,
@@ -1984,6 +1986,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 case CollectionNullability.GetterOnly:
                     // A stored null couldn't be materialized without a setter or a backing field
                     Configure(modelBuilder.Entity<GetterOnlyJsonItemsOwner>(), e => e.Items);
+                    break;
+                case CollectionNullability.RequiredAttribute:
+                    Configure(modelBuilder.Entity<RequiredJsonItemsOwner>(), e => e.Items);
                     break;
             }
 
@@ -2039,16 +2044,115 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         [Fact]
         public virtual void Collection_that_is_not_owned_is_not_nullable_by_convention()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateModelBuilder(c => c.Conventions.Add(_ => new MakeAllNavigationsOptionalConvention()));
 
-            modelBuilder.Entity<NullableJsonItemsOwner>().Ignore(e => e.Items);
             modelBuilder.Entity<JsonItemsForeignKeyOwner>().HasMany(e => e.Children).WithOne();
 
             var model = modelBuilder.FinalizeModel();
 
+            // Conventions can only configure owned collections, which can be stored inline with their owner
             Assert.False(
                 model.FindEntityType(typeof(JsonItemsForeignKeyOwner))!.FindNavigation(nameof(JsonItemsForeignKeyOwner.Children))!
                     .IsNullable);
+        }
+
+        [Fact]
+        public virtual void Owned_collection_nested_in_json_can_be_configured_as_optional()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonItemsReferenceOwner>().OwnsOne(
+                e => e.Reference, b =>
+                {
+                    b.ToJson();
+                    b.OwnsMany(r => r.Items);
+                    b.OwnsMany(r => r.NullableItems);
+                    b.Navigation(r => r.Items).IsRequired(false);
+                    b.Navigation(r => r.NullableItems).IsRequired();
+                });
+            modelBuilder.Ignore<JsonItemsDerivedOwner>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var reference = model.FindEntityType(typeof(JsonItemsReferenceOwner))!
+                .FindNavigation(nameof(JsonItemsReferenceOwner.Reference))!.TargetEntityType;
+            Assert.True(reference.FindNavigation(nameof(JsonItemsReference.Items))!.IsNullable);
+            Assert.False(reference.FindNavigation(nameof(JsonItemsReference.NullableItems))!.IsNullable);
+        }
+
+        [Fact]
+        public virtual void Required_attribute_on_owned_collection_is_not_ignored()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<RequiredJsonItemsOwner>().OwnsMany(e => e.Items, b => b.ToJson());
+
+            var model = modelBuilder.FinalizeModel();
+
+            var navigation = model.FindEntityType(typeof(RequiredJsonItemsOwner))!.FindNavigation(nameof(RequiredJsonItemsOwner.Items))!;
+            Assert.False(navigation.IsNullable);
+            Assert.Equal(
+                ConfigurationSource.DataAnnotation, ((IConventionNavigation)navigation).GetIsNullableConfigurationSource());
+            Assert.DoesNotContain(
+                modelBuilder.ModelLoggerFactory.Log, l => l.Id == CoreEventId.RequiredAttributeOnCollection);
+        }
+
+        [Fact]
+        public virtual void Optional_collection_that_is_not_mapped_to_json_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonItemsForeignKeyOwner>().HasMany(e => e.Children).WithOne();
+            modelBuilder.Entity<JsonItemsForeignKeyOwner>().Navigation(e => e.Children).IsRequired(false);
+
+            Assert.Equal(
+                RelationalStrings.NullableCollectionNavigationNotMappedToJson(
+                    nameof(JsonItemsForeignKeyOwner.Children), nameof(JsonItemsForeignKeyOwner)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+        }
+
+        [Fact]
+        public virtual void Required_collection_that_is_not_mapped_to_json_is_allowed()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonItemsForeignKeyOwner>().HasMany(e => e.Children).WithOne();
+            modelBuilder.Entity<JsonItemsForeignKeyOwner>().Navigation(e => e.Children).IsRequired();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var navigation = model.FindEntityType(typeof(JsonItemsForeignKeyOwner))!
+                .FindNavigation(nameof(JsonItemsForeignKeyOwner.Children))!;
+            Assert.False(navigation.IsNullable);
+            Assert.False(navigation.ForeignKey.IsRequired);
+        }
+
+        [Fact]
+        public virtual void Optional_getter_only_collection_without_backing_field_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<GetterOnlyJsonItemsOwner>().OwnsMany(e => e.Items, b => b.ToJson());
+            modelBuilder.Entity<GetterOnlyJsonItemsOwner>().Navigation(e => e.Items).IsRequired(false);
+
+            Assert.Equal(
+                CoreStrings.NullableCollectionNavigationNoSetter(
+                    nameof(GetterOnlyJsonItemsOwner.Items), nameof(GetterOnlyJsonItemsOwner)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+        }
+
+        private class MakeAllNavigationsOptionalConvention : IModelFinalizingConvention
+        {
+            public void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            {
+                foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+                {
+                    foreach (var navigation in entityType.GetDeclaredNavigations())
+                    {
+                        navigation.Builder.IsRequired(false);
+                    }
+                }
+            }
         }
     }
 
@@ -2057,7 +2161,16 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         Nullable,
         NonNullable,
         Oblivious,
-        GetterOnly
+        GetterOnly,
+        RequiredAttribute
+    }
+
+    protected class RequiredJsonItemsOwner
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public List<JsonItem>? Items { get; set; }
     }
 
     protected class NullableJsonItemsOwner

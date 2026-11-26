@@ -2242,6 +2242,7 @@ public class InternalEntityTypeBuilderTest
     }
 
     [Theory]
+    [InlineData(ConfigurationSource.Explicit)]
     [InlineData(ConfigurationSource.DataAnnotation)]
     [InlineData(ConfigurationSource.Convention)]
     public void Collection_navigation_requiredness_is_preserved_when_relationship_is_rebuilt(ConfigurationSource configurationSource)
@@ -2250,7 +2251,7 @@ public class InternalEntityTypeBuilderTest
         var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!;
         var key = principalEntityBuilder.PrimaryKey(
             [Customer.IdProperty, Customer.UniqueProperty], ConfigurationSource.Convention)!;
-        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)!;
 
         var fk = dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata,
@@ -2263,6 +2264,8 @@ public class InternalEntityTypeBuilderTest
                 dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention)!.Metadata
             ], ConfigurationSource.Convention)!
             .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.Convention)!
+            // Only owned collections can be configured by conventions or data annotations
+            .IsOwnership(true, ConfigurationSource.Explicit)!
             .Metadata;
         var oldNavigation = fk.PrincipalToDependent!;
         Assert.NotNull(oldNavigation.Builder.IsRequired(false, configurationSource));

@@ -106,6 +106,17 @@ public static class PropertyBaseExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static bool HasMaterializationSetter(this IPropertyBase propertyBase)
+        // A collection without a setter or a field can be materialized by adding to it, but it can't be set to null
+        => propertyBase.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfo, out _)
+            && memberInfo != null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public static bool TryGetMemberInfo(
         this IPropertyBase propertyBase,
         bool forMaterialization,

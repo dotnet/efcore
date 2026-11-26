@@ -25,20 +25,18 @@ public class NullableJsonCollectionConvention(ProviderConventionSetBuilderDepend
         {
             if (!entityType.IsMappedToJson()
                 || entityType.FindOwnership() is not { PrincipalToDependent: { IsCollection: true } navigation }
-                || !navigation.Builder.CanSetIsRequired(false))
+                || (navigation.PropertyInfo ?? (MemberInfo?)navigation.FieldInfo) is not { } memberInfo)
             {
                 continue;
             }
 
-            var memberInfo = navigation.PropertyInfo ?? (MemberInfo?)navigation.FieldInfo;
-            if (memberInfo != null
+            if (navigation.Builder.CanSetIsRequired(false)
                 && TryGetNullabilityInfo(modelBuilder, memberInfo, out var nullabilityInfo)
                 && nullabilityInfo.ReadState == NullabilityState.Nullable
                 // A stored null can only be materialized if the navigation can be set to null
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                && ((IPropertyBase)navigation).TryGetMemberInfo(forMaterialization: true, forSet: true, out var setter, out _)
+                && ((IPropertyBase)navigation).HasMaterializationSetter())
 #pragma warning restore EF1001 // Internal EF Core API usage.
-                && setter != null)
             {
                 navigation.Builder.IsRequired(false);
             }

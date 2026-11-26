@@ -16,7 +16,8 @@ public class RequiredNavigationAttributeConvention :
     NavigationAttributeConventionBase<RequiredAttribute>,
     INavigationAddedConvention,
     ISkipNavigationAddedConvention,
-    IForeignKeyPrincipalEndChangedConvention
+    IForeignKeyPrincipalEndChangedConvention,
+    IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RequiredNavigationAttributeConvention" />.
@@ -66,7 +67,7 @@ public class RequiredNavigationAttributeConvention :
         var foreignKey = navigation.ForeignKey;
         if (navigation.IsCollection)
         {
-            Dependencies.Logger.RequiredAttributeOnCollection(navigation);
+            // Whether the collection is owned is only known once the model is built, see ProcessModelFinalizing
             return;
         }
 
@@ -77,6 +78,26 @@ public class RequiredNavigationAttributeConvention :
         else
         {
             foreignKey.Builder.IsRequiredDependent(true, fromDataAnnotation: true);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+        {
+            foreach (var navigation in entityType.GetDeclaredNavigations())
+            {
+                if (navigation.IsCollection
+                    && GetAttributes<RequiredAttribute>(entityType, navigation).Any()
+                    // For an owned collection, it means that the collection can't be null as distinct from empty
+                    && navigation.Builder.IsRequired(true, fromDataAnnotation: true) == null)
+                {
+                    Dependencies.Logger.RequiredAttributeOnCollection(navigation);
+                }
+            }
         }
     }
 
