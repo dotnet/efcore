@@ -25,12 +25,14 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
         { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.IsEmpty))!, "IsEmpty" },
         { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.IsSimple))!, "IsSimple" },
         { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.IsValid))!, "IsValid" },
-        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.Length))!, "GLength" },
         { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.NumGeometries))!, "NumGeometries" },
         { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.NumPoints))!, "NumPoints" },
         { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.PointOnSurface))!, "PointOnSurface" },
         { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.SRID))!, "SRID" }
     };
+
+    private static readonly MemberInfo Length
+        = typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.Length))!;
 
     private static readonly MemberInfo GeometryType
         = typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.GeometryType))!;
@@ -84,6 +86,46 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[1],
                         returnType);
+            }
+
+            if (Equals(member, Length))
+            {
+                return _sqlExpressionFactory.Function(
+                    "GLength",
+                    [
+                        typeof(Polygon).IsAssignableFrom(instance.Type)
+                        || typeof(MultiPolygon).IsAssignableFrom(instance.Type)
+                            ? _sqlExpressionFactory.Function(
+                                "Boundary",
+                                [instance],
+                                nullable: true,
+                                argumentsPropagateNullability: Statics.TrueArrays[1],
+                                typeof(Geometry))
+                            : typeof(GeometryCollection).IsAssignableFrom(instance.Type)
+                            || instance.Type == typeof(Geometry)
+                                ? _sqlExpressionFactory.Case(
+                                    _sqlExpressionFactory.Function(
+                                        "Dimension",
+                                        [instance],
+                                        nullable: true,
+                                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                                        typeof(int)),
+                                    [
+                                        new CaseWhenClause(
+                                            _sqlExpressionFactory.Constant(2),
+                                            _sqlExpressionFactory.Function(
+                                                "Boundary",
+                                                [instance],
+                                                nullable: true,
+                                                argumentsPropagateNullability: Statics.TrueArrays[1],
+                                                typeof(Geometry)))
+                                    ],
+                                    instance)
+                                : instance
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    returnType);
             }
 
             if (Equals(member, GeometryType))

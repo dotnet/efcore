@@ -717,6 +717,17 @@ FROM "LineStringEntity" AS "l"
 """);
     }
 
+    public override async Task Length_on_polygon(bool async)
+    {
+        await base.Length_on_polygon(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", GLength(Boundary("p"."Polygon")) AS "Length"
+FROM "PolygonEntity" AS "p"
+""");
+    }
+
     public override async Task M(bool async)
     {
         await base.M(async);
