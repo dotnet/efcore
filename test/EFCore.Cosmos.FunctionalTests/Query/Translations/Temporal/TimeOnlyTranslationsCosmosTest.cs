@@ -44,6 +44,73 @@ public class TimeOnlyTranslationsCosmosTest : TimeOnlyTranslationsTestBase<Basic
     public override Task IsBetween()
         => AssertTranslationFailed(base.IsBetween);
 
+    public override Task IsBetween_midnight(bool async)
+        => AssertTranslationFailed(() => base.IsBetween_midnight(async));
+
+    public override Task IsBetween_parameters(bool async, int range)
+        => AssertTranslationFailed(() => base.IsBetween_parameters(async, range));
+
+    public override Task IsBetween_boundaries(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IsBetween_boundaries(a);
+
+                AssertSql(
+                    """
+SELECT c["Id"], c["TimeOnly"]
+FROM root c
+""");
+            });
+
+    public override Task IsBetween_precision(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IsBetween_precision(a);
+
+                AssertSql(
+                    """
+SELECT c["Id"], c["TimeOnly"]
+FROM root c
+""");
+            });
+
+    public override Task IsBetween_negated(bool async)
+        => AssertTranslationFailed(() => base.IsBetween_negated(async));
+
+    public override Task IsBetween_nullable(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IsBetween_nullable(a);
+
+                AssertSql(
+                    """
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "c" : (c["TimeOnly"] != null),
+    "TimeOnly" : c["TimeOnly"],
+    "c0" : NOT((c["TimeOnly"] != null))
+}
+FROM root c
+""");
+            });
+
+    public override Task IsBetween_column_bounds(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IsBetween_column_bounds(a);
+
+                AssertSql(
+                    """
+SELECT c["Id"], c["TimeOnly"]
+FROM root c
+""");
+            });
+
     public override async Task Subtract()
     {
         // See #35311

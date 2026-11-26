@@ -8,6 +8,7 @@ using EntityWithPrimitiveCollection = Microsoft.EntityFrameworkCore.Query.Precom
 using JsonBranch = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.JsonBranch;
 using JsonRoot = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.JsonRoot;
 using Post = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.Post;
+using TimeSlot = Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase.TimeSlot;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -101,6 +102,10 @@ public abstract class PrecompiledQueryRelationalFixture
         context.EntitiesWithPrimitiveCollection.AddRange(
             new EntityWithPrimitiveCollection { Id = 1, Tags = ["a", "b"] },
             new EntityWithPrimitiveCollection { Id = 2, Tags = ["x", "y"] });
+        context.TimeSlots.AddRange(
+            new TimeSlot { Id = 1, Time = new TimeOnly(23, 0) },
+            new TimeSlot { Id = 2, Time = new TimeOnly(15, 0) },
+            new TimeSlot { Id = 3, Time = new TimeOnly(1, 0) });
         await context.SaveChangesAsync();
 
         // Overwrite the second entity's collection column with the JSON 'null' token (as legacy/external data might),

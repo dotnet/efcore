@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -25,6 +26,37 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         RelationalParameterBasedSqlProcessorParameters parameters)
         : base(dependencies, parameters)
     {
+    }
+
+    /// <inheritdoc />
+    protected override SqlExpression VisitSqlBinary(
+        SqlBinaryExpression sqlBinaryExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        if (sqlBinaryExpression is
+            {
+                OperatorType: ExpressionType.GreaterThan or ExpressionType.LessThanOrEqual,
+                Left: SqlParameterExpression
+                { TypeMapping: SqliteTimeOnlyTypeMapping { Converter: null, StoreType: "TEXT", DbType: System.Data.DbType.Time } } left,
+                Right: SqlParameterExpression
+                { TypeMapping: SqliteTimeOnlyTypeMapping { Converter: null, StoreType: "TEXT", DbType: System.Data.DbType.Time } } right
+            }
+            && !ParametersDecorator.IsNull(left.Name)
+            && !ParametersDecorator.IsNull(right.Name))
+        {
+            // Specialize the wrapping branch without caching SQL that depends on parameter values.
+            var values = ParametersDecorator.GetAndDisableCaching();
+            if (values[left.Name] is TimeOnly start && values[right.Name] is TimeOnly end)
+            {
+                nullable = false;
+                return Dependencies.SqlExpressionFactory.Constant(
+                    sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan ? start > end : start <= end,
+                    sqlBinaryExpression.TypeMapping);
+            }
+        }
+
+        return base.VisitSqlBinary(sqlBinaryExpression, allowOptimizedExpansion, out nullable);
     }
 
     /// <summary>

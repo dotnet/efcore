@@ -1546,11 +1546,30 @@ Assert.Equal(new[] { "a", "b" }, tags[0]);
 Assert.Null(tags[1]);
 """);
 
+    [Fact]
+    public virtual Task TimeOnly_IsBetween()
+        => Test(
+            """
+foreach (var range in new[]
+{
+    (new TimeOnly(22, 0), new TimeOnly(2, 0), new[] { 1, 3 }),
+    (new TimeOnly(14, 0), new TimeOnly(16, 0), new[] { 2 }),
+    (new TimeOnly(14, 0), new TimeOnly(14, 0), Array.Empty<int>())
+})
+{
+    var start = range.Item1;
+    var end = range.Item2;
+    var ids = await context.TimeSlots.Where(t => t.Time.IsBetween(start, end)).OrderBy(t => t.Id).Select(t => t.Id).ToArrayAsync();
+    Assert.Equal(range.Item3, ids);
+}
+""");
+
     public class PrecompiledQueryContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; } = null!;
         public DbSet<Post> Posts { get; set; } = null!;
         public DbSet<EntityWithPrimitiveCollection> EntitiesWithPrimitiveCollection { get; set; } = null!;
+        public DbSet<TimeSlot> TimeSlots { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1565,6 +1584,7 @@ Assert.Null(tags[1]);
             modelBuilder.Entity<Blog>().HasMany(x => x.Posts).WithOne(x => x.Blog).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Post>().Property(x => x.Id).ValueGeneratedNever();
             modelBuilder.Entity<EntityWithPrimitiveCollection>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<TimeSlot>().Property(x => x.Id).ValueGeneratedNever();
         }
     }
 
@@ -1670,6 +1690,12 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         // An array (rather than List<T>) is used so entity materialization assigns the collection directly instead of
         // going through the PopulateList optimization (which is unrelated to the JSON null-token handling under test).
         public string[]? Tags { get; set; }
+    }
+
+    public class TimeSlot
+    {
+        public int Id { get; set; }
+        public TimeOnly Time { get; set; }
     }
 
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
