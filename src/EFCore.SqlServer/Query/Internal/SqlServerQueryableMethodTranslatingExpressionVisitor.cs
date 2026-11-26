@@ -268,6 +268,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
         select.SetTables([fullTextTableFunction]);
+        select.ClearPredicate();
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         var keyProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(FullTextSearchResult<int>.Key))!);
