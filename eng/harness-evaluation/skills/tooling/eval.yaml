@@ -52,6 +52,49 @@ stimuli:
       - type: token-budget
         config:
           max: 1000000
+  - name: tooling-deployment-regression-coverage
+    prompt: |-
+      A customer application has separate startup, database-layer, and migrations projects. Generated model/query files appear during development, but the published application does not consistently use them. The application is also deployed with NativeAOT. Inspect the staged repository inputs and write tooling-regression-plan.md describing the automated regression coverage and validation you would add. Do not edit product source.
+    constraints: *short_constraints
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Tasks/buildTransitive/Microsoft.EntityFrameworkCore.Tasks.props
+          dest: src/EFCore.Tasks/buildTransitive/Microsoft.EntityFrameworkCore.Tasks.props
+        - src: ../../../../src/EFCore.Tasks/buildTransitive/Microsoft.EntityFrameworkCore.Tasks.targets
+          dest: src/EFCore.Tasks/buildTransitive/Microsoft.EntityFrameworkCore.Tasks.targets
+        - src: ../../../../src/EFCore.Tasks/Tasks/Internal/OperationTaskBase.cs
+          dest: src/EFCore.Tasks/Tasks/Internal/OperationTaskBase.cs
+        - src: ../../../../src/dotnet-ef/RootCommand.cs
+          dest: src/dotnet-ef/RootCommand.cs
+        - src: ../../../../test/EFCore.Design.TestUtilities/ToolingTestProject.cs
+          dest: test/EFCore.Design.TestUtilities/ToolingTestProject.cs
+        - src: ../../../../test/EFCore.Design.TestUtilities/ToolingTestAssets.targets
+          dest: test/EFCore.Design.TestUtilities/ToolingTestAssets.targets
+        - src: ../../../../test/EFCore.Tasks.FunctionalTests/PublishGenerationTest.cs
+          dest: test/EFCore.Tasks.FunctionalTests/PublishGenerationTest.cs
+        - src: ../../../../test/EFCore.Tasks.FunctionalTests/NativeAotTest.cs
+          dest: test/EFCore.Tasks.FunctionalTests/NativeAotTest.cs
+        - src: ../../../../test/dotnet-ef.FunctionalTests/ProjectSelectionTest.cs
+          dest: test/dotnet-ef.FunctionalTests/ProjectSelectionTest.cs
+    rubric:
+      - The plan extends the owning functional projects and reuses EFCore.Design.TestUtilities rather than inventing a second runner or requiring EF packages/global-tool installation.
+      - It distinguishes startup, context, and migrations roles with acyclic references and consistent runtime/design-time migrations assembly selection.
+      - It validates compiled model/query use and resulting data behavior, not merely file existence or zero process exit.
+      - SDK-facing cases execute dotnet ef, preserve the configured DOTNET_ROOT, and distinguish prebuilt product references from references inside the sample graph.
+      - Native coverage publishes an xunit.v3.aot target and executes the native binary with nonzero executed test counts; an unpublished managed test run is insufficient.
+    graders:
+      - type: file-matches
+        config:
+          path: tooling-regression-plan.md
+          pattern: (?is)(?=[\s\S]*(EFCore\.Design\.TestUtilities|ToolingTestProject|ToolingTestAssemblyFixture))(?=[\s\S]*dotnet ef)(?=[\s\S]*(NativeAOT|Native AOT))(?=[\s\S]*publish)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
 scoring:
   timeout: ${SCORING_TIMEOUT=10m}
   weights:

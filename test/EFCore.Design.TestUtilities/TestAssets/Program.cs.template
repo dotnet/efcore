@@ -1,0 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using TestApp;
+
+if (args.Contains("migrate"))
+{
+    using var migrationContext = new BlogContext();
+    migrationContext.Database.Migrate();
+    Console.WriteLine("MIGRATED");
+    return;
+}
+
+Console.WriteLine("RESULT:" + await Queries.ReadNameAsync());
+using var context = new BlogContext();
+Console.WriteLine("MODEL:" + context.Model.GetType().FullName);
+Console.WriteLine("QUERY_COMPILATIONS:" + QueryProbe.CompilationCount);
+Console.WriteLine("MAX_LENGTH:" + context.Model.FindEntityType(typeof(Blog))!.FindProperty(nameof(Blog.Name))!.GetMaxLength());
+Console.WriteLine("NAME_NULLABLE:" + context.Model.FindEntityType(typeof(Blog))!.FindProperty(nameof(Blog.Name))!.IsNullable);

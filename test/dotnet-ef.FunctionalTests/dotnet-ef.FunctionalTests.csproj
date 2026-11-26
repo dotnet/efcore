@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Tools.FunctionalTests</AssemblyName>
+    <ImplicitUsings>true</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.EntityFrameworkCore.TestUtilities" />
+    <Using Include="Xunit" />
+    <ProjectReference Include="..\EFCore.Design.TestUtilities\EFCore.Design.TestUtilities.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\EFCore.Design.TestUtilities\ToolingTestAssets.targets" />
+
+</Project>

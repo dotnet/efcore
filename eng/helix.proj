@@ -68,6 +68,10 @@
     <MTPProject Remove="$(RepoRoot)/test/EFCore.NativeAotTests/*.csproj"/>
     <!-- API baseline tests require source files and cannot run in Helix -->
     <MTPProject Remove="$(RepoRoot)/test/EFCore.ApiBaseline.Tests/*.csproj"/>
+    <!-- SDK-driven tooling tests currently require the checkout and its prebuilt product graph. -->
+    <MTPProject Remove="$(RepoRoot)/test/EFCore.Tasks.FunctionalTests/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/dotnet-ef.FunctionalTests/*.csproj"/>
+    <MTPProject Remove="$(RepoRoot)/test/EFCore.Design.TestUtilities/*.csproj"/>
   </ItemGroup>
 
   <!-- Work-around for https://github.com/dotnet/runtime/issues/70758 -->
