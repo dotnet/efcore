@@ -18029,10 +18029,10 @@
           "Member": "virtual void ValidateMutableKey(Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
-          "Member": "virtual void ValidateNonNullPrimaryKey(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+          "Member": "virtual void ValidateNavigation(Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
-          "Member": "virtual void ValidateNullableCollectionNavigation(Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+          "Member": "virtual void ValidateNonNullPrimaryKey(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "virtual void ValidateOwnership(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -20689,13 +20689,7 @@
           "Member": "QueryContext(Microsoft.EntityFrameworkCore.Query.QueryContextDependencies dependencies);"
         },
         {
-          "Member": "virtual bool CanLoadCollectionNullness(Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, object entity);"
-        },
-        {
           "Member": "virtual void InitializeStateManager(bool standAlone = false);"
-        },
-        {
-          "Member": "virtual void SetCollectionNullnessLoaded(Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, object entity, bool storedAsNull);"
         },
         {
           "Member": "virtual void SetNavigationIsLoaded(object entity, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"
@@ -21272,10 +21266,13 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RequiredNavigationAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NavigationAttributeConventionBase<System.ComponentModel.DataAnnotations.RequiredAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.INavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.ISkipNavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyPrincipalEndChangedConvention",
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RequiredNavigationAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NavigationAttributeConventionBase<System.ComponentModel.DataAnnotations.RequiredAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.INavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.ISkipNavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyPrincipalEndChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention",
       "Methods": [
         {
           "Member": "RequiredNavigationAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
         }
       ]
     },
@@ -21529,10 +21526,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeKey AddKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation AddNavigation(string name, Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey foreignKey, bool onDependent, System.Type clrType, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField, bool eagerLoaded = false, bool lazyLoadingEnabled = true);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation AddNavigation(string name, Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey foreignKey, bool onDependent, System.Type clrType, bool nullable, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField, bool eagerLoaded = false, bool lazyLoadingEnabled = true);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation AddNavigation(string name, Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey foreignKey, bool onDependent, System.Type clrType, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField, bool eagerLoaded = false, bool lazyLoadingEnabled = true, bool nullable = false);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeServiceProperty AddServiceProperty(string name, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, System.Type? serviceType = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField);"

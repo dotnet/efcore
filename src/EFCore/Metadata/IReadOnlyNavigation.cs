@@ -52,8 +52,15 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
     ///     materialized as different values, and changing from one to the other is a change that is saved to the database.
     /// </summary>
     /// <remarks>
-    ///     This can only be set for collection navigations that are stored inline with their owner, for example as a JSON array,
-    ///     and only if the database provider supports it. Model validation fails otherwise.
+    ///     <para>
+    ///         This is configured with <see cref="Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder.IsRequired" />
+    ///         (<see langword="false" /> makes the collection nullable). Relational database providers also configure owned collections
+    ///         mapped to JSON as nullable when the navigation is annotated as nullable and can be set to <see langword="null" />.
+    ///     </para>
+    ///     <para>
+    ///         This can only be set for collection navigations that are stored inline with their owner, for example as a JSON array,
+    ///         and only if the database provider supports it. Model validation fails otherwise.
+    ///     </para>
     /// </remarks>
     bool IsNullable
         => (bool?)this[CoreAnnotationNames.NullableCollection] ?? false;
@@ -151,6 +158,11 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
             if (IsCollection)
             {
                 builder.Append(" Collection");
+
+                if (IsNullable)
+                {
+                    builder.Append(" Nullable");
+                }
             }
             else if ((IsOnDependent && ForeignKey.IsRequired)
                      || (!IsOnDependent && ForeignKey.IsRequiredDependent))

@@ -1250,7 +1250,7 @@
     <value>An 'ExecuteUpdate' call must specify at least one 'SetProperty' invocation, to indicate the properties to be updated.</value>
   </data>
   <data name="NullableCollectionNavigationNotMappedToJson" xml:space="preserve">
-    <value>The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but this is only supported for collections that are mapped to JSON.</value>
+    <value>The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but this is only supported for owned collections that are mapped to JSON. Map the owned collection to JSON using 'ToJson', or configure the navigation as required using 'IsRequired()'.</value>
   </data>
   <data name="NullKeyValue" xml:space="preserve">
     <value>Unable to modify a row in table '{table}' because its key column '{keyColumn}' is 'null'.</value>

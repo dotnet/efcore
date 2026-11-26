@@ -1521,13 +1521,13 @@
     <value>The property '{1_entityType}.{0_property}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}' in 'OnModelCreating'.</value>
   </data>
   <data name="NullableCollectionNavigationNoSetter" xml:space="preserve">
-    <value>The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but it has no setter or backing field that can be used to set it to null. Add a setter or a backing field, or configure the navigation as required.</value>
+    <value>The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but it has no setter or backing field that can be used to set it to null. Add a setter or a backing field, or configure the navigation as required using 'IsRequired()'.</value>
   </data>
   <data name="NullableKey" xml:space="preserve">
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
   <data name="NullableNavigationNotCollection" xml:space="preserve">
-    <value>The navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but it is not a collection navigation.</value>
+    <value>The navigation '{entityType}.{navigation}' is configured to distinguish null from an empty collection, but it is not a collection navigation. Remove this configuration.</value>
   </data>
   <data name="NullRequiredComplexProperty" xml:space="preserve">
     <value>The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. See https://aka.ms/efcore-docs-complex-types for more information.</value>

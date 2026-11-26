@@ -43,14 +43,17 @@ public class InMemoryModelValidator : ModelValidator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void ValidateNullableCollectionNavigation(
+    protected override void ValidateNavigation(
         INavigation navigation,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateNullableCollectionNavigation(navigation, logger);
+        base.ValidateNavigation(navigation, logger);
 
-        throw new InvalidOperationException(
-            InMemoryStrings.NullableCollectionNavigationNotSupported(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        if (navigation.IsNullable)
+        {
+            throw new InvalidOperationException(
+                InMemoryStrings.NullableCollectionNavigationNotSupported(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        }
     }
 
     /// <summary>

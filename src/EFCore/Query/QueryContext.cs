@@ -169,25 +169,18 @@ public abstract class QueryContext
     }
 
     /// <summary>
-    ///     Gets a value indicating whether the stored null-ness of a collection navigation that has
-    ///     <see cref="IReadOnlyNavigation.IsNullable" /> equal to <see langword="true" /> should be applied to the given entity instance.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         This is <see langword="true" /> for an entity that is not tracked, for example in a no-tracking query, and for an entity
-    ///         that was started being tracked by this query, until the null-ness of the navigation has been loaded. It is
-    ///         <see langword="false" /> for an entity that was already tracked before this query, and for an entity that is returned
-    ///         again by this query after the null-ness of the navigation was loaded. In those cases the current values of the entity
-    ///         are kept, including an unsaved change between a null and a non-null collection.
-    ///     </para>
-    ///     <para>
-    ///         A database provider should call this before materializing the collection and, if it returns
-    ///         <see langword="false" />, not modify the collection or call <see cref="SetCollectionNullnessLoaded" />.
-    ///     </para>
+    ///     Gets a value indicating whether the stored null-ness of a nullable collection navigation is applied to the given entity:
+    ///     for an entity that is not tracked, or that was started being tracked by this query and whose null-ness hasn't been
+    ///     loaded yet. Otherwise, the current values of the entity are kept, including an unsaved change between null and a
+    ///     non-null collection, and the caller doesn't change the collection.
     /// </remarks>
-    /// <param name="navigation">The collection navigation.</param>
-    /// <param name="entity">The entity instance that declares the navigation.</param>
-    /// <returns><see langword="true" /> if the stored null-ness should be applied, otherwise <see langword="false" />.</returns>
+    [EntityFrameworkInternal]
     public virtual bool CanLoadCollectionNullness(INavigation navigation, object entity)
         => IsNullnessLoadable(TryGetEntry(entity), navigation);
 
@@ -197,23 +190,17 @@ public abstract class QueryContext
                 && _collectionNullnessLoaded?.Contains((entry, navigation)) != true);
 
     /// <summary>
-    ///     Sets the loaded null-ness of a collection navigation that has <see cref="IReadOnlyNavigation.IsNullable" /> equal to
-    ///     <see langword="true" /> on the given entity instance, and records it as the value that was read from the database so that a
-    ///     later change between a null and a non-null collection is detected.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         If <paramref name="storedAsNull" /> is <see langword="true" />, the navigation is set to <see langword="null" />, without
-    ///         using collection initializers or raising change notifications. Otherwise, the collection must already have been created
-    ///         and populated by the caller.
-    ///     </para>
-    ///     <para>
-    ///         This does nothing if <see cref="CanLoadCollectionNullness" /> returns <see langword="false" />.
-    ///     </para>
+    ///     Sets the loaded null-ness of a nullable collection navigation and records it as the value that was read from the
+    ///     database. If <paramref name="storedAsNull" /> is <see langword="false" />, the caller has already created and populated
+    ///     the collection. Does nothing if <see cref="CanLoadCollectionNullness" /> returns <see langword="false" />.
     /// </remarks>
-    /// <param name="navigation">The collection navigation.</param>
-    /// <param name="entity">The entity instance that declares the navigation.</param>
-    /// <param name="storedAsNull">Whether the collection was stored as <see langword="null" />.</param>
+    [EntityFrameworkInternal]
     public virtual void SetCollectionNullnessLoaded(INavigation navigation, object entity, bool storedAsNull)
     {
         var entry = TryGetEntry(entity);

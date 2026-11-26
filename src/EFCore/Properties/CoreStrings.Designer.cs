@@ -2724,7 +2724,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but it has no setter or backing field that can be used to set it to null. Add a setter or a backing field, or configure the navigation as required.
+        ///     The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but it has no setter or backing field that can be used to set it to null. Add a setter or a backing field, or configure the navigation as required using 'IsRequired()'.
         /// </summary>
         public static string NullableCollectionNavigationNoSetter(object? navigation, object? entityType)
             => string.Format(
@@ -2740,7 +2740,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but it is not a collection navigation.
+        ///     The navigation '{entityType}.{navigation}' is configured to distinguish null from an empty collection, but it is not a collection navigation. Remove this configuration.
         /// </summary>
         public static string NullableNavigationNotCollection(object? navigation, object? entityType)
             => string.Format(

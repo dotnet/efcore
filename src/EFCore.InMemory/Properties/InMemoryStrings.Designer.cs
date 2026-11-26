@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 requiredProperties, entityType);
 
         /// <summary>
-        ///     The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but this is not supported by the in-memory provider.
+        ///     The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but this is not supported by the in-memory provider. Configure the navigation as required using 'IsRequired()'.
         /// </summary>
         public static string NullableCollectionNavigationNotSupported(object? navigation, object? entityType)
             => string.Format(

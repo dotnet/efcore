@@ -1247,6 +1247,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1382,6 +1383,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             manager.CaptureState();
         }
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

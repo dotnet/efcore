@@ -150,7 +150,7 @@
     <value>Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}' with the key value '{keyValue}'.</value>
   </data>
   <data name="NullableCollectionNavigationNotSupported" xml:space="preserve">
-    <value>The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but this is not supported by the in-memory provider.</value>
+    <value>The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but this is not supported by the in-memory provider. Configure the navigation as required using 'IsRequired()'.</value>
   </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
     <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>

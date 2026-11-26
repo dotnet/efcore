@@ -162,17 +162,18 @@ public class RelationalModelValidator(
     }
 
     /// <summary>
-    ///     Validates a navigation that is configured to distinguish a null collection from an empty one.
+    ///     Validates a navigation.
     /// </summary>
     /// <param name="navigation">The navigation to validate.</param>
     /// <param name="logger">The logger to use.</param>
-    protected override void ValidateNullableCollectionNavigation(
+    protected override void ValidateNavigation(
         INavigation navigation,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateNullableCollectionNavigation(navigation, logger);
+        base.ValidateNavigation(navigation, logger);
 
-        if (!navigation.TargetEntityType.IsMappedToJson())
+        if (navigation.IsNullable
+            && !navigation.TargetEntityType.IsMappedToJson())
         {
             throw new InvalidOperationException(
                 RelationalStrings.NullableCollectionNavigationNotMappedToJson(

@@ -111,10 +111,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
 
         foreach (var navigation in entityType.GetDeclaredNavigations())
         {
-            if (navigation.IsNullable)
-            {
-                ValidateNullableCollectionNavigation(navigation, logger);
-            }
+            ValidateNavigation(navigation, logger);
         }
 
         foreach (var skipNavigation in entityType.GetDeclaredSkipNavigations())
@@ -458,14 +455,19 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     }
 
     /// <summary>
-    ///     Validates a navigation that is configured to distinguish a null collection from an empty one.
+    ///     Validates a navigation.
     /// </summary>
     /// <param name="navigation">The navigation to validate.</param>
     /// <param name="logger">The logger to use.</param>
-    protected virtual void ValidateNullableCollectionNavigation(
+    protected virtual void ValidateNavigation(
         INavigation navigation,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        if (!navigation.IsNullable)
+        {
+            return;
+        }
+
         if (!navigation.IsCollection)
         {
             throw new InvalidOperationException(

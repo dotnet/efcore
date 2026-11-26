@@ -2060,7 +2060,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoSetPropertyInvocation");
 
         /// <summary>
-        ///     The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but this is only supported for collections that are mapped to JSON.
+        ///     The collection navigation '{entityType}.{navigation}' is configured as optional, so that null and an empty collection are different values (for example, because it is annotated as nullable or with 'IsRequired(false)'), but this is only supported for owned collections that are mapped to JSON. Map the owned collection to JSON using 'ToJson', or configure the navigation as required using 'IsRequired()'.
         /// </summary>
         public static string NullableCollectionNavigationNotMappedToJson(object? navigation, object? entityType)
             => string.Format(

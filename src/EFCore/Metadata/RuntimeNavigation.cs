@@ -15,10 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
 {
+    private readonly bool _nullable;
+
     // Warning: Never access these fields directly as access needs to be thread-safe
     private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
-    private readonly bool _nullable;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,12 +52,7 @@ public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
             SetAnnotation(CoreAnnotationNames.LazyLoadingEnabled, false);
         }
 
-        if (nullable)
-        {
-            SetAnnotation(CoreAnnotationNames.NullableCollection, true);
-        }
-
-        // Read frequently by change tracking and query, so not read from the annotations each time
+        // Read frequently by change tracking and query, so it is stored in a field rather than as an annotation
         _nullable = nullable;
     }
 
