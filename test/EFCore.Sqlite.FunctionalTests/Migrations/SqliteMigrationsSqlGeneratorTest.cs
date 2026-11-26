@@ -946,10 +946,16 @@ SELECT changes();
 
         AssertSql(
             """
+PRAGMA foreign_keys = 0;
+GO
+
 DROP TABLE "Revisions";
 GO
 
 DROP TABLE "Owners";
+GO
+
+PRAGMA foreign_keys = 1;
 """);
     }
 
