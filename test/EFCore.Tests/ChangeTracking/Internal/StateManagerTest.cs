@@ -829,34 +829,34 @@ public class StateManagerTest
         context.Add(new FailedTrackingOverlappingKeys { A = 1, B = 2, C = 3 });
     }
 
-    // Updating the identity maps of the first key must not leave the dependents of that key changed when the second key conflicts.
+    // Changing the primary key propagates the new value to the self-referencing foreign key, which is part of the alternate key,
+    // so the alternate key is updated again in a nested call that must find it under the value in the relationship snapshot.
     [Fact]
-    public void Failed_key_change_of_property_in_two_keys_does_not_change_foreign_keys_of_dependents()
+    public void Key_change_propagated_to_self_referencing_foreign_key_in_alternate_key_leaves_no_stale_alternate_key()
     {
         using var context = new FailedTrackingContext();
         context.ChangeTracker.AutoDetectChangesEnabled = false;
+        var stateManager = GetStateManager(context);
+        var alternateKey = context.Model.FindEntityType(typeof(FailedTrackingSelfReference))!.GetKeys().Single(k => !k.IsPrimaryKey());
 
         // Added, since the keys of an entity that is already in the database can't be changed.
-        var first = context.Add(new FailedTrackingTwoKeys { Id = 1, Code = 1, X = 1, Y = 1 }).Entity;
-        context.Add(new FailedTrackingTwoKeys { Id = 2, Code = 2, X = 2, Y = 1 });
-        var dependentX = context.Add(new FailedTrackingDependentX { Id = 1, PrincipalCode = 1, PrincipalX = 1 }).Entity;
-        var dependentY = context.Add(new FailedTrackingDependentY { Id = 1, PrincipalCode = 1, PrincipalY = 1 }).Entity;
+        var node = context.Add(new FailedTrackingSelfReference { Id = 1, ParentId = 1 }).Entity;
+        var entry = context.Entry(node).GetInfrastructure();
 
-        // The first key {Code, X} can take the new value {2, 1}, but the second key {Code, Y} then conflicts.
-        first.Code = 2;
-        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
-
-        Assert.Equal(1, dependentX.PrincipalCode);
-        Assert.Equal(1, dependentY.PrincipalCode);
-        Assert.Equal(EntityState.Added, context.Entry(dependentX).State);
-        Assert.Equal(EntityState.Added, context.Entry(dependentY).State);
-
-        // Reverting the change doesn't leave a dependent that references a principal that doesn't exist.
-        first.Code = 1;
+        node.Id = 2;
         context.ChangeTracker.DetectChanges();
 
-        Assert.Equal(1, dependentX.PrincipalCode);
-        Assert.Equal(1, dependentY.PrincipalCode);
+        Assert.Equal(2, node.ParentId);
+        Assert.Same(entry, stateManager.TryGetEntry(alternateKey, new object[] { 2, 2 }));
+        Assert.Null(stateManager.TryGetEntry(alternateKey, new object[] { 1, 1 }));
+        Assert.Null(stateManager.TryGetEntry(alternateKey, new object[] { 2, 1 }));
+
+        context.Entry(node).State = EntityState.Detached;
+
+        Assert.Null(stateManager.TryGetEntry(alternateKey, new object[] { 2, 2 }));
+        Assert.Same(
+            context.Entry(context.Add(new FailedTrackingSelfReference { Id = 2, ParentId = 1 }).Entity).GetInfrastructure(),
+            stateManager.TryGetEntry(alternateKey, new object[] { 2, 1 }));
     }
 
     // Marking a detached entry as Modified snapshots its original values, which must not outlive the failure.
@@ -1141,20 +1141,11 @@ public class StateManagerTest
                 b.HasAlternateKey(e => new { e.Code, e.Y });
             });
 
-            modelBuilder.Entity<FailedTrackingDependentX>(b =>
+            modelBuilder.Entity<FailedTrackingSelfReference>(b =>
             {
                 b.Property(e => e.Id).ValueGeneratedNever();
-                b.HasOne<FailedTrackingTwoKeys>().WithMany()
-                    .HasForeignKey(e => new { e.PrincipalCode, e.PrincipalX })
-                    .HasPrincipalKey(e => new { e.Code, e.X });
-            });
-
-            modelBuilder.Entity<FailedTrackingDependentY>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.HasOne<FailedTrackingTwoKeys>().WithMany()
-                    .HasForeignKey(e => new { e.PrincipalCode, e.PrincipalY })
-                    .HasPrincipalKey(e => new { e.Code, e.Y });
+                b.HasAlternateKey(e => new { e.Id, e.ParentId });
+                b.HasOne<FailedTrackingSelfReference>().WithMany().HasForeignKey(e => e.ParentId).OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
@@ -1218,18 +1209,10 @@ public class StateManagerTest
         public int Y { get; set; }
     }
 
-    private class FailedTrackingDependentX
+    private class FailedTrackingSelfReference
     {
         public int Id { get; set; }
-        public int PrincipalCode { get; set; }
-        public int PrincipalX { get; set; }
-    }
-
-    private class FailedTrackingDependentY
-    {
-        public int Id { get; set; }
-        public int PrincipalCode { get; set; }
-        public int PrincipalY { get; set; }
+        public int ParentId { get; set; }
     }
 
     private class SensitiveIdentityConflictContext : IdentityConflictContext
