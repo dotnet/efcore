@@ -4753,6 +4753,43 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.True(operation.IsUnique);
             });
 
+    // A filtered index doesn't cover all rows, so a filter being added to a composite index that starts with a foreign key's
+    // columns means the foreign key needs an index of its own. See #24237.
+    [Fact]
+    public void Add_filter_to_composite_index_creates_foreign_key_index()
+        => Execute(
+            common => common.Entity(
+                "Capybara",
+                x =>
+                {
+                    x.ToTable("Capybara", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                    x.Property<int>("Value");
+                    x.HasOne("Capybara").WithMany().HasForeignKey("ParentId");
+                }),
+            source => source.Entity("Capybara", x => x.HasIndex("ParentId", "Value")),
+            target => target.Entity("Capybara", x => x.HasIndex("ParentId", "Value").HasFilter("[Value] > 0")),
+            operations =>
+            {
+                Assert.Equal(3, operations.Count);
+
+                var dropOperation = Assert.IsType<DropIndexOperation>(operations[0]);
+                Assert.Equal("IX_Capybara_ParentId_Value", dropOperation.Name);
+
+                var createForeignKeyIndexOperation = Assert.IsType<CreateIndexOperation>(operations[1]);
+                Assert.Equal("dbo", createForeignKeyIndexOperation.Schema);
+                Assert.Equal("Capybara", createForeignKeyIndexOperation.Table);
+                Assert.Equal("IX_Capybara_ParentId", createForeignKeyIndexOperation.Name);
+                Assert.Equal(new[] { "ParentId" }, createForeignKeyIndexOperation.Columns);
+                Assert.Null(createForeignKeyIndexOperation.Filter);
+
+                var createCompositeIndexOperation = Assert.IsType<CreateIndexOperation>(operations[2]);
+                Assert.Equal("IX_Capybara_ParentId_Value", createCompositeIndexOperation.Name);
+                Assert.Equal(new[] { "ParentId", "Value" }, createCompositeIndexOperation.Columns);
+                Assert.Equal("[Value] > 0", createCompositeIndexOperation.Filter);
+            });
+
     [Fact]
     public void Drop_index()
         => Execute(

@@ -8834,6 +8834,12 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? CreateIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool unique, Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder);"
         },
         {
+          "Member": "virtual bool IsPartial(Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> properties);"
+        },
+        {
+          "Member": "virtual void OnIndexCoverageChanged(Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index);"
+        },
+        {
           "Member": "virtual void ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
         },
         {
