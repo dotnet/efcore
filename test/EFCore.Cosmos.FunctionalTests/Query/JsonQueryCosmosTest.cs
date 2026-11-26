@@ -127,9 +127,6 @@ WHERE (c["$type"] = "Basic")
 
     public override Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async asyncQuery =>
             {
@@ -469,9 +466,6 @@ WHERE (c["$type"] = "AllTypes")
 
     public override Task Json_all_types_projection_individual_properties(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
@@ -1973,9 +1967,6 @@ WHERE (c["$type"] = "Basic")
 
     public override Task Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
@@ -3336,9 +3327,6 @@ WHERE (c["Id"] = 4)
 
     public override async Task Project_element_of_json_array_of_primitives()
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         await base.Project_element_of_json_array_of_primitives();
     }
 
@@ -3603,9 +3591,6 @@ WHERE (c["Id"] = 4)
 
     public override async Task Project_shadow_properties_from_json_entity()
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         await base.Project_shadow_properties_from_json_entity();
     }
 

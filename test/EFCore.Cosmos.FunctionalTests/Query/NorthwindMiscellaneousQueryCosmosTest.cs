@@ -1599,9 +1599,6 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
 
     public override Task Select_DTO_with_member_init_distinct_translated_to_server(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
@@ -1788,9 +1785,6 @@ ORDER BY (c["Region"] = "ASK")
 
     public override Task Projection_null_coalesce_operator(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
@@ -4165,9 +4159,6 @@ FROM root c
 
     public override Task Ternary_should_not_evaluate_both_sides(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
