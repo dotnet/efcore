@@ -17,7 +17,7 @@ public class JsonUpdateSqlServerTest : JsonUpdateTestBase<JsonUpdateSqlServerFix
 
         AssertSql(
             """
-@p0='[{"Date":"2101-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 837)
+@p0='[{"Date":"2101-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -39,7 +39,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"},{"SomethingSomething":"ss1"}]' (Nullable = false) (Size = 100)
+@p0='[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"},{"SomethingSomething":"ss1"}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -61,7 +61,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[{"Date":"2221-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":221.1,"Id":104,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2222-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":222.1,"Id":105,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 823)
+@p0='[{"Date":"2221-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":221.1,"Id":104,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2222-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":222.1,"Id":105,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 4000)
 @p1='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -84,7 +84,7 @@ WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'
 
         AssertSql(
             """
-@p0='[{"Id":0,"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Id":0,"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}]' (Nullable = false) (Size = 2400)
+@p0='[{"Id":0,"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Id":0,"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -106,7 +106,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[{"Id":0,"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Id":0,"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}}]' (Nullable = false) (Size = 2323)
+@p0='[{"Id":0,"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Id":0,"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -128,8 +128,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 375)
-@p1='[]' (Nullable = false) (Size = 2)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 4000)
+@p1='[]' (Nullable = false) (Size = 4000)
 @p2='2'
 @p3=NULL (DbType = Int32)
 @p4='NewEntity' (Size = 4000)
@@ -152,7 +152,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":null}}' (Nullable = false) (Size = 353)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":null}}' (Nullable = false) (Size = 4000)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 4000)
@@ -175,7 +175,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"SomethingSomething":"ss3"}' (Nullable = false) (Size = 28)
+@p0='{"SomethingSomething":"ss3"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -197,7 +197,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 375)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -240,12 +240,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', @p0)
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -262,7 +262,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -284,12 +284,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf', @p0)
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -306,7 +306,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -328,12 +328,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"":"2111-11-11T00:00:00.0000000"}' (Nullable = false) (Size = 34)
+@p0='2111-11-11T00:00:00.0000000' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].OwnedCollectionBranch[0].Date', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].OwnedCollectionBranch[0].Date', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -350,12 +350,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"":"Modified"}' (Nullable = false) (Size = 15)
+@p0='Modified' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].Name', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].Name', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -372,12 +372,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"":"Modified"}' (Nullable = false) (Size = 15)
+@p0='Modified' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Name', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Name', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -394,8 +394,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[{"Date":"2111-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"...and another"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"yet another change"},{"SomethingSomething":"and another"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}]' (Nullable = false) (Size = 593)
-@p1='{"Id":0,"Name":"edit","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[{"Date":"2101-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}}],"OwnedReferenceBranch":{"Date":"2111-11-11T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":10.0,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 1015)
+@p0='[{"Date":"2111-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"...and another"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"yet another change"},{"SomethingSomething":"and another"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}]' (Nullable = false) (Size = 4000)
+@p1='{"Id":0,"Name":"edit","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[{"Date":"2101-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}}],"OwnedReferenceBranch":{"Date":"2111-11-11T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":10.0,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -417,7 +417,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[{"Date":"2101-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":4321.3,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2222-11-11T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":45.32,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":{"SomethingSomething":"cc"}}]' (Nullable = false) (Size = 783)
+@p0='[{"Date":"2101-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":4321.3,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2222-11-11T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":45.32,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":{"SomethingSomething":"cc"}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -439,7 +439,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[{"SomethingSomething":"edit1"},{"SomethingSomething":"edit2"}]' (Nullable = false) (Size = 63)
+@p0='[{"SomethingSomething":"edit1"},{"SomethingSomething":"edit2"}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -461,7 +461,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[{"Id":0,"Name":"edit1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"edit2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}]' (Nullable = false) (Size = 2023)
+@p0='[{"Id":0,"Name":"edit1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"edit2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -483,7 +483,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"Id":0,"Name":"edit","Names":["e1_c21","e1_c22"],"Number":42,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}' (Nullable = false) (Size = 1009)
+@p0='{"Id":0,"Name":"edit","Names":["e1_c21","e1_c22"],"Number":42,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00.0000000","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -505,7 +505,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"Date":"2102-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit2"}}' (Nullable = false) (Size = 278)
+@p0='{"Date":"2102-01-01T00:00:00.0000000","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit2"}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -527,8 +527,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='2'
-@p1='2'
+@p0='2' (Precision = 1)
+@p1='2' (Precision = 1)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -621,12 +621,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"t"}' (Nullable = false) (Size = 8)
+@p0='t' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -644,16 +644,16 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"\u6D4B\u8BD51"}' (Nullable = false) (Size = 20)
+@p0='测试1' (Nullable = false) (Size = 4000)
 @p1='1'
-@p2='{"Id":0,"Name":"ReferenceRoot","Names":null,"Number":300,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2023-10-05T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":99.99,"Id":15,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"\u6D4B\u8BD51"}}}' (Nullable = false) (Size = 335)
-@p3='[]' (Nullable = false) (Size = 2)
+@p2='{"Id":0,"Name":"ReferenceRoot","Names":null,"Number":300,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2023-10-05T00:00:00.0000000","Enum":-3,"Enums":null,"Fraction":99.99,"Id":15,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"\u6D4B\u8BD51"}}}' (Nullable = false) (Size = 4000)
+@p3='[]' (Nullable = false) (Size = 4000)
 @p4='3'
 @p5=NULL (DbType = Int32)
 @p6='ComprehensiveEntity' (Size = 4000)
 
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [OwnedCollectionRoot], [Id], [EntityBasicId], [Name])
@@ -679,13 +679,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"3000-01-01T12:34:56.0000000"}' (Nullable = false) (Size = 34)
-@p1='{"":"3000-01-01T12:34:56.0000000"}' (Nullable = false) (Size = 34)
+@p0='3000-01-01T12:34:56.0000000' (Nullable = false) (Size = 4000)
+@p1='3000-01-01T12:34:56.0000000' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTime', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTime', JSON_VALUE(@p1, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTime', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTime', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -703,13 +703,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"3000-01-01T12:34:56-04:00"}' (Nullable = false) (Size = 32)
-@p1='{"":"3000-01-01T12:34:56-04:00"}' (Nullable = false) (Size = 32)
+@p0='3000-01-01T12:34:56-04:00' (Nullable = false) (Size = 4000)
+@p1='3000-01-01T12:34:56-04:00' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTimeOffset', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTimeOffset', JSON_VALUE(@p1, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTimeOffset', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTimeOffset', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -727,8 +727,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='-13579.01' (Precision = 18) (Scale = 3)
-@p1='-13579.01' (Precision = 18) (Scale = 3)
+@p0='-12345678901234567890.12345678' (Precision = 28) (Scale = 8)
+@p1='-12345678901234567890.12345678' (Precision = 28) (Scale = 8)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -775,13 +775,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"12345678-1234-4321-5555-987654321000"}' (Nullable = false) (Size = 43)
-@p1='{"":"12345678-1234-4321-5555-987654321000"}' (Nullable = false) (Size = 43)
+@p0='12345678-1234-4321-5555-987654321000' (Nullable = false) (Size = 4000)
+@p1='12345678-1234-4321-5555-987654321000' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestGuid', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestGuid', JSON_VALUE(@p1, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestGuid', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestGuid', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -919,13 +919,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"10:01:01.007"}' (Nullable = false) (Size = 19)
-@p1='{"":"10:01:01.007"}' (Nullable = false) (Size = 19)
+@p0='10:01:01.007' (Nullable = false) (Size = 4000)
+@p1='10:01:01.007' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestTimeSpan', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestTimeSpan', JSON_VALUE(@p1, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestTimeSpan', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestTimeSpan', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -991,8 +991,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='1234555555123456789' (Precision = 20)
-@p1='1234555555123456789' (Precision = 20)
+@p0='1234555555123456789' (Precision = 19)
+@p1='1234555555123456789' (Precision = 19)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1039,8 +1039,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = Int32)
-@p1=NULL (Nullable = false) (DbType = Int32)
+@p0=NULL (Nullable = false) (Size = 4000)
+@p1=NULL (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1111,8 +1111,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='-3'
-@p1='-3'
+@p0='-3' (Precision = 1)
+@p1='-3' (Precision = 1)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1159,8 +1159,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='-3'
-@p1='-3'
+@p0='-3' (Precision = 1)
+@p1='-3' (Precision = 1)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1183,8 +1183,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = Int32)
-@p1=NULL (Nullable = false) (DbType = Int32)
+@p0=NULL (Nullable = false) (Size = 4000)
+@p1=NULL (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1231,8 +1231,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = Int32)
-@p1=NULL (Nullable = false) (DbType = Int32)
+@p0=NULL (Nullable = false) (Size = 4000)
+@p1=NULL (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1255,13 +1255,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"Three"}' (Nullable = false) (Size = 12)
-@p1='{"":"One"}' (Nullable = false) (Size = 10)
+@p0='Three' (Nullable = false) (Size = 4000)
+@p1='One' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p1, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNulls', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNulls', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1303,8 +1303,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"TestBoolean":false,"TestBooleanCollection":[true,false],"TestByte":25,"TestByteArray":"","TestByteCollection":null,"TestCharacter":"h","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2323-04-03","TestDateOnlyCollection":["3234-01-23","4331-01-21"],"TestDateTime":"2100-11-11T12:34:56.0000000","TestDateTimeCollection":["2000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000"],"TestDateTimeOffset":"2200-11-11T12:34:56-05:00","TestDateTimeOffsetCollection":["2000-01-01T12:34:56-08:00"],"TestDecimal":-123450.01,"TestDecimalCollection":[-1234567890.01],"TestDefaultString":"MyDefaultStringInCollection1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.2345,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"00000000-0000-0000-0000-000000000000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-12,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Baz","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableDateOnly":"2323-04-03","TestNullableDateTime":"2100-11-11T12:34:56.0000000","TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":-3,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":90,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-18,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.4,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"05:07:08.0000000","TestTimeOnlyCollection":["13:42:23.0000000","07:17:25.0000000"],"TestTimeSpan":"6:05:04.003","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":12,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":12345,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567867,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 2270)
-@p1='{"TestBoolean":true,"TestBooleanCollection":[true,false],"TestByte":255,"TestByteArray":"AQID","TestByteCollection":null,"TestCharacter":"a","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2023-10-10","TestDateOnlyCollection":["1234-01-23","4321-01-21"],"TestDateTime":"2000-01-01T12:34:56.0000000","TestDateTimeCollection":["2000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000"],"TestDateTimeOffset":"2000-01-01T12:34:56-08:00","TestDateTimeOffsetCollection":["2000-01-01T12:34:56-08:00"],"TestDecimal":-1234567890.01,"TestDecimalCollection":[-1234567890.01],"TestDefaultString":"MyDefaultStringInReference1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.23456789,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"12345678-1234-4321-7777-987654321000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-1234,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Foo","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableDateOnly":"2023-10-10","TestNullableDateTime":"2000-01-01T12:34:56.0000000","TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":2,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":78,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-128,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.234,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"11:12:13.0000000","TestTimeOnlyCollection":["11:42:23.0000000","07:17:27.0000000"],"TestTimeSpan":"10:09:08.007","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":1234,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":1234565789,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567890123456789,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 2304)
+@p0='{"TestBoolean":false,"TestBooleanCollection":[true,false],"TestByte":25,"TestByteArray":"","TestByteCollection":null,"TestCharacter":"h","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2323-04-03","TestDateOnlyCollection":["3234-01-23","4331-01-21"],"TestDateTime":"2100-11-11T12:34:56.0000000","TestDateTimeCollection":["2000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000"],"TestDateTimeOffset":"2200-11-11T12:34:56-05:00","TestDateTimeOffsetCollection":["2000-01-01T12:34:56-08:00"],"TestDecimal":-123450.01,"TestDecimalCollection":[-1234567890.01],"TestDefaultString":"MyDefaultStringInCollection1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.2345,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"00000000-0000-0000-0000-000000000000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-12,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Baz","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableDateOnly":"2323-04-03","TestNullableDateTime":"2100-11-11T12:34:56.0000000","TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":-3,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":90,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-18,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.4,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"05:07:08.0000000","TestTimeOnlyCollection":["13:42:23.0000000","07:17:25.0000000"],"TestTimeSpan":"6:05:04.003","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":12,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":12345,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567867,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 4000)
+@p1='{"TestBoolean":true,"TestBooleanCollection":[true,false],"TestByte":255,"TestByteArray":"AQID","TestByteCollection":null,"TestCharacter":"a","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2023-10-10","TestDateOnlyCollection":["1234-01-23","4321-01-21"],"TestDateTime":"2000-01-01T12:34:56.0000000","TestDateTimeCollection":["2000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000"],"TestDateTimeOffset":"2000-01-01T12:34:56-08:00","TestDateTimeOffsetCollection":["2000-01-01T12:34:56-08:00"],"TestDecimal":-1234567890.01,"TestDecimalCollection":[-1234567890.01],"TestDefaultString":"MyDefaultStringInReference1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.23456789,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"12345678-1234-4321-7777-987654321000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-1234,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Foo","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableDateOnly":"2023-10-10","TestNullableDateTime":"2000-01-01T12:34:56.0000000","TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":2,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":78,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-128,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.234,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"11:12:13.0000000","TestTimeOnlyCollection":["11:42:23.0000000","07:17:27.0000000"],"TestTimeSpan":"10:09:08.007","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":1234,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":1234565789,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567890123456789,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1327,7 +1327,7 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"Date":"2100-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 286)
+@p0='{"Date":"2100-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1349,7 +1349,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"Date":"2100-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}' (Nullable = false) (Size = 250)
+@p0='{"Date":"2100-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1371,7 +1371,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"Date":"2100-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 286)
+@p0='{"Date":"2100-01-01T00:00:00.0000000","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1416,12 +1416,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"True"}' (Nullable = false) (Size = 11)
+@p0='True' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringTrueFalse', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringTrueFalse', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1439,12 +1439,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"N"}' (Nullable = false) (Size = 8)
+@p0='N' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringYN', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringYN', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1533,8 +1533,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[1024,2048]' (Nullable = false) (Size = 11)
-@p1='[999,997]' (Nullable = false) (Size = 9)
+@p0='[1024,2048]' (Nullable = false) (Size = 4000)
+@p1='[999,997]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1556,8 +1556,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[true,true,true,false]' (Nullable = false) (Size = 22)
-@p1='[true,true,false]' (Nullable = false) (Size = 17)
+@p0='[true,true,true,false]' (Nullable = false) (Size = 4000)
+@p1='[true,true,false]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1580,13 +1580,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"Dg=="}' (Nullable = false) (Size = 11)
-@p1='{"":"GRo="}' (Nullable = false) (Size = 11)
+@p0='Dg==' (Nullable = false) (Size = 4000)
+@p1='GRo=' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestByteCollection', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestByteCollection', JSON_VALUE(@p1, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestByteCollection', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestByteCollection', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1604,8 +1604,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='["A","B","\u0022","\u0000"]' (Nullable = false) (Size = 27)
-@p1='["E","F","C","\u00F6","r","E","\u0022","\\"]' (Nullable = false) (Size = 44)
+@p0='["A","B","\u0022","\u0000"]' (Nullable = false) (Size = 4000)
+@p1='["E","F","C","\u00F6","r","E","\u0022","\\"]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1628,8 +1628,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='["2000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000"]' (Nullable = false) (Size = 91)
-@p1='["2000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000"]' (Nullable = false) (Size = 91)
+@p0='["2000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000"]' (Nullable = false) (Size = 4000)
+@p1='["2000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000","3000-01-01T12:34:56.0000000"]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1652,8 +1652,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='["3000-01-01T12:34:56-04:00"]' (Nullable = false) (Size = 29)
-@p1='["3000-01-01T12:34:56-04:00"]' (Nullable = false) (Size = 29)
+@p0='["3000-01-01T12:34:56-04:00"]' (Nullable = false) (Size = 4000)
+@p1='["3000-01-01T12:34:56-04:00"]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1676,8 +1676,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-13579.01]' (Nullable = false) (Size = 11)
-@p1='[-13579.01]' (Nullable = false) (Size = 11)
+@p0='[-13579.01]' (Nullable = false) (Size = 4000)
+@p1='[-13579.01]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1700,8 +1700,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-1.23456789,1.23456789,0,-1.23579]' (Nullable = false) (Size = 35)
-@p1='[-1.23456789,1.23456789,0,-1.23579]' (Nullable = false) (Size = 35)
+@p0='[-1.23456789,1.23456789,0,-1.23579]' (Nullable = false) (Size = 4000)
+@p1='[-1.23456789,1.23456789,0,-1.23579]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1724,8 +1724,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='["12345678-1234-4321-5555-987654321000"]' (Nullable = false) (Size = 40)
-@p1='["12345678-1234-4321-5555-987654321000"]' (Nullable = false) (Size = 40)
+@p0='["12345678-1234-4321-5555-987654321000"]' (Nullable = false) (Size = 4000)
+@p1='["12345678-1234-4321-5555-987654321000"]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1748,8 +1748,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-3234]' (Nullable = false) (Size = 7)
-@p1='[-3234]' (Nullable = false) (Size = 7)
+@p0='[-3234]' (Nullable = false) (Size = 4000)
+@p1='[-3234]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1772,8 +1772,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-3234]' (Nullable = false) (Size = 7)
-@p1='[-3234]' (Nullable = false) (Size = 7)
+@p0='[-3234]' (Nullable = false) (Size = 4000)
+@p1='[-3234]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1796,8 +1796,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[]' (Nullable = false) (Size = 2)
-@p1='[]' (Nullable = false) (Size = 2)
+@p0='[]' (Nullable = false) (Size = 4000)
+@p1='[]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1820,8 +1820,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-108]' (Nullable = false) (Size = 6)
-@p1='[-108]' (Nullable = false) (Size = 6)
+@p0='[-108]' (Nullable = false) (Size = 4000)
+@p1='[-108]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1844,8 +1844,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-1.234,-1.234]' (Nullable = false) (Size = 15)
-@p1='[0,-1.234]' (Nullable = false) (Size = 10)
+@p0='[-1.234,-1.234]' (Nullable = false) (Size = 4000)
+@p1='[0,-1.234]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1868,8 +1868,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='["10:09:08.007","10:01:01.007"]' (Nullable = false) (Size = 31)
-@p1='["10:01:01.007","-9:50:51.993"]' (Nullable = false) (Size = 31)
+@p0='["10:09:08.007","10:01:01.007"]' (Nullable = false) (Size = 4000)
+@p1='["10:01:01.007","-9:50:51.993"]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1892,8 +1892,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='["3234-01-23","0001-01-07"]' (Nullable = false) (Size = 27)
-@p1='["0001-01-07","4321-01-21"]' (Nullable = false) (Size = 27)
+@p0='["3234-01-23","0001-01-07"]' (Nullable = false) (Size = 4000)
+@p1='["0001-01-07","4321-01-21"]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1916,8 +1916,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='["13:42:23.0000000","01:01:07.0000000"]' (Nullable = false) (Size = 39)
-@p1='["01:01:07.0000000","07:17:27.0000000"]' (Nullable = false) (Size = 39)
+@p0='["13:42:23.0000000","01:01:07.0000000"]' (Nullable = false) (Size = 4000)
+@p1='["01:01:07.0000000","07:17:27.0000000"]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1940,8 +1940,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[1534]' (Nullable = false) (Size = 6)
-@p1='[1534]' (Nullable = false) (Size = 6)
+@p0='[1534]' (Nullable = false) (Size = 4000)
+@p1='[1534]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1964,8 +1964,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[1237775789]' (Nullable = false) (Size = 12)
-@p1='[1237775789]' (Nullable = false) (Size = 12)
+@p0='[1237775789]' (Nullable = false) (Size = 4000)
+@p1='[1237775789]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1988,8 +1988,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[1234555555123456789]' (Nullable = false) (Size = 21)
-@p1='[1234555555123456789]' (Nullable = false) (Size = 21)
+@p0='[1234555555123456789]' (Nullable = false) (Size = 4000)
+@p1='[1234555555123456789]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2012,8 +2012,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[null,77]' (Nullable = false) (Size = 9)
-@p1='[null,-2147483648,0,null,2147483647,null,77,null]' (Nullable = false) (Size = 49)
+@p0='[null,77]' (Nullable = false) (Size = 4000)
+@p1='[null,-2147483648,0,null,2147483647,null,77,null]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2060,8 +2060,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-3]' (Nullable = false) (Size = 4)
-@p1='[-3]' (Nullable = false) (Size = 4)
+@p0='[-3]' (Nullable = false) (Size = 4000)
+@p1='[-3]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2084,8 +2084,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-3]' (Nullable = false) (Size = 4)
-@p1='[-3]' (Nullable = false) (Size = 4)
+@p0='[-3]' (Nullable = false) (Size = 4000)
+@p1='[-3]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2108,8 +2108,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-3]' (Nullable = false) (Size = 4)
-@p1='[-3]' (Nullable = false) (Size = 4)
+@p0='[-3]' (Nullable = false) (Size = 4000)
+@p1='[-3]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2156,8 +2156,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-1,null,-7,2]' (Nullable = false) (Size = 14)
-@p1='[-1,-3,-7,2]' (Nullable = false) (Size = 12)
+@p0='[-1,null,-7,2]' (Nullable = false) (Size = 4000)
+@p1='[-1,-3,-7,2]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2204,8 +2204,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='[-3]' (Nullable = false) (Size = 4)
-@p1='[-1]' (Nullable = false) (Size = 4)
+@p0='[-3]' (Nullable = false) (Size = 4000)
+@p1='[-1]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2255,7 +2255,7 @@ WHERE [j].[Id] = 1
             case true:
                 AssertSql(
                     """
-@p0='[{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 118)
+@p0='[{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 4000)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 4000)
@@ -2273,7 +2273,7 @@ WHERE [j].[Id] = 2
 """,
                     //
                     """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2296,7 +2296,7 @@ WHERE [j].[Id] = 2
             case false:
                 AssertSql(
                     """
-@p0='[]' (Nullable = false) (Size = 2)
+@p0='[]' (Nullable = false) (Size = 4000)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 4000)
@@ -2314,7 +2314,7 @@ WHERE [j].[Id] = 2
 """,
                     //
                     """
-@p0='[{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 118)
+@p0='[{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 4000)
 @p1='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2346,7 +2346,6 @@ SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesBasic] ([Id], [EntityBasicId], [Name])
 VALUES (@p0, @p1, @p2);
 """,
-
                     //
                     """
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
@@ -2355,7 +2354,7 @@ WHERE [j].[Id] = 2
 """,
                     //
                     """
-@p0='[]' (Nullable = false) (Size = 2)
+@p0='[]' (Nullable = false) (Size = 4000)
 @p3='2'
 @p1=NULL (DbType = Int32)
 @p2='NewEntity' (Size = 4000)
@@ -2389,7 +2388,7 @@ WHERE [j].[Id] = 2
             case true:
                 AssertSql(
                     """
-@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[{"Date":"0001-01-01T00:00:00.0000000","Enum":0,"Enums":null,"Fraction":0,"Id":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 288)
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[{"Date":"0001-01-01T00:00:00.0000000","Enum":0,"Enums":null,"Fraction":0,"Id":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 4000)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 4000)
@@ -2407,12 +2406,12 @@ WHERE [j].[Id] = 2
 """,
                     //
                     """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', @p0)
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -2426,7 +2425,7 @@ WHERE [j].[Id] = 2
             case false:
                 AssertSql(
                     """
-@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 114)
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 4000)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 4000)
@@ -2444,7 +2443,7 @@ WHERE [j].[Id] = 2
 """,
                     //
                     """
-@p0='[{"Date":"0001-01-01T00:00:00.0000000","Enum":0,"Enums":null,"Fraction":0,"Id":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}]' (Nullable = false) (Size = 176)
+@p0='[{"Date":"0001-01-01T00:00:00.0000000","Enum":0,"Enums":null,"Fraction":0,"Id":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}]' (Nullable = false) (Size = 4000)
 @p1='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2463,7 +2462,7 @@ WHERE [j].[Id] = 2
             default:
                 AssertSql(
                     """
-@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}' (Nullable = false) (Size = 116)
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}' (Nullable = false) (Size = 4000)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 4000)
@@ -2481,7 +2480,7 @@ WHERE [j].[Id] = 2
 """,
                     //
                     """
-@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 114)
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 4000)
 @p1='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -2511,19 +2510,7 @@ WHERE [j].[Id] = 2
             _ => "null"
         };
 
-        var parameterSize = value switch
-        {
-            true => "1624",
-            false => "1621",
-            _ => "1623"
-        };
-
-        var updateParameterSize = value switch
-        {
-            true => "4000",
-            false => "5",
-            _ => "2"
-        };
+        const string parameterSize = "4000";
 
         var updateParameter = value switch
         {
@@ -2539,10 +2526,7 @@ WHERE [j].[Id] = 2
             + parameterSize
             + @")";
 
-        var updatedP0 = "@p0="
-            + updateParameter
-            + " (Nullable = false)"
-            + (SqlServerTestEnvironment.IsAzureSql && value == true ? "" : $" (Size = {updateParameterSize})");
+        var updatedP0 = $"@p0={updateParameter} (Nullable = false) (Size = 4000)";
 
         var updatedP0Reference = value switch
         {

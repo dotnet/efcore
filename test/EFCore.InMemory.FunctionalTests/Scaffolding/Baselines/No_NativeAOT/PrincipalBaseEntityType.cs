@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 #pragma warning disable 219, 612, 618
@@ -45,8 +44,7 @@ public partial class PrincipalBaseEntityType
             fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("AlternateId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
             propertyAccessMode: PropertyAccessMode.FieldDuringConstruction,
             afterSaveBehavior: PropertySaveBehavior.Throw,
-            sentinel: new Guid("00000000-0000-0000-0000-000000000000"),
-            jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
+            sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
 
         var discriminator = runtimeEntityType.AddProperty(
             "Discriminator",

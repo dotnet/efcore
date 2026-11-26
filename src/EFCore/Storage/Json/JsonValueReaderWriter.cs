@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -10,10 +11,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 ///     Reads and writes the JSON value for a given model or provider value.
 /// </summary>
 /// <remarks>
-///     Implementations of this type must inherit from the generic <see cref="JsonValueReaderWriter{TValue}" />
+///     <para>
+///         Implementations of this type must inherit from the generic <see cref="JsonValueReaderWriter{TValue}" />.
+///     </para>
+///     <para>
+///         A reader/writer formats values without changing their meaning. Changes to a value or its storage type must be
+///         expressed using a value converter, with the reader/writer handling the converter's provider values. The formatter
+///         must preserve the value read by the provider's normal scalar materialization. This cannot be validated; an
+///         incompatible formatter can cause failures at runtime.
+///     </para>
 /// </remarks>
 public abstract class JsonValueReaderWriter
 {
+    private static readonly ConditionalWeakTable<Type, JsonValueReaderWriter?> Instances = new();
+
     /// <summary>
     ///     Ensures the external types extend from the generic <see cref="JsonValueReaderWriter{TValue}" />
     /// </summary>
@@ -88,15 +99,25 @@ public abstract class JsonValueReaderWriter
     /// <param name="value">The value to write.</param>
     /// <returns>The JSON representation of the given value.</returns>
     public string ToJsonString(object? value)
+        => Encoding.UTF8.GetString(ToJsonBytes(value).Span);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual ReadOnlyMemory<byte> ToJsonBytes(object? value, JsonWriterOptions options = default)
     {
         using var stream = new MemoryStream();
-        using var writer = new Utf8JsonWriter(stream);
+        using var writer = new Utf8JsonWriter(stream, options);
 
         ToJson(writer, value);
 
         writer.Flush();
 
-        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+        return stream.GetBuffer().AsMemory(0, (int)stream.Length);
     }
 
     /// <summary>
@@ -130,39 +151,42 @@ public abstract class JsonValueReaderWriter
     }
 
     /// <summary>
-    ///     Creates a <see cref="JsonValueReaderWriter{TValue}" /> instance of the given type, using the <c>Instance</c>
-    ///     property to get th singleton instance if possible.
+    ///     Gets or creates a cached <see cref="JsonValueReaderWriter{TValue}" /> instance of the given type, using the <c>Instance</c>
+    ///     property to get the singleton instance if possible.
     /// </summary>
+    /// <remarks>
+    ///     Reader/writer instances are shared and must be thread-safe.
+    /// </remarks>
     /// <param name="readerWriterType">The type, which must inherit from <see cref="JsonValueReaderWriter{TValue}" />.</param>
-    /// <returns>The reader/writer instance./</returns>
+    /// <returns>The reader/writer instance.</returns>
     /// <exception cref="InvalidOperationException">
     ///     if the type does not represent a
     ///     <see cref="JsonValueReaderWriter{TValue}" /> that can be instantiated.
     /// </exception>
     public static JsonValueReaderWriter? CreateFromType(Type? readerWriterType)
-    {
-        if (readerWriterType != null)
-        {
-            var instanceProperty = readerWriterType.GetAnyProperty("Instance");
-            try
-            {
-                return instanceProperty != null
-                    && instanceProperty.IsStatic()
-                    && instanceProperty.GetMethod?.IsPublic == true
-                    && readerWriterType.IsAssignableFrom(instanceProperty.PropertyType)
-                        ? (JsonValueReaderWriter?)instanceProperty.GetValue(null)
-                        : (JsonValueReaderWriter?)Activator.CreateInstance(readerWriterType);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.CannotCreateJsonValueReaderWriter(
-                        readerWriterType.ShortDisplayName()), e);
-            }
-        }
-
-        return null;
-    }
+        => readerWriterType == null
+            ? null
+            : Instances.GetValue(
+                readerWriterType,
+                static type =>
+                {
+                    var instanceProperty = type.GetAnyProperty("Instance");
+                    try
+                    {
+                        return instanceProperty != null
+                            && instanceProperty.IsStatic()
+                            && instanceProperty.GetMethod?.IsPublic == true
+                            && type.IsAssignableFrom(instanceProperty.PropertyType)
+                                ? (JsonValueReaderWriter?)instanceProperty.GetValue(null)
+                                : (JsonValueReaderWriter?)Activator.CreateInstance(type);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.CannotCreateJsonValueReaderWriter(
+                                type.ShortDisplayName()), e);
+                    }
+                });
 
     /// <summary>
     ///     The expression representing construction of this object.

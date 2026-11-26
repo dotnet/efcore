@@ -22,12 +22,14 @@ public class QueryFilterFuncletizationSqliteTest : QueryFilterFuncletizationTest
         AssertSql(
             """
 @ef_filter__Tenant='1'
+@ef_filter__Tenant0='1' (DbType = Int16)
+@ef_filter__Tenant1='1'
 
 SELECT "d"."Id", "d"."Tenant", "d0"."Id", "d0"."DeDupeFilter1Id", "d0"."TenantX", "d1"."Id", "d1"."DeDupeFilter1Id", "d1"."Tenant"
 FROM "DeDupeFilter1" AS "d"
 LEFT JOIN "DeDupeFilter2" AS "d0" ON "d"."Id" = "d0"."DeDupeFilter1Id" AND "d0"."TenantX" = @ef_filter__Tenant
-LEFT JOIN "DeDupeFilter3" AS "d1" ON "d"."Id" = "d1"."DeDupeFilter1Id" AND "d1"."Tenant" = @ef_filter__Tenant
-WHERE "d"."Tenant" = @ef_filter__Tenant
+LEFT JOIN "DeDupeFilter3" AS "d1" ON "d"."Id" = "d1"."DeDupeFilter1Id" AND "d1"."Tenant" = @ef_filter__Tenant0
+WHERE "d"."Tenant" = @ef_filter__Tenant1
 ORDER BY "d"."Id", "d0"."Id"
 """);
     }

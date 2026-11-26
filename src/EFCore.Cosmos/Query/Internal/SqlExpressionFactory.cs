@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel model)
     : ISqlExpressionFactory
 {
-    private readonly CoreTypeMapping _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool), model)!;
+    private readonly CoreTypeMapping _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +28,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
         => sqlExpression is not { TypeMapping: null }
             ? sqlExpression
-            : ApplyTypeMapping(sqlExpression, typeMappingSource.FindMapping(sqlExpression.Type, model));
+            : ApplyTypeMapping(
+                sqlExpression,
+                sqlExpression is SqlFunctionExpression && sqlExpression.Type.UnwrapNullableType() == typeof(bool)
+                    ? _boolTypeMapping
+                    : typeMappingSource.FindMapping(sqlExpression.Type, model));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -165,6 +169,15 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.LessThanOrEqual:
             case ExpressionType.NotEqual:
             {
+                if (left is SqlConstantExpression && right is not SqlConstantExpression && right.TypeMapping is { } rightMapping)
+                {
+                    left = SetTypeMapping(left, rightMapping);
+                }
+                else if (right is SqlConstantExpression && left is not SqlConstantExpression && left.TypeMapping is { } leftMapping)
+                {
+                    right = SetTypeMapping(right, leftMapping);
+                }
+
                 inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
                     // We avoid object here since the result does not get typeMapping from outside.
                     ?? (left.Type != typeof(object)
@@ -286,13 +299,16 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case { Values: { } values }:
                 SqlExpression[]? newValues = null;
 
-                if (missingTypeMappingInValues)
+                if (missingTypeMappingInValues
+                    || values.Any(v => v is SqlConstantExpression && v.TypeMapping != item.TypeMapping))
                 {
                     newValues = new SqlExpression[values.Count];
 
                     for (var i = 0; i < newValues.Length; i++)
                     {
-                        newValues[i] = ApplyTypeMapping(values[i], item.TypeMapping);
+                        newValues[i] = values[i] is SqlConstantExpression
+                            ? SetTypeMapping(values[i], item.TypeMapping!)
+                            : ApplyTypeMapping(values[i], item.TypeMapping);
                     }
                 }
 
@@ -334,8 +350,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             throw new InvalidOperationException("Couldn't find element type mapping when applying item/array mappings");
         }
 
-        // If the array's type mapping isn't provided (parameter/constant), attempt to infer it from the item.
-        if (arrayMapping is null)
+        // Parameters must use the compared member's element mapping, including its JSON formatter.
+        if (arrayMapping is null || arrayExpression is SqlParameterExpression)
         {
             // Get a type mapping for the array from the item.
             // If the array CLR type is anything but an object[], just use that CLR type.
@@ -351,7 +367,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                     $"Can't construct generic primitive collection type for array type '{arrayExpression.Type}'")
             };
 
-            arrayMapping = typeMappingSource.FindMapping(arrayClrType, model, itemMapping.ElementTypeMapping);
+            arrayMapping = typeMappingSource.FindMapping(arrayClrType, model, itemMapping);
 
             if (arrayMapping is null)
             {
@@ -359,7 +375,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             }
         }
 
-        return (ApplyTypeMapping(itemExpression, itemMapping), ApplyTypeMapping(arrayExpression, arrayMapping));
+        return (ApplyTypeMapping(itemExpression, itemMapping), SetTypeMapping(arrayExpression, arrayMapping));
     }
 
     /// <summary>

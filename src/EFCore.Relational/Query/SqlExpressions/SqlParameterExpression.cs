@@ -106,9 +106,10 @@ public sealed class SqlParameterExpression : SqlExpression
 
     private bool Equals(SqlParameterExpression sqlParameterExpression)
         => base.Equals(sqlParameterExpression)
+            && InvariantName == sqlParameterExpression.InvariantName
             && Name == sqlParameterExpression.Name;
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Name);
+        => HashCode.Combine(base.GetHashCode(), InvariantName, Name);
 }

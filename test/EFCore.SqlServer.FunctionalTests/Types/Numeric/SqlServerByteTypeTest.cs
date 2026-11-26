@@ -104,7 +104,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS tinyint) = @Fixture_Val
 
         AssertSql(
             """
-@p0='{"OtherValue":255,"Value":255}' (Nullable = false) (Size = 30)
+@p0='{"OtherValue":255,"Value":255}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -123,7 +123,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='255' (Size = 1)
+@Fixture_OtherValue='255' (Nullable = true) (Size = 1)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -135,7 +135,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='255' (Size = 1)
+@Fixture_OtherValue='255' (Nullable = true) (Size = 1)
 
 SET NOCOUNT OFF;
 UPDATE [j]

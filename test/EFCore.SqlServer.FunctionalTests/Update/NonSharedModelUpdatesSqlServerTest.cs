@@ -5,6 +5,62 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class NonSharedModelUpdatesSqlServerTest(NonSharedFixture fixture) : NonSharedModelUpdatesTestBase(fixture)
 {
+    public override async Task Custom_JSON_scalar_writer_is_preserved_on_single_property_update(bool async, bool typeMappingDefault)
+    {
+        await base.Custom_JSON_scalar_writer_is_preserved_on_single_property_update(async, typeMappingDefault);
+
+        AssertSql(
+            """
+@p0='43' (Nullable = false) (Size = 4000)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonScalarOwners] SET [Data] = JSON_MODIFY([Data], 'strict $.Number', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+@p0='yes' (Nullable = false) (Size = 4000)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonScalarOwners] SET [Data] = JSON_MODIFY([Data], 'strict $.Enabled', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+@p0='1769904000000'
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonScalarOwners] SET [Data] = JSON_MODIFY([Data], 'strict $.Timestamp', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+@p0='a"b\c
+' (Nullable = false) (Size = 4000)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonScalarOwners] SET [Data] = JSON_MODIFY([Data], 'strict $.EscapedText', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[Data]
+FROM [JsonScalarOwners] AS [j]
+""");
+    }
+
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
         await base.Principal_and_dependent_roundtrips_with_cycle_breaking(async);

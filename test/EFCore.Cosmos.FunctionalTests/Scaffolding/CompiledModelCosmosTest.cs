@@ -3,6 +3,7 @@
 
 // ReSharper disable InconsistentNaming
 
+using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
@@ -253,7 +254,13 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
 
         modelBuilder.Entity<ManyTypes>(b =>
         {
-            b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedNever();
+            b.ToContainer("ManyTypes");
+            b.Property(e => e.Id).ToJsonProperty("id").ValueGeneratedNever().HasConversion(
+                new ValueConverter<ManyTypesId, string>(
+                    v => v.Id.ToString(CultureInfo.InvariantCulture),
+                    v => new ManyTypesId(int.Parse(v, CultureInfo.InvariantCulture)),
+                    new ConverterMappingHints(size: 11)));
+            b.HasPartitionKey(e => e.Id);
             // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
             b.Ignore(e => e.GuidArray);
             b.Ignore(e => e.DateTimeArray);
@@ -632,6 +639,20 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
 
         var typesFromStore = await context.Set<ManyTypes>().OrderBy(m => m.Id).FirstAsync();
         AssertEqual(types, typesFromStore, jsonColumns);
+
+        context.ChangeTracker.Clear();
+        typesFromStore = await context.Set<ManyTypes>().FindAsync(types.Id);
+        Assert.NotNull(typesFromStore);
+        Assert.Equal(types.String, typesFromStore.String);
+        typesFromStore.String = "updated";
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        typesFromStore = await context.Set<ManyTypes>()
+            .WithPartitionKey(types.Id)
+            .SingleAsync(e => e.Id == types.Id);
+        Assert.Equal(types.Id, typesFromStore.Id);
+        Assert.Equal("updated", typesFromStore.String);
     }
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)

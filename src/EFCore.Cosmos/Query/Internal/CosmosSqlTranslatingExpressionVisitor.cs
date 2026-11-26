@@ -76,6 +76,13 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
         return TranslateInternal(expression, applyDefaultTypeMapping) as SqlExpression;
     }
 
+    internal SqlExpression? Translate(Expression expression, CoreTypeMapping typeMapping)
+    {
+        TranslationErrorDetails = null;
+
+        return TranslateInternal(expression, expectedTypeMapping: typeMapping) as SqlExpression;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -103,7 +110,11 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
         };
     }
 
-    private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true, bool isProjection = false)
+    private Expression? TranslateInternal(
+        Expression expression,
+        bool applyDefaultTypeMapping = true,
+        bool isProjection = false,
+        CoreTypeMapping? expectedTypeMapping = null)
     {
         var result = Visit(expression);
 
@@ -117,7 +128,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
             if (applyDefaultTypeMapping)
             {
-                translation = sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
+                translation = expectedTypeMapping is null
+                    ? sqlExpressionFactory.ApplyDefaultTypeMapping(translation)
+                    : sqlExpressionFactory.ApplyTypeMapping(translation, expectedTypeMapping);
 
                 if (translation.TypeMapping == null)
                 {

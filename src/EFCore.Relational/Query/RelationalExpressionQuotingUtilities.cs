@@ -62,20 +62,32 @@ public static class RelationalExpressionQuotingUtilities
     ///     Quotes a relational type mapping.
     /// </summary>
     public static Expression QuoteTypeMapping(RelationalTypeMapping? typeMapping)
-        => typeMapping is null
-            ? Constant(null, typeof(RelationalTypeMapping))
-            : Call(
-                RelationalTypeMappingSourceParameter,
-                RelationalTypeMappingSourceFindMappingMethod,
-                Constant(typeMapping.ClrType, typeof(Type)),
-                Constant(typeMapping.StoreType, typeof(string)),
-                Constant(false), // TODO: keyOrIndex not accessible
-                Constant(typeMapping.IsUnicode, typeof(bool?)),
-                Constant(typeMapping.Size, typeof(int?)),
-                Constant(false, typeof(bool?)), // TODO: rowversion not accessible
-                Constant(typeMapping.IsFixedLength, typeof(bool?)),
-                Constant(typeMapping.Precision, typeof(int?)),
-                Constant(typeMapping.Scale, typeof(int?)));
+        => typeMapping switch
+        {
+            null => Constant(null, typeof(RelationalTypeMapping)),
+            IRelationalQuotableExpression quotable => quotable.Quote(),
+            _ => QuoteTypeMapping(typeMapping, typeMapping.ClrType)
+        };
+
+    /// <summary>
+    ///     Quotes a type mapping lookup using the given CLR type and the mapping's relational facets.
+    /// </summary>
+    /// <param name="typeMapping">The mapping supplying the relational facets.</param>
+    /// <param name="clrType">The CLR type to look up, such as a converted mapping's provider type.</param>
+    /// <returns>An expression that looks up the type mapping.</returns>
+    public static Expression QuoteTypeMapping(RelationalTypeMapping typeMapping, Type clrType)
+        => Call(
+            RelationalTypeMappingSourceParameter,
+            RelationalTypeMappingSourceFindMappingMethod,
+            Constant(clrType, typeof(Type)),
+            Constant(typeMapping.StoreType, typeof(string)),
+            Constant(false), // TODO: keyOrIndex not accessible
+            Constant(typeMapping.IsUnicode, typeof(bool?)),
+            Constant(typeMapping.Size, typeof(int?)),
+            Constant(false, typeof(bool?)), // TODO: rowversion not accessible
+            Constant(typeMapping.IsFixedLength, typeof(bool?)),
+            Constant(typeMapping.Precision, typeof(int?)),
+            Constant(typeMapping.Scale, typeof(int?)));
 
     /// <summary>
     ///     Quotes an <see cref="ITableBase" />.

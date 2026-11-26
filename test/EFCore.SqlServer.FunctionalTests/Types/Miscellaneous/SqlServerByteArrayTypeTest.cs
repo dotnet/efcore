@@ -82,7 +82,7 @@ WHERE [v].[Value] = @Fixture_Value
 
         AssertSql(
             """
-@p0='{"OtherValue":"BAUGBw==","Value":"BAUGBw=="}' (Nullable = false) (Size = 44)
+@p0='{"OtherValue":"BAUGBw==","Value":"BAUGBw=="}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -101,11 +101,11 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='BAUGBw==' (Size = 4000)
+@Fixture_OtherValue='BAUGBw==' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -113,11 +113,11 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='BAUGBw==' (Size = 4000)
+@Fixture_OtherValue='BAUGBw==' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
