@@ -458,6 +458,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="ServiceProviderContextDiscoveryFailed" xml:space="preserve">
     <value>The exception '{rootException}' was thrown while searching the application's service provider for additional 'DbContext' types. Only the types found by other means will be used.</value>
   </data>
+  <data name="SnapshotFileBelongsToAnotherType" xml:space="preserve">
+    <value>The file '{file}' already exists and this DbContext has no model snapshot to replace, so '{snapshotName}' was not written to it. The file probably belongs to a different DbContext. Use a different output directory.</value>
+  </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.</value>
   </data>
