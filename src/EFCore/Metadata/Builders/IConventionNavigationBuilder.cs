@@ -65,6 +65,10 @@ public interface IConventionNavigationBuilder : IConventionPropertyBaseBuilder<I
     /// <summary>
     ///     Configures whether this navigation is required.
     /// </summary>
+    /// <remarks>
+    ///     For a collection navigation, a navigation that is not required can be <see langword="null" /> as distinct from empty.
+    ///     See <see cref="IReadOnlyNavigation.IsNullable" />.
+    /// </remarks>
     /// <param name="required">
     ///     A value indicating whether this is a required navigation.
     ///     <see langword="null" /> to reset to default.

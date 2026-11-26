@@ -2751,6 +2751,16 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 ((IReadOnlyNavigation)oldNavigation).LazyLoadingEnabled, oldLazyLoadingEnabledConfigurationSource.Value)!;
         }
 
+        // The requiredness of a collection navigation is whether it can be null, which is not stored on the foreign key
+        var oldIsNullableConfigurationSource = ((IConventionNavigation)oldNavigation).GetIsNullableConfigurationSource();
+        if (oldIsNullableConfigurationSource.HasValue
+            && builder.Metadata.IsCollection
+            && builder.CanSetIsRequired(!((IReadOnlyNavigation)oldNavigation).IsNullable, oldIsNullableConfigurationSource.Value))
+        {
+            builder = builder.IsRequired(
+                !((IReadOnlyNavigation)oldNavigation).IsNullable, oldIsNullableConfigurationSource.Value)!;
+        }
+
         return builder.Metadata.ForeignKey.Builder;
     }
 

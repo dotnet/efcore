@@ -1478,9 +1478,6 @@
   <data name="NonUniqueRequiredDependentForeignKey" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.</value>
   </data>
-  <data name="NonUniqueRequiredDependentNavigation" xml:space="preserve">
-    <value>'{principalEntityType}.{principalNavigation}' cannot be configured as required since it was configured as a collection.</value>
-  </data>
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}', Entity Framework requires that a parameterless constructor be declared.</value>
   </data>
@@ -1522,6 +1519,9 @@
   </data>
   <data name="NoValueGenerator" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}' in 'OnModelCreating'.</value>
+  </data>
+  <data name="NullableCollectionNavigationNoSetter" xml:space="preserve">
+    <value>The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but it has no setter or backing field that can be used to set it to null. Add a setter or a backing field, or configure the navigation as required.</value>
   </data>
   <data name="NullableKey" xml:space="preserve">
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>

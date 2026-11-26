@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -23,7 +25,7 @@ public class NullableJsonCollectionConvention(ProviderConventionSetBuilderDepend
         {
             if (!entityType.IsMappedToJson()
                 || entityType.FindOwnership() is not { PrincipalToDependent: { IsCollection: true } navigation }
-                || !ConfigurationSource.Convention.Overrides(navigation.GetIsNullableConfigurationSource()))
+                || !navigation.Builder.CanSetIsRequired(false))
             {
                 continue;
             }
@@ -31,9 +33,14 @@ public class NullableJsonCollectionConvention(ProviderConventionSetBuilderDepend
             var memberInfo = navigation.PropertyInfo ?? (MemberInfo?)navigation.FieldInfo;
             if (memberInfo != null
                 && TryGetNullabilityInfo(modelBuilder, memberInfo, out var nullabilityInfo)
-                && nullabilityInfo.ReadState == NullabilityState.Nullable)
+                && nullabilityInfo.ReadState == NullabilityState.Nullable
+                // A stored null can only be materialized if the navigation can be set to null
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                && ((IPropertyBase)navigation).TryGetMemberInfo(forMaterialization: true, forSet: true, out var setter, out _)
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                && setter != null)
             {
-                navigation.SetIsNullable(true);
+                navigation.Builder.IsRequired(false);
             }
         }
     }

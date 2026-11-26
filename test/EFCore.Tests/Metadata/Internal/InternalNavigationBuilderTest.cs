@@ -155,7 +155,7 @@ public class InternalNavigationBuilderTest
     }
 
     [Fact]
-    public void Can_only_override_lower_or_equal_source_IsNullable()
+    public void Can_only_override_lower_or_equal_source_IsRequired_on_collection_navigation()
     {
         var builder = CreateInternalNavigationBuilder();
         IConventionNavigation metadata = builder.Metadata;
@@ -163,31 +163,32 @@ public class InternalNavigationBuilderTest
         Assert.False(metadata.IsNullable);
         Assert.Null(metadata.GetIsNullableConfigurationSource());
 
-        Assert.True(builder.CanSetIsNullable(true, ConfigurationSource.DataAnnotation));
-        Assert.NotNull(builder.IsNullable(true, ConfigurationSource.DataAnnotation));
+        Assert.True(builder.CanSetIsRequired(false, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
         Assert.True(metadata.IsNullable);
         Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsNullableConfigurationSource());
 
-        Assert.True(builder.CanSetIsNullable(true, ConfigurationSource.Convention));
-        Assert.False(builder.CanSetIsNullable(false, ConfigurationSource.Convention));
-        Assert.NotNull(builder.IsNullable(true, ConfigurationSource.Convention));
-        Assert.Null(builder.IsNullable(false, ConfigurationSource.Convention));
+        Assert.True(builder.CanSetIsRequired(false, ConfigurationSource.Convention));
+        Assert.False(builder.CanSetIsRequired(true, ConfigurationSource.Convention));
+        Assert.NotNull(builder.IsRequired(false, ConfigurationSource.Convention));
+        Assert.Null(builder.IsRequired(true, ConfigurationSource.Convention));
 
         Assert.True(metadata.IsNullable);
         Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsNullableConfigurationSource());
 
-        Assert.True(builder.CanSetIsNullable(false, ConfigurationSource.DataAnnotation));
-        Assert.NotNull(builder.IsNullable(false, ConfigurationSource.DataAnnotation));
+        Assert.True(builder.CanSetIsRequired(true, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.IsRequired(true, ConfigurationSource.DataAnnotation));
 
         Assert.False(metadata.IsNullable);
         Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsNullableConfigurationSource());
 
-        Assert.True(builder.CanSetIsNullable(null, ConfigurationSource.DataAnnotation));
-        Assert.NotNull(builder.IsNullable(null, ConfigurationSource.DataAnnotation));
+        Assert.True(builder.CanSetIsRequired(null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.IsRequired(null, ConfigurationSource.DataAnnotation));
 
         Assert.False(metadata.IsNullable);
         Assert.Null(metadata.GetIsNullableConfigurationSource());
+        Assert.False(metadata.ForeignKey.IsRequired);
     }
 
     [Fact]
@@ -242,13 +243,17 @@ public class InternalNavigationBuilderTest
     }
 
     [Fact]
-    public void Configuring_IsRequired_on_to_dependent_nonUnique_throws()
+    public void Configuring_IsRequired_on_to_dependent_nonUnique_configures_whether_the_collection_can_be_null()
     {
         var builder = CreateInternalNavigationBuilder();
 
-        Assert.Equal(
-            CoreStrings.NonUniqueRequiredDependentNavigation(nameof(Order), nameof(Order.Details)),
-            Assert.Throws<InvalidOperationException>(() => builder.IsRequired(true, ConfigurationSource.Explicit)).Message);
+        Assert.Same(builder, builder.IsRequired(false, ConfigurationSource.Explicit));
+        Assert.True(((IReadOnlyNavigation)builder.Metadata).IsNullable);
+        Assert.Equal(ConfigurationSource.Explicit, ((IConventionNavigation)builder.Metadata).GetIsNullableConfigurationSource());
+
+        Assert.Same(builder, builder.IsRequired(true, ConfigurationSource.Explicit));
+        Assert.False(((IReadOnlyNavigation)builder.Metadata).IsNullable);
+        Assert.False(builder.Metadata.ForeignKey.IsRequired);
     }
 
     [Fact]

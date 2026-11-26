@@ -2241,6 +2241,41 @@ public class InternalEntityTypeBuilderTest
         Assert.Empty(entityBuilder.Metadata.GetKeys());
     }
 
+    [Theory]
+    [InlineData(ConfigurationSource.DataAnnotation)]
+    [InlineData(ConfigurationSource.Convention)]
+    public void Collection_navigation_requiredness_is_preserved_when_relationship_is_rebuilt(ConfigurationSource configurationSource)
+    {
+        var modelBuilder = CreateModelBuilder();
+        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!;
+        var key = principalEntityBuilder.PrimaryKey(
+            [Customer.IdProperty, Customer.UniqueProperty], ConfigurationSource.Convention)!;
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
+
+        var fk = dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
+                Order.CustomerProperty.Name,
+                Customer.OrdersProperty.Name,
+                ConfigurationSource.Convention)!
+            .HasForeignKey(
+            [
+                dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention)!.Metadata,
+                dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention)!.Metadata
+            ], ConfigurationSource.Convention)!
+            .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.Convention)!
+            .Metadata;
+        var oldNavigation = fk.PrincipalToDependent!;
+        Assert.NotNull(oldNavigation.Builder.IsRequired(false, configurationSource));
+
+        // Removing part of the principal key replaces the foreign key and its navigations
+        Assert.NotNull(principalEntityBuilder.Ignore(Customer.UniqueProperty.Name, ConfigurationSource.DataAnnotation));
+
+        IConventionNavigation newNavigation = dependentEntityBuilder.Metadata.GetForeignKeys().Single().PrincipalToDependent!;
+        Assert.NotSame(oldNavigation, newNavigation);
+        Assert.True(newNavigation.IsNullable);
+        Assert.Equal(configurationSource, newNavigation.GetIsNullableConfigurationSource());
+    }
+
     [Fact]
     public void Can_ignore_property_that_is_part_of_lower_source_principal_key_preserving_the_relationship()
     {

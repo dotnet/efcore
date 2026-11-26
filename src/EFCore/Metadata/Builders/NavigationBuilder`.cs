@@ -98,6 +98,10 @@ public class NavigationBuilder<TSource, TTarget> : NavigationBuilder
     /// <summary>
     ///     Configures whether this navigation is required.
     /// </summary>
+    /// <remarks>
+    ///     For a collection navigation, a navigation that is not required can be <see langword="null" /> as distinct from empty.
+    ///     See <see cref="IReadOnlyNavigation.IsNullable" />.
+    /// </remarks>
     /// <param name="required">A value indicating whether the navigation should be required.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual NavigationBuilder<TSource, TTarget> IsRequired(bool required = true)

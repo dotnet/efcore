@@ -471,6 +471,14 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             throw new InvalidOperationException(
                 CoreStrings.NullableNavigationNotCollection(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
         }
+
+        // A stored null is materialized by setting the navigation to null, which a getter-only collection can't do
+        if (!navigation.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfo, out _)
+            || memberInfo == null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.NullableCollectionNavigationNoSetter(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        }
     }
 
     /// <summary>

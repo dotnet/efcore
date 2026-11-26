@@ -1321,6 +1321,36 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
+    public virtual void Detects_nullable_collection_navigation_that_cannot_be_set()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<GetterOnlyCollectionOwner>().HasMany(o => o.Elements).WithOne();
+        modelBuilder.Model.FindEntityType(typeof(GetterOnlyCollectionOwner))!
+            .FindNavigation(nameof(GetterOnlyCollectionOwner.Elements))!.SetIsNullable(true);
+
+        VerifyError(
+            CoreStrings.NullableCollectionNavigationNoSetter(
+                nameof(GetterOnlyCollectionOwner.Elements), nameof(GetterOnlyCollectionOwner)),
+            modelBuilder);
+    }
+
+    protected class GetterOnlyCollectionOwner
+    {
+        // The name doesn't match the navigation, so it isn't found as its backing field
+        private readonly List<GetterOnlyCollectionElement> _store = [];
+
+        public int Id { get; set; }
+
+        public List<GetterOnlyCollectionElement>? Elements
+            => _store;
+    }
+
+    protected class GetterOnlyCollectionElement
+    {
+        public int Id { get; set; }
+    }
+
+    [Fact]
     public virtual void Detects_value_type_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();

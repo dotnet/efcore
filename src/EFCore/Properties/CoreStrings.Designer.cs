@@ -2618,14 +2618,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKeyProperties, declaringEntityType);
 
         /// <summary>
-        ///     '{principalEntityType}.{principalNavigation}' cannot be configured as required since it was configured as a collection.
-        /// </summary>
-        public static string NonUniqueRequiredDependentNavigation(object? principalEntityType, object? principalNavigation)
-            => string.Format(
-                GetString("NonUniqueRequiredDependentNavigation", nameof(principalEntityType), nameof(principalNavigation)),
-                principalEntityType, principalNavigation);
-
-        /// <summary>
         ///     A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}', Entity Framework requires that a parameterless constructor be declared.
         /// </summary>
         public static string NoParameterlessConstructor(object? entityType)
@@ -2730,6 +2722,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NoValueGenerator", "0_property", "1_entityType", nameof(propertyType)),
                 property, entityType, propertyType);
+
+        /// <summary>
+        ///     The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but it has no setter or backing field that can be used to set it to null. Add a setter or a backing field, or configure the navigation as required.
+        /// </summary>
+        public static string NullableCollectionNavigationNoSetter(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NullableCollectionNavigationNoSetter", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
 
         /// <summary>
         ///     A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.
