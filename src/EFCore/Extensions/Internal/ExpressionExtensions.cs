@@ -21,7 +21,10 @@ public static class ExpressionExtensions
     /// <summary>
     ///     Creates an expression accessing the complex property chain to the given declaring type.
     /// </summary>
-    internal static Expression CreateComplexPropertyChainExpression(this Expression target, IReadOnlyTypeBase declaringType)
+    internal static Expression CreateComplexPropertyChainExpression(
+        this Expression target,
+        IReadOnlyTypeBase declaringType,
+        bool useComplexPropertyChain = false)
     {
         if (UseOldBehavior39722 || declaringType is not IReadOnlyComplexType complexType)
         {
@@ -41,26 +44,35 @@ public static class ExpressionExtensions
         }
 
         var targetType = targetForTypeCheck.Type.UnwrapNullableType();
-        var declaringEntityType = complexType.ComplexProperty.DeclaringType;
-        while (declaringEntityType is IReadOnlyComplexType parentComplexType)
-        {
-            declaringEntityType = parentComplexType.ComplexProperty.DeclaringType;
-        }
 
-        if (!declaringEntityType.ClrType.IsAssignableFrom(targetType)
-            && complexType.ClrType.IsAssignableFrom(targetType))
+        if (!useComplexPropertyChain && complexType.ClrType.IsAssignableFrom(targetType))
         {
             return target;
         }
 
         var complexProperty = complexType.ComplexProperty;
         return Infrastructure.ExpressionExtensions.CreateEFPropertyExpression(
-            target.CreateComplexPropertyChainExpression(complexProperty.DeclaringType),
+            target.CreateComplexPropertyChainExpression(complexProperty.DeclaringType, useComplexPropertyChain: true),
             complexProperty.DeclaringType.ClrType,
             complexProperty.ClrType,
             complexProperty.Name,
             makeNullable: false);
     }
+
+    /// <summary>
+    ///     Creates an expression accessing the given property, optionally including the complex property chain from the entity root.
+    /// </summary>
+    internal static Expression CreateEFPropertyExpression(
+        this Expression target,
+        IReadOnlyPropertyBase property,
+        bool makeNullable,
+        bool useComplexPropertyChain)
+        => Infrastructure.ExpressionExtensions.CreateEFPropertyExpression(
+            target.CreateComplexPropertyChainExpression(property.DeclaringType, useComplexPropertyChain),
+            property.DeclaringType.ClrType,
+            property.ClrType,
+            property.Name,
+            makeNullable);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -572,7 +584,8 @@ public static class ExpressionExtensions
             IReadOnlyProperty property,
             int i)
         {
-            var target = entityParameterExpression.CreateComplexPropertyChainExpression(property.DeclaringType);
+            var target = entityParameterExpression.CreateComplexPropertyChainExpression(
+                property.DeclaringType, useComplexPropertyChain: true);
             if (target.Type.IsValueType)
             {
                 target = Expression.Convert(target, typeof(object));
