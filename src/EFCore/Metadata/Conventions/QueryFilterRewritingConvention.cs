@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -104,7 +105,13 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
                 && _model != null)
             {
                 var entityClrType = memberExpression.Type.GetGenericArguments()[0];
-                return new EntityQueryRootExpression(FindEntityType(entityClrType)!);
+                var entityType = FindEntityType(entityClrType);
+                if (entityType == null)
+                {
+                    ThrowInvalidSetType(entityClrType, entityTypeName: null);
+                }
+
+                return new EntityQueryRootExpression(entityType);
             }
 
             return base.VisitMember(memberExpression);
@@ -124,10 +131,11 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
             {
                 IEntityType? entityType;
                 var entityClrType = methodCallExpression.Type.GetGenericArguments()[0];
+                string? entityTypeName = null;
                 if (methodCallExpression.Arguments.Count == 1)
                 {
                     // STET Set method
-                    var entityTypeName = methodCallExpression.Arguments[0].GetConstantValue<string>();
+                    entityTypeName = methodCallExpression.Arguments[0].GetConstantValue<string>();
                     entityType = (IEntityType?)_model.FindEntityType(entityTypeName);
                 }
                 else
@@ -137,21 +145,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
 
                 if (entityType == null)
                 {
-                    if (_model.IsShared(entityClrType)
-                        || ((IModel)_model).FindEntityTypes(entityClrType).Any(e => e.HasSharedClrType))
-                    {
-                        throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(entityClrType.ShortDisplayName()));
-                    }
-
-                    var findSameTypeName = ((IModel)_model).FindSameTypeNameWithDifferentNamespace(entityClrType);
-                    //if the same name exists in your entity types we will show you the full namespace of the type
-                    if (!string.IsNullOrEmpty(findSameTypeName))
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.InvalidSetSameTypeWithDifferentNamespace(entityClrType.DisplayName(), findSameTypeName));
-                    }
-
-                    throw new InvalidOperationException(CoreStrings.InvalidSetType(entityClrType.ShortDisplayName()));
+                    ThrowInvalidSetType(entityClrType, entityTypeName);
                 }
 
                 if (entityType.IsOwned())
@@ -178,5 +172,31 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
 
         private IEntityType? FindEntityType(Type entityClrType)
             => ((IModel)_model!).FindRuntimeEntityType(entityClrType);
+
+        [DoesNotReturn]
+        private void ThrowInvalidSetType(Type entityClrType, string? entityTypeName)
+        {
+            if (entityTypeName != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidSetTypeWithName(entityClrType.ShortDisplayName(), entityTypeName));
+            }
+
+            if (_model!.IsShared(entityClrType)
+                || ((IModel)_model).FindEntityTypes(entityClrType).Any(e => e.HasSharedClrType))
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(entityClrType.ShortDisplayName()));
+            }
+
+            var findSameTypeName = ((IModel)_model).FindSameTypeNameWithDifferentNamespace(entityClrType);
+            //if the same name exists in your entity types we will show you the full namespace of the type
+            if (!string.IsNullOrEmpty(findSameTypeName))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidSetSameTypeWithDifferentNamespace(entityClrType.DisplayName(), findSameTypeName));
+            }
+
+            throw new InvalidOperationException(CoreStrings.InvalidSetType(entityClrType.ShortDisplayName()));
+        }
     }
 }
