@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -37,6 +38,8 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
     public override SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
         => sqlExpression switch
         {
+            SqlFunctionExpression e => ApplySqlFunctionTypeMapping(e, typeMapping),
+
             null or { TypeMapping: not null } => sqlExpression,
 
             AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
@@ -59,5 +62,51 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
             atTimeZoneExpression.TimeZone,
             atTimeZoneExpression.Type,
             typeMapping);
+    }
+
+    private static SqlExpression ApplySqlFunctionTypeMapping(SqlFunctionExpression sqlFunctionExpression, RelationalTypeMapping? typeMapping)
+    {
+        if (typeMapping?.DbType == DbType.DateTime2)
+        {
+            if (sqlFunctionExpression.Name is "GETDATE" or "GETUTCDATE")
+            {
+                return new SqlFunctionExpression(
+                    sqlFunctionExpression.Name is "GETDATE" ? "SYSDATETIME" : "SYSUTCDATETIME",
+                    arguments: [],
+                    nullable: false,
+                    argumentsPropagateNullability: [],
+                    typeof(DateTime),
+                    typeMapping);
+            }
+
+            if (sqlFunctionExpression.Arguments?.Any(a => a is SqlFunctionExpression { Name: "GETDATE" or "GETUTCDATE" }) == true)
+            {
+                var transformedArguments = new List<SqlExpression>();
+                foreach (var argument in sqlFunctionExpression.Arguments)
+                {
+                    if (argument is SqlFunctionExpression { Name: "GETDATE" or "GETUTCDATE" })
+                    {
+                        transformedArguments.Add(
+                            new SqlFunctionExpression(
+                                sqlFunctionExpression.Name is "GETDATE" ? "SYSDATETIME" : "SYSUTCDATETIME",
+                                arguments: [],
+                                nullable: false,
+                                argumentsPropagateNullability: [],
+                                typeof(DateTime),
+                                typeMapping));
+                    }
+                    else
+                    {
+                        transformedArguments.Add(argument);
+                    }
+                }
+
+                return sqlFunctionExpression.Update(instance: null, transformedArguments);
+            }
+        }
+
+        return sqlFunctionExpression.TypeMapping is not null
+            ? sqlFunctionExpression
+            : sqlFunctionExpression.ApplyTypeMapping(typeMapping);
     }
 }
