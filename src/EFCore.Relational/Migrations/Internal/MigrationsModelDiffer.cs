@@ -1305,8 +1305,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         {
             throw new InvalidOperationException(
                 RelationalStrings.ComputedColumnSqlUnspecified(
-                    column.Name,
-                    column.Table.SchemaQualifiedName));
+                    column.Table.SchemaQualifiedName,
+                    column.Name));
         }
 
         var property = column.PropertyMappings.First().Property;

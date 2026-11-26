@@ -9,6 +9,37 @@ namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class CosmosBuilderExtensionsTest
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Full_text_index_convention_respects_explicit_configuration(bool fullTextIndex)
+    {
+        var entity = new ModelBuilder(new ConventionSet()).Entity("Entity");
+        entity.Property<string>("Text");
+        var index = entity.HasIndex("Text");
+        index.IsFullTextIndex(fullTextIndex);
+        var conventionBuilder = ((IConventionIndex)index.Metadata).Builder;
+
+        Assert.Same(conventionBuilder, conventionBuilder.IsFullTextIndex(fullTextIndex));
+        Assert.Null(conventionBuilder.IsFullTextIndex(!fullTextIndex));
+        Assert.Equal(fullTextIndex, index.Metadata.IsFullTextIndex());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Full_text_index_can_be_overridden_from_data_annotation(bool fullTextIndex)
+    {
+        var entity = new ModelBuilder(new ConventionSet()).Entity("Entity");
+        entity.Property<string>("Text");
+        var index = ((IConventionIndex)entity.HasIndex("Text").Metadata).Builder;
+        Assert.Same(index, index.IsFullTextIndex(!fullTextIndex, fromDataAnnotation: true));
+
+        Assert.Null(index.IsFullTextIndex(fullTextIndex));
+        Assert.Same(index, index.IsFullTextIndex(fullTextIndex, fromDataAnnotation: true));
+        Assert.Equal(fullTextIndex, index.Metadata.IsFullTextIndex());
+    }
+
     [Fact]
     public void Can_get_and_set_collection_name()
     {

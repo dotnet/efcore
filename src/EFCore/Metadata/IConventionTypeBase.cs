@@ -482,7 +482,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         return indexerPropertyInfo == null
             ? throw new InvalidOperationException(
                 CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()))
-            : AddComplexProperty(name, propertyType, indexerPropertyInfo, complexType, complexTypeName, fromDataAnnotation);
+            : AddComplexProperty(name, propertyType, indexerPropertyInfo, complexType, complexTypeName, collection, fromDataAnnotation);
     }
 
     /// <summary>

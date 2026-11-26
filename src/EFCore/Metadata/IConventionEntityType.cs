@@ -312,7 +312,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
         IConventionKey principalKey,
         IConventionEntityType principalEntityType,
         bool fromDataAnnotation = false)
-        => AddForeignKey([property], principalKey, principalEntityType, fromDataAnnotation);
+        => AddForeignKey([property], principalKey, principalEntityType, fromDataAnnotation: fromDataAnnotation);
 
     /// <summary>
     ///     Adds a new relationship to this entity type.
