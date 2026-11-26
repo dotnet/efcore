@@ -176,8 +176,34 @@ public class WarningsConfiguration
     /// <returns>A value indicating whether all of the options that require a new service provider are the same.</returns>
     public virtual bool ShouldUseSameServiceProvider(WarningsConfiguration other)
         => _defaultBehavior == other._defaultBehavior
-            && _explicitBehaviors.Count == other._explicitBehaviors.Count
-            && _explicitBehaviors.SequenceEqual(other._explicitBehaviors);
+            && (ReferenceEquals(_explicitBehaviors, other._explicitBehaviors)
+                || (_explicitBehaviors.Count == other._explicitBehaviors.Count
+                    && ExplicitBehaviorsEqual(_explicitBehaviors, other._explicitBehaviors)));
+
+    private static bool ExplicitBehaviorsEqual(
+        ImmutableSortedDictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> left,
+        ImmutableSortedDictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> right)
+    {
+        var rightEnumerator = right.GetEnumerator();
+        try
+        {
+            foreach (var (key, value) in left)
+            {
+                rightEnumerator.MoveNext();
+                var current = rightEnumerator.Current;
+                if (key != current.Key || value != current.Value)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        finally
+        {
+            rightEnumerator.Dispose();
+        }
+    }
 
     /// <summary>
     ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
