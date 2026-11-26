@@ -472,6 +472,19 @@ public class SqlServerQuerySqlGenerator(
                 return sqlFunctionExpression;
             }
 
+            // TRIM accepts the characters to trim with a special syntax: TRIM(characters FROM string)
+            // (https://learn.microsoft.com/sql/t-sql/functions/trim-transact-sql)
+            case { Name: "TRIM", IsBuiltIn: true, Instance: null, Arguments: [var input, var characters] }:
+            {
+                Sql.Append("TRIM(");
+                Visit(characters);
+                Sql.Append(" FROM ");
+                Visit(input);
+                Sql.Append(")");
+
+                return sqlFunctionExpression;
+            }
+
             // SQL Server 2025 modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)
             // We get here only from within UPDATE setters.
             // We generate the syntax here manually rather than just using the regular function visitation logic since

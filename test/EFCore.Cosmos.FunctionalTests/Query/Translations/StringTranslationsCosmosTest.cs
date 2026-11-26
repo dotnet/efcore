@@ -977,6 +977,27 @@ WHERE (TRIM(c["String"]) = "Boston")
         AssertSql();
     }
 
+    public override async Task Trim_with_char_parameter_in_predicate()
+    {
+        await AssertTranslationFailed(base.Trim_with_char_parameter_in_predicate);
+
+        AssertSql();
+    }
+
+    public override async Task Trim_with_non_ASCII_char_parameter_in_predicate()
+    {
+        await AssertTranslationFailed(base.Trim_with_non_ASCII_char_parameter_in_predicate);
+
+        AssertSql();
+    }
+
+    public override async Task Trim_with_char_array_parameter_in_predicate()
+    {
+        await AssertTranslationFailed(base.Trim_with_char_array_parameter_in_predicate);
+
+        AssertSql();
+    }
+
     #endregion Trim
 
     #region Compare

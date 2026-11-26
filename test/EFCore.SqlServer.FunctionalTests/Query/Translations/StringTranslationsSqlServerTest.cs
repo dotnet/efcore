@@ -1125,16 +1125,87 @@ WHERE LTRIM(RTRIM([b].[String])) = N'Boston'
 
     public override async Task Trim_with_char_argument_in_predicate()
     {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(base.Trim_with_char_argument_in_predicate);
+        if (SqlServerTestEnvironment.IsFunctions2017Supported)
+        {
+            await base.Trim_with_char_argument_in_predicate();
 
-        AssertSql();
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE TRIM(N'S' FROM [b].[String]) = N'eattle'
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.Trim_with_char_argument_in_predicate);
+        }
     }
 
     public override async Task Trim_with_char_array_argument_in_predicate()
     {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(base.Trim_with_char_array_argument_in_predicate);
+        if (SqlServerTestEnvironment.IsFunctions2017Supported)
+        {
+            await base.Trim_with_char_array_argument_in_predicate();
+
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE TRIM(N'Se' FROM [b].[String]) = N'attl'
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.Trim_with_char_array_argument_in_predicate);
+        }
+    }
+
+    public override async Task Trim_with_char_parameter_in_predicate()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2017Supported)
+        {
+            await base.Trim_with_char_parameter_in_predicate();
+
+            AssertSql(
+                """
+@trimChar='S' (Nullable = false) (Size = 1)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE TRIM(@trimChar FROM [b].[String]) = N'eattle'
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.Trim_with_char_parameter_in_predicate);
+        }
+    }
+
+    public override async Task Trim_with_non_ASCII_char_parameter_in_predicate()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2017Supported)
+        {
+            await base.Trim_with_non_ASCII_char_parameter_in_predicate();
+
+            AssertSql(
+                """
+@trimChar='ş' (Nullable = false) (Size = 1)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE TRIM(@trimChar FROM [b].[String]) = [b].[String]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.Trim_with_non_ASCII_char_parameter_in_predicate);
+        }
+    }
+
+    public override async Task Trim_with_char_array_parameter_in_predicate()
+    {
+        await AssertTranslationFailed(base.Trim_with_char_array_parameter_in_predicate);
 
         AssertSql();
     }
