@@ -127,7 +127,12 @@ public class SqliteSqlTranslatingExpressionVisitor(
                         [true],
                         translation.Type),
 
-                var t when t == typeof(TimeOnly) || t == typeof(TimeSpan)
+                var t when t == typeof(TimeSpan)
+                    => SqliteFactory.EfTimeSpan(
+                        _sqlExpressionFactory.Negate(SqliteFactory.EfTicks(sqlUnary.Operand)),
+                        sqlUnary.TypeMapping),
+
+                var t when t == typeof(TimeOnly)
                     => QueryCompilationContext.NotTranslatedExpression,
 
                 _ => translation
@@ -154,6 +159,11 @@ public class SqliteSqlTranslatingExpressionVisitor(
     /// </summary>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
+        if (TryTranslateTimeSpanScaling(binaryExpression) is { } scaledTimeSpan)
+        {
+            return scaledTimeSpan;
+        }
+
         if (base.VisitBinary(binaryExpression) is not SqlExpression translation)
         {
             return QueryCompilationContext.NotTranslatedExpression;
@@ -178,6 +188,9 @@ public class SqliteSqlTranslatingExpressionVisitor(
                         translation.Type,
                         translation.TypeMapping);
                 }
+
+                case { } when TryTranslateTimeSpanBinary(sqlBinary) is { } timeSpanTranslation:
+                    return timeSpanTranslation;
 
                 case { } when AttemptDecimalCompare(sqlBinary):
                     return DoDecimalCompare(translation, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
@@ -510,6 +523,89 @@ public class SqliteSqlTranslatingExpressionVisitor(
     private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression)
         => GetProviderType(sqlExpression.Left) == typeof(decimal)
             && GetProviderType(sqlExpression.Right) == typeof(decimal);
+
+    private SqliteSqlExpressionFactory SqliteFactory
+        => (SqliteSqlExpressionFactory)_sqlExpressionFactory;
+
+    private SqlExpression? TryTranslateTimeSpanBinary(SqlBinaryExpression sqlBinary)
+    {
+        var leftType = GetProviderType(sqlBinary.Left);
+        var rightType = GetProviderType(sqlBinary.Right);
+
+        if (leftType == typeof(TimeSpan) && rightType == typeof(TimeSpan))
+        {
+            var left = SqliteFactory.EfTicks(sqlBinary.Left);
+            var right = SqliteFactory.EfTicks(sqlBinary.Right);
+
+            return sqlBinary.OperatorType switch
+            {
+                ExpressionType.Add
+                    => SqliteFactory.EfTimeSpan(_sqlExpressionFactory.Add(left, right), sqlBinary.TypeMapping),
+                ExpressionType.Subtract
+                    => SqliteFactory.EfTimeSpan(_sqlExpressionFactory.Subtract(left, right), sqlBinary.TypeMapping),
+                ExpressionType.Divide
+                    => _sqlExpressionFactory.Divide(ToDouble(left), ToDouble(right)),
+                ExpressionType.GreaterThan => _sqlExpressionFactory.GreaterThan(left, right),
+                ExpressionType.GreaterThanOrEqual => _sqlExpressionFactory.GreaterThanOrEqual(left, right),
+                ExpressionType.LessThan => _sqlExpressionFactory.LessThan(left, right),
+                ExpressionType.LessThanOrEqual => _sqlExpressionFactory.LessThanOrEqual(left, right),
+                _ => null
+            };
+        }
+
+        return null;
+
+        // Both operands are converted, since type inference would otherwise apply the integer mapping to the CAST.
+        SqlExpression ToDouble(SqlExpression ticks)
+            => ticks is SqlConstantExpression { Value: long constant }
+                ? _sqlExpressionFactory.Constant((double)constant)
+                : _sqlExpressionFactory.Convert(ticks, typeof(double));
+    }
+
+    // Handled before the base visitor, which would infer the TimeSpan type mapping for the double operand.
+    private Expression? TryTranslateTimeSpanScaling(BinaryExpression binaryExpression)
+    {
+        if (binaryExpression.NodeType is not (ExpressionType.Multiply or ExpressionType.Divide))
+        {
+            return null;
+        }
+
+        var leftType = binaryExpression.Left.Type.UnwrapNullableType();
+        var rightType = binaryExpression.Right.Type.UnwrapNullableType();
+        var (timeSpanOperand, factorOperand) = (leftType, rightType) switch
+        {
+            _ when leftType == typeof(TimeSpan) && rightType == typeof(double) => (binaryExpression.Left, binaryExpression.Right),
+            _ when leftType == typeof(double) && rightType == typeof(TimeSpan) && binaryExpression.NodeType == ExpressionType.Multiply
+                => (binaryExpression.Right, binaryExpression.Left),
+            _ => (null, null)
+        };
+
+        if (timeSpanOperand is null
+            || Visit(timeSpanOperand) is not SqlExpression timeSpan
+            || GetProviderType(timeSpan) != typeof(TimeSpan)
+            || Visit(factorOperand) is not SqlExpression factor)
+        {
+            return null;
+        }
+
+        var ticks = SqliteFactory.EfTicks(timeSpan);
+        factor = _sqlExpressionFactory.ApplyDefaultTypeMapping(factor);
+        var scaled = binaryExpression.NodeType == ExpressionType.Multiply
+            ? _sqlExpressionFactory.Multiply(_sqlExpressionFactory.Convert(ticks, typeof(double)), factor)
+            : _sqlExpressionFactory.Divide(_sqlExpressionFactory.Convert(ticks, typeof(double)), factor);
+
+        // .NET rounds the scaled ticks to the nearest tick, half to even.
+        return SqliteFactory.EfTimeSpan(
+            _sqlExpressionFactory.Convert(
+                _sqlExpressionFactory.Function(
+                    "ef_round",
+                    [scaled],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    typeof(double)),
+                typeof(long)),
+            timeSpan.TypeMapping);
+    }
 
     private static bool AttemptDecimalCompare(SqlBinaryExpression sqlBinary)
         => AreOperandsDecimals(sqlBinary)

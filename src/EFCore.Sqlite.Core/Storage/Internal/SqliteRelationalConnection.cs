@@ -140,6 +140,22 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 static (decimal? m) => -m,
                 isDeterministic: true);
 
+            sqliteConnection.CreateFunction(
+                name: "ef_ticks",
+                static (TimeSpan? value) => value?.Ticks,
+                isDeterministic: true);
+
+            // SQLite's round() rounds half away from zero; .NET TimeSpan scaling rounds half to even.
+            sqliteConnection.CreateFunction(
+                name: "ef_round",
+                static (double? value) => value is null ? default(double?) : Math.Round(value.Value),
+                isDeterministic: true);
+
+            sqliteConnection.CreateFunction(
+                name: "ef_timespan",
+                static (long? ticks) => ticks is null ? default(TimeSpan?) : new TimeSpan(ticks.Value),
+                isDeterministic: true);
+
             sqliteConnection.CreateAggregate(
                 name: "ef_avg",
                 seed: (0m, 0ul),

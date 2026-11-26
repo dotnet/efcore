@@ -267,7 +267,6 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         var orderingExpressionType = GetProviderType(translation);
         if (orderingExpressionType == typeof(DateTimeOffset)
-            || orderingExpressionType == typeof(TimeSpan)
             || orderingExpressionType == typeof(ulong))
         {
             throw new NotSupportedException(
@@ -277,6 +276,10 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         if (orderingExpressionType == typeof(decimal))
         {
             translation = new CollateExpression(translation, "EF_DECIMAL");
+        }
+        else if (orderingExpressionType == typeof(TimeSpan))
+        {
+            translation = _sqlExpressionFactory.EfTicks(translation);
         }
 
         ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
@@ -303,7 +306,6 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         var orderingExpressionType = GetProviderType(translation);
         if (orderingExpressionType == typeof(DateTimeOffset)
-            || orderingExpressionType == typeof(TimeSpan)
             || orderingExpressionType == typeof(ulong))
         {
             throw new NotSupportedException(
@@ -313,6 +315,10 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         if (orderingExpressionType == typeof(decimal))
         {
             translation = new CollateExpression(translation, "EF_DECIMAL");
+        }
+        else if (orderingExpressionType == typeof(TimeSpan))
+        {
+            translation = _sqlExpressionFactory.EfTicks(translation);
         }
 
         ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
