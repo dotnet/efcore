@@ -574,6 +574,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 .Visit(tryGetEntryAssignment);
 
             shaperExpressions.Add(tryGetEntryAssignment);
+            var entityProperty = typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!;
 
             //if (entry != default)
             //{
@@ -585,7 +586,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             //    {
             //        action();
             //    }
-            //    queryContext.StartTracking(entityType, instance, shadowSnapshot);
+            //    instance = queryContext.StartTracking(entityType, instance, shadowSnapshot).Entity;
             //}
             shaperExpressions.Add(
                 IfThenElse(
@@ -593,13 +594,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     Assign(
                         instanceVariable,
                         Convert(
-                            MakeMemberAccess(entryVariable, typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!),
+                            MakeMemberAccess(entryVariable, entityProperty),
                             instanceVariable.Type)),
                     Block(
                         ListForEach(trackingActionsVariable, trackingAction => Invoke(trackingAction)),
-                        Call(
-                            QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, entityTypeVariable, instanceVariable,
-                            shadowSnapshotVariable))));
+                        Assign(
+                            instanceVariable,
+                            Convert(
+                                MakeMemberAccess(
+                                    Call(
+                                        QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, entityTypeVariable,
+                                        instanceVariable, shadowSnapshotVariable),
+                                    entityProperty),
+                                instanceVariable.Type)))));
 
             // return instance
             shaperExpressions.Add(instanceVariable);

@@ -71,6 +71,9 @@ public static class CosmosTestEnvironment
             try
             {
                 container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest")
+                    // Prevent live PostgreSQL updates from breaking the emulator.
+                    // See https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/390.
+                    .WithExtraHost("packages.microsoft.com", "127.0.0.1")
                     .Build();
                 await container.StartAsync().ConfigureAwait(false);
             }

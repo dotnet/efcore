@@ -44,6 +44,80 @@ public class CosmosClientWrapperTest
         Assert.Equal([null, "ct1", "ct1"], RetryingPagingCosmosClientWrapper.CreateQueryContinuationTokens);
     }
 
+    [Theory]
+    [InlineData(QueryTrackingBehavior.TrackAll)]
+    [InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Query_with_owned_reference_uses_identity_resolution(QueryTrackingBehavior trackingBehavior)
+    {
+        await using var context = new OwnedQueryContext(
+            new DbContextOptionsBuilder()
+                .UseCosmos(CosmosTestEnvironment.DefaultConnection, CosmosTestEnvironment.AuthToken, PlaceholderDatabaseName)
+                .UseQueryTrackingBehavior(trackingBehavior)
+                .ReplaceService<ICosmosClientWrapper, OwnedQueryCosmosClientWrapper>()
+                .Options);
+
+        var owners = await context.Set<OwnedQueryOwner>().ToListAsync();
+
+        Assert.Equal(2, owners.Count);
+        Assert.Same(owners[0], owners[1]);
+        Assert.Equal("owner", owners[0].Id);
+        Assert.Equal("owned", owners[0].Owned.Name);
+        Assert.Equal(trackingBehavior == QueryTrackingBehavior.TrackAll ? 2 : 0, context.ChangeTracker.Entries().Count());
+    }
+
+    [Fact]
+    public async Task Tracking_query_projection_returns_added_owned_reference()
+    {
+        await using var context = new OwnedQueryContext(
+            new DbContextOptionsBuilder()
+                .UseCosmos(CosmosTestEnvironment.DefaultConnection, CosmosTestEnvironment.AuthToken, PlaceholderDatabaseName)
+                .ReplaceService<ICosmosClientWrapper, OwnedQueryCosmosClientWrapper>()
+                .Options);
+
+        var owner = new OwnedQueryOwner { Id = "owner" };
+        context.Attach(owner);
+        var owned = new OwnedQueryReference { Name = "replacement" };
+        owner.Owned = owned;
+        context.ChangeTracker.DetectChanges();
+
+        var query = context.Set<OwnedQueryOwner>().Select(e => new { e.Id, Owner = e, e.Owned });
+        var projection = Assert.Single(await query.ToListAsync());
+        Assert.Equal("owner", projection.Id);
+        Assert.Same(owner, projection.Owner);
+        Assert.Same(owned, projection.Owned);
+        Assert.Same(owned, owner.Owned);
+
+        projection = Assert.Single(await query.ToListAsync());
+        Assert.Same(owner, projection.Owner);
+        Assert.Same(owned, projection.Owned);
+        Assert.Equal(EntityState.Added, context.Entry(owned).State);
+        var original = Assert.Single(context.ChangeTracker.Entries<OwnedQueryReference>(), e => e.State == EntityState.Deleted);
+        Assert.Equal("owned", original.Entity.Name);
+    }
+
+    [Fact]
+    public async Task Tracking_query_attaches_owner_with_added_owned_reference()
+    {
+        await using var context = new OwnedQueryContext(
+            new DbContextOptionsBuilder()
+                .UseCosmos(CosmosTestEnvironment.DefaultConnection, CosmosTestEnvironment.AuthToken, PlaceholderDatabaseName)
+                .ReplaceService<ICosmosClientWrapper, OwnedQueryCosmosClientWrapper>()
+                .Options);
+
+        var owned = new OwnedQueryReference { Name = "replacement" };
+        var ownership = context.Model.FindEntityType(typeof(OwnedQueryReference))!.FindOwnership()!;
+        context.Entry(owned).Property(ownership.Properties.Single().Name).CurrentValue = "owner";
+        context.Entry(owned).State = EntityState.Added;
+
+        var owners = await context.Set<OwnedQueryOwner>().ToListAsync();
+        Assert.Equal(2, owners.Count);
+        Assert.Same(owners[0], owners[1]);
+        Assert.Same(owned, owners[0].Owned);
+        Assert.Equal(EntityState.Added, context.Entry(owned).State);
+        var original = Assert.Single(context.ChangeTracker.Entries<OwnedQueryReference>(), e => e.State == EntityState.Deleted);
+        Assert.Equal("owned", original.Entity.Name);
+    }
+
     [Fact]
     public void GetJsonPropertyPathFromRoot_returns_simple_path_for_scalar_property()
     {
@@ -222,6 +296,39 @@ public class CosmosClientWrapperTest
         }
     }
 
+    private sealed class OwnedQueryCosmosClientWrapper(
+        ISingletonCosmosClientWrapper singletonCosmosClientWrapper,
+        IDbContextOptions dbContextOptions,
+        IExecutionStrategy executionStrategy,
+        IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+        : CosmosClientWrapper(singletonCosmosClientWrapper, dbContextOptions, executionStrategy, commandLogger)
+    {
+        public override FeedIterator CreateQuery(
+            string containerId,
+            CosmosSqlQuery query,
+            ISessionTokenStorage sessionTokenStorage,
+            string? continuationToken = null,
+            QueryRequestOptions? queryRequestOptions = null)
+            => new TestFeedIterator(
+                CreateResponseMessage(
+                    HttpStatusCode.OK,
+                    query.Query switch
+                    {
+                        var sql when sql.Contains("\"Owner\" : c", StringComparison.Ordinal) => """
+{"Documents":[
+  {"Id":"owner","Owner":{"id":"owner","$type":"OwnedQueryOwner","Owned":{"Name":"owned"}},"Owned":{"Name":"owned"}}
+]}
+""",
+                        var sql when sql.StartsWith("SELECT VALUE c", StringComparison.Ordinal) => """
+{"Documents":[
+  {"id":"owner","$type":"OwnedQueryOwner","Owned":{"Name":"owned"}},
+  {"id":"owner","$type":"OwnedQueryOwner","Owned":{"Name":"owned"}}
+]}
+""",
+                        _ => throw new InvalidOperationException($"Unexpected query: {query.Query}")
+                    }));
+    }
+
     private sealed class ThrowingFeedIterator(ResponseMessage firstResponse) : FeedIterator
     {
         private bool _hasReturnedResponse;
@@ -297,6 +404,25 @@ public class CosmosClientWrapperTest
     {
         public DbSet<Root> Roots
             => Set<Root>();
+    }
+
+    private sealed class OwnedQueryContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OwnedQueryOwner>().HasPartitionKey(e => e.Id).OwnsOne(e => e.Owned);
+        }
+    }
+
+    private sealed class OwnedQueryOwner
+    {
+        public string Id { get; set; } = null!;
+        public OwnedQueryReference Owned { get; set; } = null!;
+    }
+
+    private sealed class OwnedQueryReference
+    {
+        public string Name { get; set; } = null!;
     }
 
     private class Root
