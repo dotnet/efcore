@@ -527,6 +527,12 @@ class TestContainer
             () => typeof(ParameterExpression[]),
             "typeof(ParameterExpression[])");
 
+    [Fact]
+    public void Member_access_with_DbContext_type_on_lambda_parameter()
+        => AssertExpression(
+            () => new ContextHolder[] { }.Select(h => h.Context),
+            "new CSharpToLinqTranslatorTest.ContextHolder[] { }.Select(h => h.Context)");
+
     protected virtual void AssertExpression<T>(Expression<Func<T>> expected, string code)
         => AssertExpression(
             expected.Body,
@@ -638,7 +644,12 @@ _ = {code};
         Two = 2
     }
 
-    private class BlogContext : DbContext;
+    public class BlogContext : DbContext;
+
+    public class ContextHolder
+    {
+        public BlogContext Context { get; set; } = null!;
+    }
 
     public sealed record NullableMetric(double? Value);
 
