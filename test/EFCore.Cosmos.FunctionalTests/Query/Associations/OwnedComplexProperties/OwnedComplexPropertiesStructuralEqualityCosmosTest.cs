@@ -173,6 +173,8 @@ WHERE EXISTS (
 
     public override async Task Contains_with_operators_composed_on_the_collection()
     {
+        CosmosTestEnvironment.SkipOnWindowsEmulator("Windows emulator 2.14.29.0 returns no results for complex-type equality combined with other predicates");
+
         await base.Contains_with_operators_composed_on_the_collection();
 
         AssertSql(
