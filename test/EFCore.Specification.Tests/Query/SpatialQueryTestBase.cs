@@ -804,6 +804,27 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Length_on_polygon(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PolygonEntity>()
+                .Select(e => new { e.Id, Length = e.Polygon == null ? (double?)null : e.Polygon.Length }),
+            elementSorter: x => x.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+
+                if (e.Length == null)
+                {
+                    Assert.Null(a.Length);
+                }
+                else if (AssertDistances)
+                {
+                    Assert.Equal(e.Length.Value, a.Length!.Value, 4);
+                }
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task M(bool async)
         => AssertQuery(
             async,
