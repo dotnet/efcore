@@ -599,6 +599,101 @@ optionsBuilder
                 });
 
         [Fact]
+        public Task Foreign_key_with_mismatched_types_uses_principal_clr_type_and_dependent_column_type()
+            => TestAsync(
+                serviceProvider => serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
+                    BuildModelWithForeignKey(["int"], ["bigint"]), new ModelReverseEngineerOptions()),
+                new ModelCodeGenerationOptions(),
+                code =>
+                {
+                    Assert.Contains(".HasColumnType(\"bigint\")", code.ContextFile.Code);
+                    Assert.Contains(".HasForeignKey(d => d.ParentId)", code.ContextFile.Code);
+                    Assert.Contains("public int ParentId", GetChildCode(code));
+                },
+                model =>
+                {
+                    var child = model.FindEntityType("TestNamespace.Child")!;
+                    var property = child.GetProperty("ParentId");
+                    Assert.Equal(typeof(int), property.ClrType);
+                    Assert.Equal("bigint", property.GetColumnType());
+                    Assert.Equal(property, Assert.Single(Assert.Single(child.GetForeignKeys()).Properties));
+                });
+
+        [Fact]
+        public Task Composite_foreign_key_with_mismatched_types_uses_principal_clr_types_and_dependent_column_types()
+            => TestAsync(
+                serviceProvider => serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
+                    BuildModelWithForeignKey(["int", "int"], ["bigint", "int"]), new ModelReverseEngineerOptions()),
+                new ModelCodeGenerationOptions(),
+                code =>
+                {
+                    Assert.Contains(".HasColumnType(\"bigint\")", code.ContextFile.Code);
+                    Assert.Contains(".HasForeignKey(d => new { d.ParentId1, d.ParentId2 })", code.ContextFile.Code);
+                    Assert.Contains("public int ParentId1", GetChildCode(code));
+                    Assert.Contains("public int ParentId2", GetChildCode(code));
+                },
+                model =>
+                {
+                    var child = model.FindEntityType("TestNamespace.Child")!;
+                    var foreignKey = Assert.Single(child.GetForeignKeys());
+                    Assert.Equal([typeof(int), typeof(int)], foreignKey.Properties.Select(p => p.ClrType));
+                    Assert.Equal(["bigint", "int"], foreignKey.Properties.Select(p => p.GetColumnType()));
+                });
+
+        private static string GetChildCode(ScaffoldedModel code)
+            => code.AdditionalFiles.Single(f => f.Path.EndsWith("Child.cs", StringComparison.Ordinal)).Code;
+
+        // Parent(Id <principalStoreTypes>) and Child(Id int, ParentId <dependentStoreTypes>) with a foreign key between them.
+        // The columns are numbered if there is more than one.
+        private static DatabaseModel BuildModelWithForeignKey(string[] principalStoreTypes, string[] dependentStoreTypes)
+        {
+            var dbModel = new DatabaseModel();
+            var parentTable = new DatabaseTable { Database = dbModel, Name = "Parent" };
+            var childTable = new DatabaseTable { Database = dbModel, Name = "Child" };
+
+            var childIdColumn = new DatabaseColumn { Name = "Id", StoreType = "int", Table = childTable };
+            childTable.Columns.Add(childIdColumn);
+            childTable.PrimaryKey = new DatabasePrimaryKey { Table = childTable, Name = "PK_Child", Columns = { childIdColumn } };
+
+            var foreignKey = new DatabaseForeignKey
+            {
+                Table = childTable,
+                Name = "FK_Child_Parent",
+                PrincipalTable = parentTable
+            };
+            parentTable.PrimaryKey = new DatabasePrimaryKey { Table = parentTable, Name = "PK_Parent" };
+
+            for (var i = 0; i < principalStoreTypes.Length; i++)
+            {
+                var suffix = principalStoreTypes.Length == 1 ? "" : (i + 1).ToString();
+                var principalColumn = new DatabaseColumn
+                {
+                    Name = "Id" + suffix,
+                    StoreType = principalStoreTypes[i],
+                    Table = parentTable
+                };
+                parentTable.Columns.Add(principalColumn);
+                parentTable.PrimaryKey.Columns.Add(principalColumn);
+                foreignKey.PrincipalColumns.Add(principalColumn);
+
+                var dependentColumn = new DatabaseColumn
+                {
+                    Name = "ParentId" + suffix,
+                    StoreType = dependentStoreTypes[i],
+                    Table = childTable
+                };
+                childTable.Columns.Add(dependentColumn);
+                foreignKey.Columns.Add(dependentColumn);
+            }
+
+            childTable.ForeignKeys.Add(foreignKey);
+            dbModel.Tables.Add(parentTable);
+            dbModel.Tables.Add(childTable);
+
+            return dbModel;
+        }
+
+        [Fact]
         public Task IsUnicode_works()
             => TestAsync(
                 modelBuilder =>

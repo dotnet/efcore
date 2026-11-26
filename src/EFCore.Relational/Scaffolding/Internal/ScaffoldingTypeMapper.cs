@@ -161,7 +161,9 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
             scaffoldMaxLength,
             scaffoldFixedLength,
             scaffoldPrecision,
-            scaffoldScale);
+            scaffoldScale,
+            mapping.Precision,
+            mapping.Scale);
     }
 
     /// <summary>

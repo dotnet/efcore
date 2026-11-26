@@ -1527,6 +1527,68 @@ CREATE UNIQUE INDEX IX_FilteredPersonRole_PersonId ON FilteredPersonRole (Person
             "DROP TABLE FilteredPersonRole; DROP TABLE FilteredPerson;");
 
     [Fact]
+    public void Foreign_key_with_mismatched_integer_types_uses_principal_clr_type()
+        => Test(
+            @"
+CREATE TABLE MismatchedParent (
+    Id INT PRIMARY KEY
+);
+
+CREATE TABLE MismatchedChild (
+    Id INTEGER PRIMARY KEY,
+    ParentId BIGINT NULL REFERENCES MismatchedParent (Id)
+);
+
+INSERT INTO MismatchedParent VALUES (1);
+INSERT INTO MismatchedChild VALUES (1, 1);",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                // The principal column is an int because of its declared type, so the bigint column is scaffolded as an int too.
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var child = model.GetEntityTypes().Single(e => e.Name == "MismatchedChild");
+                var fk = Assert.Single(child.GetForeignKeys());
+                var property = Assert.Single(fk.Properties);
+                Assert.Equal(typeof(int?), property.ClrType);
+                Assert.Equal("BIGINT", property.GetColumnType());
+                Assert.Equal(typeof(int), Assert.Single(fk.PrincipalKey.Properties).ClrType);
+            },
+            "DROP TABLE MismatchedChild; DROP TABLE MismatchedParent;");
+
+    [Fact]
+    public void Foreign_key_from_column_with_narrower_integer_type_uses_principal_clr_type()
+        => Test(
+            @"
+CREATE TABLE MismatchedParent (
+    Id BIGINT PRIMARY KEY
+);
+
+CREATE TABLE MismatchedChild (
+    Id INTEGER PRIMARY KEY,
+    ParentId INT NULL REFERENCES MismatchedParent (Id)
+);
+
+INSERT INTO MismatchedParent VALUES (1);
+INSERT INTO MismatchedChild VALUES (1, 1);",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                // Both columns have INTEGER affinity, so the int column can hold any value of the bigint principal,
+                // and is scaffolded as a long to match it.
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var child = model.GetEntityTypes().Single(e => e.Name == "MismatchedChild");
+                var fk = Assert.Single(child.GetForeignKeys());
+                var property = Assert.Single(fk.Properties);
+                Assert.Equal(typeof(long?), property.ClrType);
+                Assert.Equal("INT", property.GetColumnType());
+            },
+            "DROP TABLE MismatchedChild; DROP TABLE MismatchedParent;");
+
+    [Fact]
     public void Skip_index_on_expression_with_warning()
         => Test(
             @"

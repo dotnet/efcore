@@ -384,6 +384,21 @@ public class ScaffoldingTypeMapperSqlServerTest
             mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
+    [Theory]
+    [InlineData("decimal(18, 0)", 18, 0)]
+    [InlineData("decimal(10, 2)", 10, 2)]
+    [InlineData("numeric(9)", 9, 0)]
+    [InlineData("decimal", 18, 0)]
+    [InlineData("int", null, null)]
+    public void Maps_precision_and_scale_of_the_store_type(string storeType, int? precision, int? scale)
+    {
+        var mapping = CreateMapper().FindMapping(storeType, keyOrIndex: false, rowVersion: false);
+
+        Assert.NotNull(mapping);
+        Assert.Equal(precision, mapping.Precision);
+        Assert.Equal(scale, mapping.Scale);
+    }
+
     private static void AssertMapping<T>(
         TypeScaffoldingInfo? mapping,
         bool inferred,
