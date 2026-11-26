@@ -135,6 +135,42 @@ WHERE [CustomerID] LIKE 'A%'"));
                 }
             });
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_Where_embedded_query(bool async)
+        => AssertDelete(
+            async,
+            ss =>
+            {
+                var orders = ss.Set<Order>().Where(o => o.OrderID > 11070);
+                return ss.Set<OrderDetail>().Where(od => orders.Any(o => o.OrderID == od.OrderID));
+            },
+            rowsAffectedCount: 40);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_Where_embedded_query(bool async)
+        => AssertUpdate(
+            async,
+            ss =>
+            {
+                var lateOrders = ss.Set<Order>().Where(o => o.OrderID > 11070);
+                return ss.Set<Customer>().Where(c => lateOrders.Any(o => o.CustomerID == c.CustomerID));
+            },
+            e => e,
+            s => s.SetProperty(c => c.ContactName, "Updated"),
+            rowsAffectedCount: 7,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_Where_embedded_query_named_like_table_alias(bool async)
+        => AssertDelete(
+            async,
+            ss =>
+            {
+                var o = ss.Set<Order>().Where(x => x.OrderID > 11070);
+                return ss.Set<OrderDetail>().Where(od => o.Any(x => x.OrderID == od.OrderID));
+            },
+            rowsAffectedCount: 40);
+
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);

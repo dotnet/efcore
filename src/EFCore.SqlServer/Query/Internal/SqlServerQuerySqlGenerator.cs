@@ -35,6 +35,23 @@ public class SqlServerQuerySqlGenerator(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override void GenerateCommonTables(Expression queryExpression)
+    {
+        // SET NOCOUNT is a separate statement, so it must come before the WITH clause that starts the UPDATE/DELETE.
+        if (queryExpression is UpdateExpression or DeleteExpression)
+        {
+            Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+        }
+
+        base.GenerateCommonTables(queryExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override bool TryGenerateWithoutWrappingSelect(SelectExpression selectExpression)
         // SQL Server doesn't support VALUES as a top-level statement, so we need to wrap the VALUES in a SELECT:
         // SELECT 1 AS x UNION VALUES (2), (3) -- simple
@@ -79,8 +96,6 @@ public class SqlServerQuerySqlGenerator(
     /// </summary>
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
     {
-        Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-
         var selectExpression = deleteExpression.SelectExpression;
 
         if (selectExpression is
@@ -282,8 +297,6 @@ public class SqlServerQuerySqlGenerator(
     /// </summary>
     protected override Expression VisitUpdate(UpdateExpression updateExpression)
     {
-        Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-
         var selectExpression = updateExpression.SelectExpression;
 
         if (selectExpression is
@@ -585,6 +598,21 @@ public class SqlServerQuerySqlGenerator(
             GenerateList(selectExpression.Projection, e => Visit(e));
             _withinTable = parentWithinTable;
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void GenerateCommonTable(string name, SelectExpression definition)
+    {
+        // A CTE is a table source, so its columns must be named (see GenerateFrom).
+        var parentWithinTable = _withinTable;
+        _withinTable = true;
+        base.GenerateCommonTable(name, definition);
+        _withinTable = parentWithinTable;
     }
 
     /// <summary>

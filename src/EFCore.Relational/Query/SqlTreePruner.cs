@@ -18,6 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class SqlTreePruner : ExpressionVisitor
 {
     private readonly Dictionary<string, HashSet<string>> _referencedColumnMap = [with(ReferenceEqualityComparer.Instance)];
+    private readonly Dictionary<(int Command, string Name), HashSet<string>> _commonTableColumns = [];
+    private Dictionary<(int Command, string Name), HashSet<string>>? _requiredCommonTableColumns;
+    private bool _commonTableColumnsDiffer;
+    private int _command;
 
     /// <summary>
     ///     Maps table aliases to the list of column aliases found referenced on them.
@@ -43,7 +47,24 @@ public class SqlTreePruner : ExpressionVisitor
     ///     Prunes the given <see cref="Expression" />, removing parts which aren't needed.
     /// </summary>
     public virtual Expression Prune(Expression expression)
-        => Visit(expression);
+    {
+        _commonTableColumns.Clear();
+        _requiredCommonTableColumns = null;
+        _commonTableColumnsDiffer = false;
+        _command = 0;
+        var pruned = Visit(expression);
+        if (!_commonTableColumnsDiffer)
+        {
+            return pruned;
+        }
+
+        // Each reference to a CTE is a separate copy, but only one definition is generated; if the copies were pruned differently,
+        // prune again with each copy projecting the columns needed by all of them.
+        _requiredCommonTableColumns = _commonTableColumns;
+        _referencedColumnMap.Clear();
+        _command = 0;
+        return Visit(expression);
+    }
 
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression node)
@@ -52,12 +73,14 @@ public class SqlTreePruner : ExpressionVisitor
         {
             case ShapedQueryExpression shapedQueryExpression:
                 _referencedColumnMap.Clear();
+                _command++;
                 return shapedQueryExpression.Update(
                     PruneTopLevelSelect((SelectExpression)shapedQueryExpression.QueryExpression),
                     Visit(shapedQueryExpression.ShaperExpression));
 
             case RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression:
                 _referencedColumnMap.Clear();
+                _command++;
                 return relationalSplitCollectionShaperExpression.Update(
                     relationalSplitCollectionShaperExpression.ParentIdentifier,
                     relationalSplitCollectionShaperExpression.ChildIdentifier,
@@ -185,6 +208,29 @@ public class SqlTreePruner : ExpressionVisitor
         List<ProjectionExpression>? projections = null;
 
         var referencedProjectionAliases = currentSelectAlias is not null ? referencedColumnMap.GetValueOrDefault(currentSelectAlias) : null;
+
+        if (select.CommonTableName is { } commonTableName)
+        {
+            var key = (_command, commonTableName);
+            if (_requiredCommonTableColumns is not null)
+            {
+                if (!preserveProjection)
+                {
+                    referencedProjectionAliases = _requiredCommonTableColumns[key];
+                }
+            }
+            else
+            {
+                var columns = preserveProjection
+                    ? select.Projection.Select(p => p.Alias).ToHashSet()
+                    : new HashSet<string>(referencedProjectionAliases ?? []);
+                if (!_commonTableColumns.TryAdd(key, columns) && !_commonTableColumns[key].SetEquals(columns))
+                {
+                    _commonTableColumns[key].UnionWith(columns);
+                    _commonTableColumnsDiffer = true;
+                }
+            }
+        }
 
         for (var i = 0; i < select.Projection.Count; i++)
         {

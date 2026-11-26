@@ -575,18 +575,22 @@ FROM (
 """,
             //
             """
-@max='10400'
 p0='10300'
+@max='10400'
 
+WITH [query1] AS (
+    SELECT [m0].[OrderID]
+    FROM (
+        SELECT * FROM "Orders" WHERE "OrderID" >= @p0
+    ) AS [m0]
+)
 SELECT [m].[OrderID]
 FROM (
     SELECT * FROM "Orders"
 ) AS [m]
 WHERE [m].[OrderID] <= @max AND [m].[OrderID] IN (
-    SELECT [m0].[OrderID]
-    FROM (
-        SELECT * FROM "Orders" WHERE "OrderID" >= @p0
-    ) AS [m0]
+    SELECT [m1].[OrderID]
+    FROM [query1] AS [m1]
 )
 """,
             //

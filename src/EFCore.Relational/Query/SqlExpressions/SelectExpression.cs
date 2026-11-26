@@ -25,6 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 [DebuggerDisplay("{PrintShortSql(), nq}")]
 public sealed partial class SelectExpression : TableExpressionBase
 {
+    private const string CommonTableNameAnnotation = "Relational:CommonTableName";
+
     internal const string DiscriminatorColumnAlias = "Discriminator";
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
@@ -235,6 +237,13 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     public IReadOnlyList<TableExpressionBase> Tables
         => _tables;
+
+    /// <summary>
+    ///     When this <see cref="SelectExpression" /> is a subquery that should be generated as a common table expression (CTE), the name
+    ///     of that CTE; otherwise <see langword="null" />.
+    /// </summary>
+    public string? CommonTableName
+        => FindAnnotation(CommonTableNameAnnotation)?.Value as string;
 
     /// <summary>
     ///     The WHERE predicate for the SELECT.
@@ -4243,6 +4252,9 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void PushdownIntoSubquery()
         => PushdownIntoSubqueryInternal();
 
+    internal void PushdownIntoCommonTable(string name)
+        => PushdownIntoSubqueryInternal(commonTableName: name);
+
     // Lowers a single-result subquery held as a client projection (e.g. the group element of
     // GroupBy(k).Select(g => g.First())) into this SelectExpression as a prunable to-one OUTER APPLY —
     // the same lowering ApplyProjection defers to the end of translation, but on demand, so that the
@@ -4367,14 +4379,24 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     Pushes down the <see cref="SelectExpression" /> into a subquery.
     /// </summary>
     /// <param name="liftOrderings">Whether orderings on the query should be lifted out of the subquery.</param>
-    private SqlRemappingVisitor PushdownIntoSubqueryInternal(bool liftOrderings = true)
+    /// <param name="commonTableName">When not <see langword="null" />, the subquery is generated as a CTE with this name.</param>
+    private SqlRemappingVisitor PushdownIntoSubqueryInternal(bool liftOrderings = true, string? commonTableName = null)
     {
         // If there's just one table in the select being pushed down, bubble up that table's name as the subquery's alias.
         var subqueryAlias =
             _sqlAliasManager.GenerateTableAlias(_tables is [{ Alias: { } singleTableAlias }] ? singleTableAlias : "subquery");
 
+        var subqueryAnnotations = Annotations;
+        if (commonTableName is not null)
+        {
+            subqueryAnnotations = new SortedDictionary<string, IAnnotation>(Annotations?.ToDictionary() ?? [])
+            {
+                [CommonTableNameAnnotation] = new Annotation(CommonTableNameAnnotation, commonTableName)
+            };
+        }
+
         var subquery = new SelectExpression(
-            subqueryAlias, _tables.ToList(), _groupBy.ToList(), projections: [], _orderings.ToList(), Annotations, _sqlAliasManager)
+            subqueryAlias, _tables.ToList(), _groupBy.ToList(), projections: [], _orderings.ToList(), subqueryAnnotations, _sqlAliasManager)
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,

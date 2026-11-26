@@ -1277,7 +1277,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     Having: null,
                     IsDistinct: false,
                     GroupBy.Count: 0
-                }
+                } innerSelect
+                // A common table can carry its own filter, which the checks above don't see.
+                && !innerSelect.Tables.Any(t => t.UnwrapJoin() is SelectExpression { CommonTableName: not null })
                 && outer.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType outerEntityType }
                 && inner.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType innerEntityType })
             {
@@ -2633,6 +2635,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
         => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetSumWithoutSelector, resultType);
+
+    /// <inheritdoc />
+    protected override ShapedQueryExpression TranslateEmbeddedQuery(ShapedQueryExpression source, string name)
+    {
+        ((SelectExpression)source.QueryExpression).PushdownIntoCommonTable(name);
+
+        return source;
+    }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)

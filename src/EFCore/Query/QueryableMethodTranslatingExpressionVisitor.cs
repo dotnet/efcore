@@ -129,6 +129,14 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
     {
         var method = methodCallExpression.Method;
 
+        if (method.DeclaringType == typeof(Internal.EmbeddedQueryable))
+        {
+            var embedded = Visit(methodCallExpression.Arguments[0]);
+            return embedded is ShapedQueryExpression shapedEmbedded
+                ? TranslateEmbeddedQuery(shapedEmbedded, (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value!)
+                : embedded;
+        }
+
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
         {
             var source = Visit(methodCallExpression.Arguments[0]);
@@ -1111,6 +1119,16 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
     /// <param name="resultType">The result type after the operation.</param>
     /// <returns>The shaped query after translation.</returns>
     protected abstract ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType);
+
+    /// <summary>
+    ///     Translates an <see cref="IQueryable" /> which was captured in a variable and embedded into the query. The default implementation
+    ///     returns the translation unchanged, i.e. the embedded query is inlined.
+    /// </summary>
+    /// <param name="source">The translated embedded query.</param>
+    /// <param name="name">A name for the embedded query, derived from the variable or member it was captured in.</param>
+    /// <returns>The translation of the embedded query.</returns>
+    protected virtual ShapedQueryExpression TranslateEmbeddedQuery(ShapedQueryExpression source, string name)
+        => source;
 
     /// <summary>
     ///     Translates <see cref="Queryable.Take{TSource}(IQueryable{TSource}, int)" /> method over the given source.

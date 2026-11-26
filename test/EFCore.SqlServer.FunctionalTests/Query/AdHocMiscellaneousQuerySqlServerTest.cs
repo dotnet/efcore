@@ -1428,13 +1428,17 @@ ORDER BY [m0].[Id]
             """
 p0='1'
 
-SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]
-FROM [DemoEntities] AS [d]
-WHERE [d].[Id] IN (
+WITH [query] AS (
     SELECT [m].[Id]
     FROM (
         SELECT * FROM DemoEntities WHERE Id = @p0
     ) AS [m]
+)
+SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]
+FROM [DemoEntities] AS [d]
+WHERE [d].[Id] IN (
+    SELECT [m0].[Id]
+    FROM [query] AS [m0]
 )
 GROUP BY [d].[Id]
 """);
@@ -2269,16 +2273,24 @@ SELECT cast(null as int) AS MyValue
             """
 @currentUserId='1'
 
+WITH [currentUserGroupIds] AS (
+    SELECT [m0].[GroupId]
+    FROM [Memberships] AS [m0]
+    WHERE [m0].[UserId] = @currentUserId
+),
+[hasMembership] AS (
+    SELECT [u0].[Id]
+    FROM [Memberships] AS [m]
+    INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
+    WHERE [m].[GroupId] IN (
+        SELECT [m1].[GroupId]
+        FROM [currentUserGroupIds] AS [m1]
+    )
+)
 SELECT CASE
     WHEN [u].[Id] IN (
-        SELECT [u0].[Id]
-        FROM [Memberships] AS [m]
-        INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
-        WHERE [m].[GroupId] IN (
-            SELECT [m0].[GroupId]
-            FROM [Memberships] AS [m0]
-            WHERE [m0].[UserId] = @currentUserId
-        )
+        SELECT [s].[Id]
+        FROM [hasMembership] AS [s]
     ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
@@ -2294,18 +2306,26 @@ FROM [Users] AS [u]
             """
 @currentUserId='1'
 
+WITH [currentUserGroupIds] AS (
+    SELECT [g0].[Id]
+    FROM [Memberships] AS [m0]
+    INNER JOIN [Groups] AS [g0] ON [m0].[GroupId] = [g0].[Id]
+    WHERE [m0].[UserId] = @currentUserId
+),
+[hasMembership] AS (
+    SELECT [u0].[Id]
+    FROM [Memberships] AS [m]
+    INNER JOIN [Groups] AS [g] ON [m].[GroupId] = [g].[Id]
+    INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
+    WHERE [g].[Id] IN (
+        SELECT [s].[Id]
+        FROM [currentUserGroupIds] AS [s]
+    )
+)
 SELECT CASE
     WHEN [u].[Id] IN (
-        SELECT [u0].[Id]
-        FROM [Memberships] AS [m]
-        INNER JOIN [Groups] AS [g] ON [m].[GroupId] = [g].[Id]
-        INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
-        WHERE [g].[Id] IN (
-            SELECT [g0].[Id]
-            FROM [Memberships] AS [m0]
-            INNER JOIN [Groups] AS [g0] ON [m0].[GroupId] = [g0].[Id]
-            WHERE [m0].[UserId] = @currentUserId
-        )
+        SELECT [s0].[Id]
+        FROM [hasMembership] AS [s0]
     ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
@@ -2321,16 +2341,25 @@ FROM [Users] AS [u]
             """
 @currentUserId='1'
 
+WITH [currentUserGroupIds] AS (
+    SELECT [m0].[GroupId]
+    FROM [Memberships] AS [m0]
+    WHERE [m0].[UserId] = @currentUserId
+),
+[hasMembership] AS (
+    SELECT [u0].[Id]
+    FROM [Memberships] AS [m]
+    INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
+    WHERE [m].[GroupId] IN (
+        SELECT [m1].[GroupId]
+        FROM [currentUserGroupIds] AS [m1]
+    )
+)
 SELECT CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Memberships] AS [m]
-        INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
-        WHERE [m].[GroupId] IN (
-            SELECT [m0].[GroupId]
-            FROM [Memberships] AS [m0]
-            WHERE [m0].[UserId] = @currentUserId
-        ) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
+    WHEN [u].[Id] IN (
+        SELECT [s].[Id]
+        FROM [hasMembership] AS [s]
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
 FROM [Users] AS [u]

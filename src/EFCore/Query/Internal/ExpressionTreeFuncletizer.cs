@@ -82,6 +82,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private readonly HashSet<string> _parameterNames = [];
 
     /// <summary>
+    ///     Names given to embedded <see cref="IQueryable" /> instances; the same instance referenced twice gets the same name.
+    /// </summary>
+    private readonly Dictionary<IQueryable, string> _embeddedQueryableNames = [with(ReferenceEqualityComparer.Instance)];
+
+    /// <summary>
     ///     Used only when evaluating arbitrary QueryRootExpressions (specifically SqlQueryRootExpression), to force any evaluatable nested
     ///     expressions to get evaluated as roots, since the query root itself is never evaluatable.
     /// </summary>
@@ -306,7 +311,21 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             _parameterizedValues.Clear();
             _parameterNames.Clear();
+            _embeddedQueryableNames.Clear();
         }
+    }
+
+    private string GetEmbeddedQueryableName(IQueryable queryable, string memberName)
+    {
+        if (_embeddedQueryableNames.TryGetValue(queryable, out var name))
+        {
+            return name;
+        }
+
+        name = Uniquifier.Uniquify(
+            SanitizeCompilerGeneratedName(memberName), _embeddedQueryableNames.Values.ToHashSet(), maxLength: int.MaxValue);
+        _embeddedQueryableNames[queryable] = name;
+        return name;
     }
 
     [return: NotNullIfNotNull(nameof(expression))]
@@ -886,7 +905,25 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 && (genericTypeDefinition == typeof(IQueryable<>) || genericTypeDefinition == typeof(IOrderedQueryable<>))
                 && Evaluate(member) is IQueryable queryable)
             {
-                return Visit(queryable.Expression);
+                var inlined = Visit(queryable.Expression);
+
+                var root = inlined;
+                while (root is MethodCallExpression call && call.Method.DeclaringType == typeof(Queryable))
+                {
+                    root = call.Arguments[0];
+                }
+
+                // A bare query root (e.g. a DbSet assigned to an IQueryable variable) has nothing worth naming. An in-memory source
+                // (e.g. AsQueryable() over a list) only becomes a query root as the argument of a Queryable method, and the marker
+                // returns IQueryable, which can't replace an IOrderedQueryable (e.g. one followed by ThenBy); none of these is wrapped.
+                return inlined is QueryRootExpression
+                    || root is ConstantExpression
+                    || genericTypeDefinition == typeof(IOrderedQueryable<>)
+                    ? inlined
+                    : Call(
+                        EmbeddedQueryable.MarkerMethod.MakeGenericMethod(queryable.ElementType),
+                        inlined,
+                        Constant(GetEmbeddedQueryableName(queryable, member.Member.Name)));
             }
 
             if (IsGenerallyEvaluatable(member))
@@ -2394,25 +2431,25 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     exception);
             }
         }
+    }
 
-        static string SanitizeCompilerGeneratedName(string s)
+    private static string SanitizeCompilerGeneratedName(string s)
+    {
+        // Compiler-generated field names intentionally contain illegal characters, specifically angle brackets <>.
+        // In cases where there's something within the angle brackets, that tends to be the original user-provided variable name
+        // (e.g. <PropertyName>k__BackingField). If we see angle brackets, extract that out, or if the angle brackets contain no
+        // content, strip them out entirely and take what comes after.
+        var closingBracket = s.IndexOf('>');
+        if (closingBracket == -1)
         {
-            // Compiler-generated field names intentionally contain illegal characters, specifically angle brackets <>.
-            // In cases where there's something within the angle brackets, that tends to be the original user-provided variable name
-            // (e.g. <PropertyName>k__BackingField). If we see angle brackets, extract that out, or if the angle brackets contain no
-            // content, strip them out entirely and take what comes after.
-            var closingBracket = s.IndexOf('>');
-            if (closingBracket == -1)
-            {
-                return s;
-            }
-
-            var openingBracket = s.IndexOf('<');
-
-            return openingBracket != -1 && openingBracket < closingBracket - 1
-                ? s[(openingBracket + 1)..closingBracket]
-                : s[(closingBracket + 1)..];
+            return s;
         }
+
+        var openingBracket = s.IndexOf('<');
+
+        return openingBracket != -1 && openingBracket < closingBracket - 1
+            ? s[(openingBracket + 1)..closingBracket]
+            : s[(closingBracket + 1)..];
     }
 
     private Expression ConvertIfNeeded(Expression expression, Type type)

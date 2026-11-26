@@ -1658,6 +1658,58 @@ GROUP BY [o0].[Key]
 """);
     }
 
+    public override async Task Embedded_query_referenced_twice_with_owned_navigation(bool async)
+    {
+        await base.Embedded_query_referenced_twice_with_owned_navigation(async);
+
+        AssertSql(
+            """
+WITH [people] AS (
+    SELECT [o0].[Id]
+    FROM [OwnedPerson] AS [o0]
+    WHERE [o0].[Id] > 0
+),
+[people1] AS (
+    SELECT [o2].[Id], [o2].[PersonAddress_Country_Name]
+    FROM [OwnedPerson] AS [o2]
+    WHERE [o2].[Id] > 0
+)
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+LEFT JOIN (
+    SELECT [o4].[ClientId], [o4].[Id], [o4].[OrderDate], [o4].[PeriodEnd], [o4].[PeriodStart], [o5].[OrderClientId], [o5].[OrderId], [o5].[Id] AS [Id0], [o5].[Detail], [o5].[PeriodEnd] AS [PeriodEnd0], [o5].[PeriodStart] AS [PeriodStart0]
+    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o4]
+    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o5] ON [o4].[ClientId] = [o5].[OrderClientId] AND [o4].[Id] = [o5].[OrderId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
+WHERE EXISTS (
+    SELECT 1
+    FROM [people] AS [o1]
+    WHERE [o1].[Id] = [o].[Id]) AND EXISTS (
+    SELECT 1
+    FROM [people1] AS [o3]
+    WHERE [o3].[Id] = [o].[Id] AND [o3].[PersonAddress_Country_Name] = N'USA')
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
+""");
+    }
+
+    public override async Task Embedded_query_over_owned_compared_to_other_owned_type(bool async)
+    {
+        await base.Embedded_query_over_owned_compared_to_other_owned_type(async);
+
+        AssertSql(
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+LEFT JOIN (
+    SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id] AS [Id0], [o2].[Detail], [o2].[PeriodEnd] AS [PeriodEnd0], [o2].[PeriodStart] AS [PeriodStart0]
+    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1]
+    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
+) AS [s] ON [o].[Id] = [s].[ClientId]
+WHERE 0 = 1
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
+""");
+    }
+
     public override async Task GroupBy_aggregate_on_optional_owned_navigation(bool async)
     {
         await base.GroupBy_aggregate_on_optional_owned_navigation(async);
