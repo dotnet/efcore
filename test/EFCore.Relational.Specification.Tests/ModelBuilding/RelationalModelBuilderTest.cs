@@ -1953,6 +1953,175 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 prefix + nameof(OwnedWithComplex.ComplexCollection),
                 table.FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!)!.Name);
         }
+
+        [Theory]
+        [InlineData(CollectionNullability.Nullable, true, null, true)]
+        [InlineData(CollectionNullability.NonNullable, true, null, false)]
+        [InlineData(CollectionNullability.Oblivious, true, null, false)]
+        [InlineData(CollectionNullability.GetterOnly, true, null, false)]
+        [InlineData(CollectionNullability.Nullable, false, null, false)]
+        [InlineData(CollectionNullability.Nullable, true, true, false)]
+        [InlineData(CollectionNullability.NonNullable, true, false, true)]
+        public virtual void Owned_collection_mapped_to_json_can_be_null_when_it_is_annotated_as_nullable(
+            CollectionNullability nullability,
+            bool mapToJson,
+            bool? required,
+            bool expectedNullable)
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            switch (nullability)
+            {
+                case CollectionNullability.Nullable:
+                    Configure(modelBuilder.Entity<NullableJsonItemsOwner>(), e => e.Items);
+                    break;
+                case CollectionNullability.NonNullable:
+                    Configure(modelBuilder.Entity<NonNullableJsonItemsOwner>(), e => e.Items);
+                    break;
+                case CollectionNullability.Oblivious:
+                    Configure(modelBuilder.Entity<ObliviousJsonItemsOwner>(), e => e.Items);
+                    break;
+                case CollectionNullability.GetterOnly:
+                    // A stored null couldn't be materialized without a setter or a backing field
+                    Configure(modelBuilder.Entity<GetterOnlyJsonItemsOwner>(), e => e.Items);
+                    break;
+            }
+
+            var model = modelBuilder.FinalizeModel();
+
+            var navigation = model.GetEntityTypes().Single(e => e.FindOwnership() == null)
+                .FindNavigation(nameof(NullableJsonItemsOwner.Items))!;
+            Assert.Equal(expectedNullable, navigation.IsNullable);
+
+            void Configure<TOwner>(TestEntityTypeBuilder<TOwner> builder, Expression<Func<TOwner, IEnumerable<JsonItem>?>> items)
+                where TOwner : class
+            {
+                builder.OwnsMany(
+                    items, b =>
+                    {
+                        if (mapToJson)
+                        {
+                            b.ToJson();
+                        }
+                    });
+
+                if (required != null)
+                {
+                    builder.Navigation(items).IsRequired(required.Value);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Owned_collections_nested_in_json_can_be_null_when_annotated_as_nullable()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonItemsReferenceOwner>().OwnsOne(
+                e => e.Reference, b =>
+                {
+                    b.ToJson();
+                    b.OwnsMany(r => r.NullableItems);
+                    b.OwnsMany(r => r.Items);
+                });
+            modelBuilder.Entity<JsonItemsDerivedOwner>().OwnsMany(e => e.Items, b => b.ToJson());
+
+            var model = modelBuilder.FinalizeModel();
+
+            var reference = model.FindEntityType(typeof(JsonItemsReferenceOwner))!.FindNavigation(nameof(JsonItemsReferenceOwner.Reference))!;
+            Assert.False(reference.IsNullable);
+            Assert.True(reference.TargetEntityType.FindNavigation(nameof(JsonItemsReference.NullableItems))!.IsNullable);
+            Assert.False(reference.TargetEntityType.FindNavigation(nameof(JsonItemsReference.Items))!.IsNullable);
+            Assert.True(
+                model.FindEntityType(typeof(JsonItemsDerivedOwner))!.FindNavigation(nameof(JsonItemsDerivedOwner.Items))!.IsNullable);
+        }
+
+        [Fact]
+        public virtual void Collection_that_is_not_owned_is_not_nullable_by_convention()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<NullableJsonItemsOwner>().Ignore(e => e.Items);
+            modelBuilder.Entity<JsonItemsForeignKeyOwner>().HasMany(e => e.Children).WithOne();
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.False(
+                model.FindEntityType(typeof(JsonItemsForeignKeyOwner))!.FindNavigation(nameof(JsonItemsForeignKeyOwner.Children))!
+                    .IsNullable);
+        }
+    }
+
+    public enum CollectionNullability
+    {
+        Nullable,
+        NonNullable,
+        Oblivious,
+        GetterOnly
+    }
+
+    protected class NullableJsonItemsOwner
+    {
+        public int Id { get; set; }
+        public List<JsonItem>? Items { get; set; }
+    }
+
+    protected class NonNullableJsonItemsOwner
+    {
+        public int Id { get; set; }
+        public List<JsonItem> Items { get; set; } = null!;
+    }
+
+#nullable disable
+    protected class ObliviousJsonItemsOwner
+    {
+        public int Id { get; set; }
+        public List<JsonItem> Items { get; set; }
+    }
+#nullable restore
+
+    protected class GetterOnlyJsonItemsOwner
+    {
+        // The name doesn't match the navigation, so it isn't found as its backing field
+        private readonly List<JsonItem> _store = [];
+
+        public int Id { get; set; }
+
+        public List<JsonItem>? Items
+            => _store;
+    }
+
+    protected class JsonItemsReferenceOwner
+    {
+        public int Id { get; set; }
+        public JsonItemsReference? Reference { get; set; }
+    }
+
+    protected class JsonItemsReference
+    {
+        public List<JsonItem> Items { get; set; } = null!;
+        public List<JsonItem>? NullableItems { get; set; }
+    }
+
+    protected class JsonItemsDerivedOwner : JsonItemsReferenceOwner
+    {
+        public List<JsonItem>? Items { get; set; }
+    }
+
+    protected class JsonItemsForeignKeyOwner
+    {
+        public int Id { get; set; }
+        public List<JsonItemsForeignKeyChild>? Children { get; set; }
+    }
+
+    protected class JsonItemsForeignKeyChild
+    {
+        public int Id { get; set; }
+    }
+
+    protected class JsonItem
+    {
+        public string? Name { get; set; }
     }
 
     protected class JsonEntity
