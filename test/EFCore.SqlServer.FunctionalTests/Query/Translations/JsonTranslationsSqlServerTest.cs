@@ -28,7 +28,7 @@ public class JsonTranslationsSqlServerTest : JsonTranslationsRelationalTestBase<
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
 FROM [JsonEntities] AS [j]
 WHERE JSON_PATH_EXISTS([j].[JsonString], N'$.OptionalInt') = 1
 """);
@@ -46,7 +46,7 @@ WHERE JSON_PATH_EXISTS([j].[JsonString], N'$.OptionalInt') = 1
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
 FROM [JsonEntities] AS [j]
 WHERE JSON_PATH_EXISTS([j].[JsonComplexType], N'$.OptionalInt') = 1
 """);
@@ -64,9 +64,59 @@ WHERE JSON_PATH_EXISTS([j].[JsonComplexType], N'$.OptionalInt') = 1
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
 FROM [JsonEntities] AS [j]
 WHERE JSON_PATH_EXISTS([j].[JsonOwnedType], N'$.OptionalInt') = 1
+""");
+    }
+
+    // Note that ISJSON() is supported from SQL Server 2016 (compatibility level 130), so unlike JsonPathExists above these tests
+    // need no version gating; the translation itself is gated on the configured compatibility level.
+    public override async Task IsJson_on_scalar_string_column()
+    {
+        await base.IsJson_on_scalar_string_column();
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+FROM [JsonEntities] AS [j]
+WHERE ISJSON([j].[MaybeJsonString]) = 1
+""");
+    }
+
+    public override async Task IsJson_negated_on_scalar_string_column()
+    {
+        await base.IsJson_negated_on_scalar_string_column();
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+FROM [JsonEntities] AS [j]
+WHERE ISJSON([j].[MaybeJsonString]) <> 1 OR [j].[MaybeJsonString] IS NULL
+""");
+    }
+
+    public override async Task IsJson_on_complex_property()
+    {
+        await base.IsJson_on_complex_property();
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+FROM [JsonEntities] AS [j]
+WHERE ISJSON([j].[JsonComplexType]) = 1
+""");
+    }
+
+    public override async Task IsJson_on_owned_entity()
+    {
+        await base.IsJson_on_owned_entity();
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+FROM [JsonEntities] AS [j]
+WHERE ISJSON([j].[JsonOwnedType]) = 1
 """);
     }
 
@@ -84,7 +134,7 @@ WHERE JSON_PATH_EXISTS([j].[JsonOwnedType], N'$.OptionalInt') = 1
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
 FROM [JsonEntities] AS [j]
 WHERE JSON_CONTAINS([j].[JsonString], 8, N'$.OptionalInt') = 1
 """);
@@ -101,7 +151,7 @@ WHERE JSON_CONTAINS([j].[JsonString], 8, N'$.OptionalInt') = 1
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
 FROM [JsonEntities] AS [j]
 WHERE JSON_CONTAINS([j].[JsonComplexType], 8, N'$.OptionalInt') = 1
 """);
@@ -118,7 +168,7 @@ WHERE JSON_CONTAINS([j].[JsonComplexType], 8, N'$.OptionalInt') = 1
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
 FROM [JsonEntities] AS [j]
 WHERE JSON_CONTAINS([j].[JsonOwnedType], 8, N'$.OptionalInt') = 1
 """);

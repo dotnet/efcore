@@ -58,4 +58,23 @@ public static class RelationalDbFunctionsExtensions
     /// <param name="path">The JSON path to look for.</param>
     public static bool JsonPathExists(this DbFunctions _, object json, string path)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonPathExists)));
+
+    /// <summary>
+    ///     Returns a value indicating whether the given value is valid JSON.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         A <see langword="null" /> value is not considered valid JSON, and so causes this function to return <see langword="false" />.
+    ///     </para>
+    ///     <para>
+    ///         Note that not all databases support this function; consult your database's documentation for more information.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="value">The value to check for valid JSON.</param>
+    public static bool IsJson(this DbFunctions _, object? value)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsJson)));
 }

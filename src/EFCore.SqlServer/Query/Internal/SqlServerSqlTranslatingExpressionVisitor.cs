@@ -469,6 +469,48 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                         _sqlExpressionFactory.Constant(1));
             }
 
+            // We translate EF.Functions.IsJson here and not in a method translator since we need to support IsJson over complex and
+            // owned JSON properties, which requires special handling.
+            // ISJSON() was introduced in SQL Server 2016 (compatibility level 130).
+            case nameof(RelationalDbFunctionsExtensions.IsJson)
+                when declaringType == typeof(RelationalDbFunctionsExtensions)
+                && @object is null
+                && arguments is [_, var value]
+                && _sqlServerSingletonOptions.EngineType switch
+                {
+                    SqlServerEngineType.SqlServer => _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 130,
+                    SqlServerEngineType.AzureSql => _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 130,
+                    SqlServerEngineType.AzureSynapse => true,
+                    _ => throw new UnreachableException()
+                }:
+            {
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedValue = TranslateProjection(value) switch
+                {
+                    // The value argument is a scalar string property
+                    SqlExpression scalar => scalar,
+
+                    // The value argument is a complex or owned JSON property
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                return translatedValue is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.Equal(
+                        _sqlExpressionFactory.Function(
+                            "ISJSON",
+                            [translatedValue],
+                            nullable: true,
+                            // Unlike JSON_PATH_EXISTS() above, ISJSON() returns NULL only when its argument is NULL, so it genuinely
+                            // propagates nullability and there's no wrapping check that must be preserved from optimization.
+                            argumentsPropagateNullability: [true],
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(1));
+            }
+
             // https://learn.microsoft.com/dotnet/api/system.datetimeoffset.tooffset
             case nameof(DateTimeOffset.ToOffset)
                 when declaringType == typeof(DateTimeOffset)

@@ -267,6 +267,42 @@ public class SqliteSqlTranslatingExpressionVisitor(
                             argumentsPropagateNullability: [false, false],
                             typeof(int)));
             }
+
+            // We translate EF.Functions.IsJson here and not in a method translator since we need to support IsJson over complex and
+            // owned JSON properties, which requires special handling.
+            case nameof(RelationalDbFunctionsExtensions.IsJson)
+                when declaringType == typeof(RelationalDbFunctionsExtensions)
+                && @object is null
+                && arguments is [_, var value]:
+            {
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedValue = TranslateProjection(value) switch
+                {
+                    // The value argument is a scalar string property
+                    SqlExpression scalar => scalar,
+
+                    // The value argument is a complex or owned JSON property
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                // json_valid() returns NULL for a NULL argument, but IsJson() returns a non-nullable bool where NULL means false.
+                // Comparing to 1 (as on SQL Server) makes the null semantics pipeline compensate correctly, e.g. when negated.
+                return translatedValue is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.Equal(
+                        _sqlExpressionFactory.Function(
+                            "json_valid",
+                            [translatedValue],
+                            nullable: true,
+                            // Unlike json_type() above, json_valid() returns NULL only when its argument is NULL, so it genuinely
+                            // propagates nullability and there's no wrapping check that must be preserved from optimization.
+                            argumentsPropagateNullability: [true],
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(1));
+            }
         }
 
         return QueryCompilationContext.NotTranslatedExpression;

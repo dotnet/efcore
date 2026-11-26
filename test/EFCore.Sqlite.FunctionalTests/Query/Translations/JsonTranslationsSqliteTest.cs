@@ -19,7 +19,7 @@ public class JsonTranslationsSqliteTest : JsonTranslationsRelationalTestBase<Jso
 
         AssertSql(
             """
-SELECT "j"."Id", "j"."JsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
 FROM "JsonEntities" AS "j"
 WHERE json_type("j"."JsonString", '$.OptionalInt') IS NOT NULL
 """);
@@ -32,7 +32,7 @@ WHERE json_type("j"."JsonString", '$.OptionalInt') IS NOT NULL
 
         AssertSql(
             """
-SELECT "j"."Id", "j"."JsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
 FROM "JsonEntities" AS "j"
 WHERE json_type("j"."JsonComplexType", '$.OptionalInt') IS NOT NULL
 """);
@@ -45,9 +45,61 @@ WHERE json_type("j"."JsonComplexType", '$.OptionalInt') IS NOT NULL
 
         AssertSql(
             """
-SELECT "j"."Id", "j"."JsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
 FROM "JsonEntities" AS "j"
 WHERE json_type("j"."JsonOwnedType", '$.OptionalInt') IS NOT NULL
+""");
+    }
+
+    [Fact]
+    public override async Task IsJson_on_scalar_string_column()
+    {
+        await base.IsJson_on_scalar_string_column();
+
+        AssertSql(
+            """
+SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+FROM "JsonEntities" AS "j"
+WHERE json_valid("j"."MaybeJsonString") = 1
+""");
+    }
+
+    [Fact]
+    public override async Task IsJson_negated_on_scalar_string_column()
+    {
+        await base.IsJson_negated_on_scalar_string_column();
+
+        AssertSql(
+            """
+SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+FROM "JsonEntities" AS "j"
+WHERE json_valid("j"."MaybeJsonString") <> 1 OR "j"."MaybeJsonString" IS NULL
+""");
+    }
+
+    [Fact]
+    public override async Task IsJson_on_complex_property()
+    {
+        await base.IsJson_on_complex_property();
+
+        AssertSql(
+            """
+SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+FROM "JsonEntities" AS "j"
+WHERE json_valid("j"."JsonComplexType") = 1
+""");
+    }
+
+    [Fact]
+    public override async Task IsJson_on_owned_entity()
+    {
+        await base.IsJson_on_owned_entity();
+
+        AssertSql(
+            """
+SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+FROM "JsonEntities" AS "j"
+WHERE json_valid("j"."JsonOwnedType") = 1
 """);
     }
 
