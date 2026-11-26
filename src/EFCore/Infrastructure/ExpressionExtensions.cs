@@ -328,7 +328,12 @@ public static class ExpressionExtensions
         this Expression target,
         IPropertyBase property,
         bool makeNullable = true) // No shadow entities in runtime
-        => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
+        => CreateEFPropertyExpression(
+            target.CreateComplexPropertyChainExpression(property.DeclaringType),
+            property.DeclaringType.ClrType,
+            property.ClrType,
+            property.Name,
+            makeNullable);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

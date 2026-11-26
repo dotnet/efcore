@@ -14,6 +14,261 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
+    #region 39722
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Include_collection_with_complex_struct_key_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context39722.Parent>().Include(p => p.Children).OrderBy(p => p.Id.Value);
+        var parents = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Collection(
+            parents,
+            p => Assert.Equal([11, 12], p.Children.Select(c => c.Id).OrderBy(id => id)),
+            p => Assert.Empty(p.Children));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Include_collection_with_complex_struct_key_and_filter_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var id = new Context39722.ParentId(Context39722.FirstId);
+        var query = context.Set<Context39722.Parent>().Where(p => p.Id == id).Include(p => p.Children);
+        var parent = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Equal(id, parent.Id);
+        Assert.Equal([11, 12], parent.Children.Select(c => c.Id).OrderBy(value => value));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Include_reference_with_complex_struct_key_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context39722.Child>().Include(c => c.Parent).OrderBy(c => c.Id);
+        var children = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Collection(
+            children,
+            c => Assert.Equal(Context39722.FirstId, c.Parent!.Id.Value),
+            c => Assert.Equal(Context39722.FirstId, c.Parent!.Id.Value),
+            c => Assert.Null(c.Parent));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Find_with_complex_struct_key_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var result = async
+            ? await context.FindAsync(typeof(Context39722.Parent), Context39722.FirstId)
+            : context.Set<Context39722.Parent>().Find(Context39722.FirstId);
+
+        var parent = Assert.IsType<Context39722.Parent>(result);
+        Assert.Equal(Context39722.FirstId, parent.Id.Value);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Load_reference_with_complex_struct_key_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        var child = await context.Set<Context39722.Child>().SingleAsync(c => c.Id == 11);
+
+        if (async)
+        {
+            await context.Entry(child).Reference(c => c.Parent).LoadAsync();
+        }
+        else
+        {
+            context.Entry(child).Reference(c => c.Parent).Load();
+        }
+
+        Assert.NotNull(child.Parent);
+        Assert.Equal(Context39722.FirstId, child.Parent.Id.Value);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Include_collection_with_complex_composite_key_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<CompositeContext39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<CompositeContext39722.Parent>().IgnoreAutoIncludes()
+            .Include(p => p.Children).OrderBy(p => p.Id.Id).ThenBy(p => p.Id.TenantId);
+        var parents = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Collection(
+            parents,
+            p => Assert.Equal([11], p.Children.Select(c => c.Id)),
+            p => Assert.Equal([21], p.Children.Select(c => c.Id)),
+            p => Assert.Empty(p.Children));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Find_with_complex_composite_key_and_auto_include_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<CompositeContext39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var parent = async
+            ? await context.Set<CompositeContext39722.Parent>().FindAsync(1, "B")
+            : context.Set<CompositeContext39722.Parent>().Find(1, "B");
+
+        Assert.NotNull(parent);
+        Assert.Equal(new CompositeContext39722.ParentId(1, "B"), parent.Id);
+        Assert.Equal([21], parent.Children.Select(c => c.Id));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Include_and_find_with_nested_complex_key_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<NestedContext39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<NestedContext39722.Parent>().Include(p => p.Children);
+        var parent = async ? await query.SingleAsync() : query.Single();
+        Assert.Equal([31], parent.Children.Select(c => c.Id));
+
+        context.ChangeTracker.Clear();
+        var found = async
+            ? await context.Set<NestedContext39722.Parent>().FindAsync(3)
+            : context.Set<NestedContext39722.Parent>().Find(3);
+
+        Assert.NotNull(found);
+        Assert.Equal(3, found.Id.Inner.Value);
+    }
+
+    protected class Context39722(DbContextOptions options) : DbContext(options)
+    {
+        public static readonly Guid FirstId = new("00000000-0000-0000-0000-000000000001");
+        public static readonly Guid SecondId = new("00000000-0000-0000-0000-000000000002");
+
+        public readonly record struct ParentId(Guid Value);
+
+        public class Parent
+        {
+            public ParentId Id { get; set; }
+            public List<Child> Children { get; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public Parent? Parent { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.ComplexProperty(p => p.Id);
+                b.HasKey(p => p.Id.Value);
+                b.Property(p => p.Id.Value).ValueGeneratedNever();
+                b.HasMany(p => p.Children).WithOne(c => c.Parent).HasForeignKey("ParentId");
+            });
+            modelBuilder.Entity<Child>().Property(c => c.Id).ValueGeneratedNever();
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Parent { Id = new ParentId(FirstId), Children = { new Child { Id = 11 }, new Child { Id = 12 } } },
+                new Parent { Id = new ParentId(SecondId) },
+                new Child { Id = 13 });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class CompositeContext39722(DbContextOptions options) : DbContext(options)
+    {
+        public sealed record ParentId(int Id, string TenantId);
+
+        public class Parent
+        {
+            public ParentId Id { get; set; } = null!;
+            public List<Child> Children { get; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.ComplexProperty(p => p.Id);
+                b.HasKey(p => new { p.Id.Id, p.Id.TenantId });
+                b.Property(p => p.Id.Id).ValueGeneratedNever();
+                b.HasMany(p => p.Children).WithOne().HasForeignKey("ParentId", "ParentTenantId");
+                b.Navigation(p => p.Children).AutoInclude();
+            });
+            modelBuilder.Entity<Child>().Property(c => c.Id).ValueGeneratedNever();
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Parent { Id = new ParentId(1, "A"), Children = { new Child { Id = 11 } } },
+                new Parent { Id = new ParentId(1, "B"), Children = { new Child { Id = 21 } } },
+                new Parent { Id = new ParentId(2, "A") });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class NestedContext39722(DbContextOptions options) : DbContext(options)
+    {
+        public sealed class ParentId
+        {
+            public InnerId Inner { get; set; }
+        }
+
+        public readonly record struct InnerId(int Value);
+
+        public class Parent
+        {
+            public ParentId Id { get; set; } = null!;
+            public List<Child> Children { get; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.ComplexProperty(p => p.Id, id => id.ComplexProperty(p => p.Inner));
+                b.HasKey(p => p.Id.Inner.Value);
+                b.Property(p => p.Id.Inner.Value).ValueGeneratedNever();
+                b.HasMany(p => p.Children).WithOne().HasForeignKey("ParentId");
+            });
+            modelBuilder.Entity<Child>().Property(c => c.Id).ValueGeneratedNever();
+        }
+
+        public Task SeedAsync()
+        {
+            Add(new Parent { Id = new ParentId { Inner = new InnerId(3) }, Children = { new Child { Id = 31 } } });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    #endregion
+
     #region 21803
 
     [Theory, InlineData(true, true), InlineData(true, false), InlineData(false, true), InlineData(false, false)]

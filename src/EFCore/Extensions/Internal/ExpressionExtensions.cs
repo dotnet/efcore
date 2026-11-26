@@ -15,6 +15,30 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 /// </summary>
 public static class ExpressionExtensions
 {
+    private static readonly bool UseOldBehavior39722
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39722", out var enabled) && enabled;
+
+    /// <summary>
+    ///     Creates an expression accessing the complex property chain to the given declaring type.
+    /// </summary>
+    internal static Expression CreateComplexPropertyChainExpression(this Expression target, IReadOnlyTypeBase declaringType)
+    {
+        if (UseOldBehavior39722
+            || declaringType is not IReadOnlyComplexType complexType
+            || complexType.ClrType.IsAssignableFrom(target.Type.UnwrapNullableType()))
+        {
+            return target;
+        }
+
+        var complexProperty = complexType.ComplexProperty;
+        return Infrastructure.ExpressionExtensions.CreateEFPropertyExpression(
+            target.CreateComplexPropertyChainExpression(complexProperty.DeclaringType),
+            complexProperty.DeclaringType.ClrType,
+            complexProperty.ClrType,
+            complexProperty.Name,
+            makeNullable: false);
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -524,13 +548,20 @@ public static class ExpressionExtensions
             Expression keyValuesConstantExpression,
             IReadOnlyProperty property,
             int i)
-            => property.ClrType.IsValueType
+        {
+            var target = entityParameterExpression.CreateComplexPropertyChainExpression(property.DeclaringType);
+            if (target.Type.IsValueType)
+            {
+                target = Expression.Convert(target, typeof(object));
+            }
+
+            return property.ClrType.IsValueType
                 && property.ClrType.UnwrapNullableType() is var nonNullableType
                 && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
                     ? Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                         Expression.Call(
                             EF.MakePropertyMethod(typeof(object)),
-                            entityParameterExpression,
+                            target,
                             Expression.Constant(property.Name, typeof(string))),
                         Expression.MakeIndex(
                             keyValuesConstantExpression,
@@ -539,7 +570,7 @@ public static class ExpressionExtensions
                     : Expression.Equal(
                         Expression.Call(
                             EF.MakePropertyMethod(property.ClrType),
-                            entityParameterExpression,
+                            target,
                             Expression.Constant(property.Name, typeof(string))),
                         Expression.Convert(
                             Expression.MakeIndex(
@@ -547,5 +578,6 @@ public static class ExpressionExtensions
                                 ValueBuffer.Indexer,
                                 [Expression.Constant(i)]),
                             property.ClrType));
+        }
     }
 }
