@@ -4325,9 +4325,6 @@
           "Member": "static string NonUniqueRequiredDependentForeignKey(object? foreignKeyProperties, object? declaringEntityType);"
         },
         {
-          "Member": "static string NonUniqueRequiredDependentNavigation(object? principalEntityType, object? principalNavigation);"
-        },
-        {
           "Member": "static string NoParameterlessConstructor(object? entityType);"
         },
         {
@@ -4359,6 +4356,9 @@
         },
         {
           "Member": "static string NoValueGenerator(object? property, object? entityType, object? propertyType);"
+        },
+        {
+          "Member": "static string NullableCollectionNavigationNoSetter(object? navigation, object? entityType);"
         },
         {
           "Member": "static string NullableKey(object? entityType, object? property);"
