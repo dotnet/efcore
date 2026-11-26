@@ -994,6 +994,37 @@ ORDER BY [a].[Id], [g].[Year]
 
     #endregion
 
+    [Fact]
+    public virtual void Repeated_single_result_subquery_calling_user_defined_function_is_not_lifted()
+    {
+        using var context = CreateContext();
+
+        var customers = context.Customers.OrderBy(c => c.Id).Select(c => new
+        {
+            Name = c.Orders.Where(o => UDFSqlContext.CustomerOrderCountStatic(c.Id) > 1).OrderBy(o => o.Id).Select(o => o.Name)
+                .FirstOrDefault(),
+            OrderDate = c.Orders.Where(o => UDFSqlContext.CustomerOrderCountStatic(c.Id) > 1).OrderBy(o => o.Id)
+                .Select(o => (DateTime?)o.OrderDate).FirstOrDefault()
+        }).ToList();
+
+        Assert.Equal(4, customers.Count);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [o].[Name]
+    FROM [Orders] AS [o]
+    WHERE [c].[Id] = [o].[CustomerId] AND [dbo].[CustomerOrderCount]([c].[Id]) > 1
+    ORDER BY [o].[Id]) AS [Name], (
+    SELECT TOP(1) [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [c].[Id] = [o0].[CustomerId] AND [dbo].[CustomerOrderCount]([c].[Id]) > 1
+    ORDER BY [o0].[Id]) AS [OrderDate]
+FROM [Customers] AS [c]
+ORDER BY [c].[Id]
+""");
+    }
+
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
 

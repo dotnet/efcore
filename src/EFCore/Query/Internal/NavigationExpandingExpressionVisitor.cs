@@ -52,12 +52,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private readonly HashSet<string> _parameterNames = [];
     private readonly ExpressionTreeFuncletizer _funcletizer;
     private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
-    private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
     private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
     private readonly Dictionary<QueryFiltersCacheKey, LambdaExpression> _parameterizedQueryFilterPredicateCache = [];
 
     private readonly Dictionary<string, object?> _parameters = [];
+
+    private readonly Dictionary<Expression, Expression> _unprocessedCollectionSources = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +75,6 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         _queryTranslationPreprocessor = queryTranslationPreprocessor;
         _queryCompilationContext = queryCompilationContext;
         _extensibilityHelper = extensibilityHelper;
-        _evaluatableExpressionFilter = evaluatableExpressionFilter;
         _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this, extensibilityHelper);
         _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor(queryCompilationContext.Model);
         _nullCheckRemovingExpressionVisitor = new NullCheckRemovingExpressionVisitor();
@@ -249,6 +249,24 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 var parameterName = GetParameterName("e");
 
                 return new NavigationExpansionExpression(queryRootExpression, currentTree, currentTree, parameterName);
+            }
+
+            // The same expanded collection navigation can be reached from several places of a composed lambda, and processing it
+            // mutates it, so the places after the first start from a copy taken beforehand. A copy loses the joins its navigations
+            // already made, so the first place uses the original.
+            case MaterializeCollectionNavigationExpression { Subquery: not NavigationExpansionExpression } collectionNavigation:
+            {
+                var subquery = collectionNavigation.Subquery;
+                if (_unprocessedCollectionSources.TryGetValue(subquery, out var unprocessed))
+                {
+                    subquery = new CollectionSourceCloningExpressionVisitor().Visit(unprocessed);
+                }
+                else
+                {
+                    _unprocessedCollectionSources[subquery] = new CollectionSourceCloningExpressionVisitor().Visit(subquery);
+                }
+
+                return collectionNavigation.Update(Visit(subquery));
             }
 
             case NavigationExpansionExpression:
@@ -680,10 +698,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                     case nameof(Queryable.Select)
                         when genericMethod == QueryableMethods.Select:
-                        return LiftSingleResultSubqueries(
-                            ProcessSelect(
-                                source,
-                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()));
+                        return ProcessSelect(
+                            source,
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.Where)
                         when genericMethod == QueryableMethods.Where:

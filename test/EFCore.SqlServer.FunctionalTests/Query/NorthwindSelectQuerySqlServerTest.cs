@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryRelationalTestBase<
@@ -2954,44 +2956,38 @@ ORDER BY [c0].[CustomerID]
                     nameof(Queryable.FirstOrDefault) or
                     nameof(Queryable.Single) or
                     nameof(Queryable.SingleOrDefault) => """
-SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+SELECT [o].[OrderID], [c0].[City], [c0].[Country], [c0].[ContactName]
 FROM [Orders] AS [o]
-LEFT JOIN (
-    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
-    FROM (
-        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID]) AS [row]
-        FROM [Customers] AS [c]
-    ) AS [c0]
-    WHERE [c0].[row] <= 1
-) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
+OUTER APPLY (
+    SELECT TOP(1) [c].[City], [c].[Country], [c].[ContactName]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [c0]
 WHERE [o].[CustomerID] IS NOT NULL
 """,
                 nameof(Queryable.Last) or
                     nameof(Queryable.LastOrDefault) => """
-SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+SELECT [o].[OrderID], [c0].[City], [c0].[Country], [c0].[ContactName]
 FROM [Orders] AS [o]
-LEFT JOIN (
-    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
-    FROM (
-        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID] DESC) AS [row]
-        FROM [Customers] AS [c]
-    ) AS [c0]
-    WHERE [c0].[row] <= 1
-) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
+OUTER APPLY (
+    SELECT TOP(1) [c].[City], [c].[Country], [c].[ContactName]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c].[CustomerID] DESC
+) AS [c0]
 WHERE [o].[CustomerID] IS NOT NULL
 """,
                 nameof(Queryable.ElementAt) or
                     nameof(Queryable.ElementAtOrDefault) => """
-SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+SELECT [o].[OrderID], [c0].[City], [c0].[Country], [c0].[ContactName]
 FROM [Orders] AS [o]
-LEFT JOIN (
-    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
-    FROM (
-        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID]) AS [row]
-        FROM [Customers] AS [c]
-    ) AS [c0]
-    WHERE 0 < [c0].[row] AND [c0].[row] <= 1
-) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
+OUTER APPLY (
+    SELECT [c].[City], [c].[Country], [c].[ContactName]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c].[CustomerID]
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+) AS [c0]
 WHERE [o].[CustomerID] IS NOT NULL
 """,
                 _ => throw new InvalidOperationException(method)
@@ -3021,89 +3017,92 @@ OUTER APPLY (
 
         AssertSql(
             """
-SELECT [o].[OrderID], [p].[ProductName], [p].[SupplierID]
+SELECT [o].[OrderID], [s].[ProductName], [s].[SupplierID]
 FROM [Orders] AS [o]
-LEFT JOIN (
-    SELECT [o1].[ProductID], [o1].[OrderID0]
-    FROM (
-        SELECT [o0].[ProductID], [o0].[OrderID] AS [OrderID0], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[ProductID]) AS [row]
-        FROM [Order Details] AS [o0]
-    ) AS [o1]
-    WHERE [o1].[row] <= 1
-) AS [o2] ON [o].[OrderID] = [o2].[OrderID0]
-LEFT JOIN [Products] AS [p] ON [o2].[ProductID] = [p].[ProductID]
+OUTER APPLY (
+    SELECT TOP(1) [p].[ProductName], [p].[SupplierID]
+    FROM [Order Details] AS [o0]
+    INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
+    WHERE [o].[OrderID] = [o0].[OrderID]
+    ORDER BY [o0].[ProductID]
+) AS [s]
 """);
     }
 
-    public override async Task Single_result_subquery_read_whole_and_null_checked_lift_to_single_join(bool async)
+    public override async Task Single_result_subquery_read_whole_and_null_checked(bool async)
     {
-        await base.Single_result_subquery_read_whole_and_null_checked_lift_to_single_join(async);
+        await base.Single_result_subquery_read_whole_and_null_checked(async);
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], CASE
-    WHEN [o1].[OrderID] IS NULL THEN CAST(1 AS bit)
+SELECT [c].[CustomerID], CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END
+END, [o4].[OrderID], [o4].[OrderDate], [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
     FROM (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID] DESC) AS [row]
         FROM [Orders] AS [o]
-    ) AS [o0]
-    WHERE [o0].[row] <= 1
-) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
+    ) AS [o2]
+    WHERE [o2].[row] <= 1
+) AS [o3] ON [c].[CustomerID] = [o3].[CustomerID]
+OUTER APPLY (
+    SELECT TOP(1) [o1].[OrderID], [o1].[OrderDate]
+    FROM [Orders] AS [o1]
+    WHERE [c].[CustomerID] = [o1].[CustomerID]
+    ORDER BY [o1].[OrderID] DESC
+) AS [o4]
 """);
     }
 
-    public override async Task Repeated_single_result_subqueries_that_are_not_lifted(bool async)
+    public override async Task Repeated_single_result_subqueries_of_one_member_lift_to_single_join(bool async)
     {
-        await base.Repeated_single_result_subqueries_that_are_not_lifted(async);
+        await base.Repeated_single_result_subqueries_of_one_member_lift_to_single_join(async);
 
         AssertSql(
             """
-SELECT [c].[CustomerID], ISNULL((
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderID]), 0) AS [FirstOrderID], ISNULL((
-    SELECT TOP(1) [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
-    ORDER BY [o0].[OrderID]), 0) AS [FirstOrderIDAgain], (
-    SELECT TOP(1) COALESCE([o1].[CustomerID], N'') + N'!'
-    FROM [Orders] AS [o1]
-    WHERE [c].[CustomerID] = [o1].[CustomerID]
-    ORDER BY [o1].[OrderDate]) AS [Suffixed], (
-    SELECT TOP(1) COALESCE([o2].[CustomerID], N'') + N'!'
-    FROM [Orders] AS [o2]
-    WHERE [c].[CustomerID] = [o2].[CustomerID]
-    ORDER BY [o2].[OrderDate]) AS [SuffixedAgain], CASE
+SELECT [c].[CustomerID], ISNULL([o6].[OrderID], 0) AS [FirstOrderID], ISNULL([o6].[OrderID], 0) AS [FirstOrderIDAgain], [o7].[c] AS [Suffixed], [o7].[c] AS [SuffixedAgain], CASE
     WHEN EXISTS (
         SELECT 1
-        FROM [Orders] AS [o3]
-        WHERE [c].[CustomerID] = [o3].[CustomerID]) THEN CAST(1 AS bit)
+        FROM [Orders] AS [o1]
+        WHERE [c].[CustomerID] = [o1].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasOrders], CASE
     WHEN NOT EXISTS (
         SELECT 1
-        FROM [Orders] AS [o4]
-        WHERE [c].[CustomerID] = [o4].[CustomerID]) THEN CAST(1 AS bit)
+        FROM [Orders] AS [o2]
+        WHERE [c].[CustomerID] = [o2].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasNoOrders], (
     SELECT COUNT(*)
-    FROM [Orders] AS [o5]
-    WHERE [c].[CustomerID] = [o5].[CustomerID] AND ((
-        SELECT TOP(1) [o6].[OrderDate]
-        FROM [Orders] AS [o6]
-        WHERE [c].[CustomerID] = [o6].[CustomerID] AND [o6].[OrderID] > [o5].[OrderID]
-        ORDER BY [o6].[OrderID]) > '1998-01-01T00:00:00.000' OR (
-        SELECT TOP(1) [o7].[OrderDate]
-        FROM [Orders] AS [o7]
-        WHERE [c].[CustomerID] = [o7].[CustomerID] AND [o7].[OrderID] > [o5].[OrderID]
-        ORDER BY [o7].[OrderID]) IS NULL)) AS [LaterOrders]
+    FROM [Orders] AS [o3]
+    WHERE [c].[CustomerID] = [o3].[CustomerID] AND ((
+        SELECT TOP(1) [o4].[OrderDate]
+        FROM [Orders] AS [o4]
+        WHERE [c].[CustomerID] = [o4].[CustomerID] AND [o4].[OrderID] > [o3].[OrderID]
+        ORDER BY [o4].[OrderID]) > '1998-01-01T00:00:00.000' OR (
+        SELECT TOP(1) [o5].[OrderDate]
+        FROM [Orders] AS [o5]
+        WHERE [c].[CustomerID] = [o5].[CustomerID] AND [o5].[OrderID] > [o3].[OrderID]
+        ORDER BY [o5].[OrderID]) IS NULL)) AS [LaterOrders]
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+) AS [o6]
+OUTER APPLY (
+    SELECT TOP(1) COALESCE([o0].[CustomerID], N'') + N'!' AS [c]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ORDER BY [o0].[OrderDate]
+) AS [o7]
 """);
     }
 
@@ -3126,33 +3125,62 @@ FROM [Customers] AS [c]
 """);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Repeated_single_result_subquery_ordered_by_new_guid_is_not_lifted(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                OrderDate = c.Orders.OrderBy(o => o.OrderID).ThenBy(o => Guid.NewGuid()).Select(o => o.OrderDate).FirstOrDefault(),
+                EmployeeID = c.Orders.OrderBy(o => o.OrderID).ThenBy(o => Guid.NewGuid()).Select(o => o.EmployeeID).FirstOrDefault()
+            }),
+            elementSorter: e => e.CustomerID);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID], NEWID()) AS [OrderDate], (
+    SELECT TOP(1) [o0].[EmployeeID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ORDER BY [o0].[OrderID], NEWID()) AS [EmployeeID]
+FROM [Customers] AS [c]
+""");
+    }
+
     public override async Task Single_result_subquery_null_check_over_keyless_entity(bool async)
     {
         await base.Single_result_subquery_null_check_over_keyless_entity(async);
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [m1].[City], CASE
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [m].[City]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    ) AS [m]
+    WHERE [m].[CompanyName] = [c].[CompanyName] AND [m].[City] = N'London'
+    ORDER BY [m].[CompanyName]) AS [City], (
+    SELECT TOP(1) [m0].[City]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    ) AS [m0]
+    WHERE [m0].[CompanyName] = [c].[CompanyName] AND [m0].[City] = N'London'
+    ORDER BY [m0].[CompanyName]) AS [CityAgain], CASE
     WHEN EXISTS (
         SELECT 1
         FROM (
             SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-        ) AS [m2]
-        WHERE [m2].[CompanyName] = [c].[CompanyName] AND [m2].[City] = N'London') THEN CAST(1 AS bit)
+        ) AS [m1]
+        WHERE [m1].[CompanyName] = [c].[CompanyName] AND [m1].[City] = N'London') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Exists]
 FROM [Customers] AS [c]
-LEFT JOIN (
-    SELECT [m0].[City], [m0].[CompanyName0]
-    FROM (
-        SELECT [m].[City], [m].[CompanyName] AS [CompanyName0], ROW_NUMBER() OVER(PARTITION BY [m].[CompanyName] ORDER BY [m].[CompanyName]) AS [row]
-        FROM (
-            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-        ) AS [m]
-        WHERE [m].[City] = N'London'
-    ) AS [m0]
-    WHERE [m0].[row] <= 1
-) AS [m1] ON [c].[CompanyName] = [m1].[CompanyName0]
 """);
     }
 
@@ -3162,16 +3190,462 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [o1].[OrderDate], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID]
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]), [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [o5].[OrderID], [o5].[CustomerID], [o5].[EmployeeID], [o5].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
     FROM (
-        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderID]) AS [row]
+        FROM [Orders] AS [o0]
+    ) AS [o2]
+    WHERE [o2].[row] <= 1
+) AS [o3] ON [c].[CustomerID] = [o3].[CustomerID]
+LEFT JOIN (
+    SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
+    FROM (
+        SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o1].[CustomerID] ORDER BY [o1].[OrderID]) AS [row]
+        FROM [Orders] AS [o1]
+    ) AS [o4]
+    WHERE [o4].[row] <= 1
+) AS [o5] ON [c].[CustomerID] = [o5].[CustomerID]
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_over_outer_collection_in_nested_select(bool async)
+    {
+        await base.Repeated_single_result_subquery_over_outer_collection_in_nested_select(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [o1].[OrderID], [o1].[PreviousOrderID], [o1].[PreviousOrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o2].[OrderID] AS [PreviousOrderID], [o2].[OrderDate] AS [PreviousOrderDate]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT TOP(1) [o0].[OrderID], [o0].[OrderDate]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] < [o].[OrderID]
+        ORDER BY [o0].[OrderID] DESC
+    ) AS [o2]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [o1]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_over_grouping_key(bool async)
+    {
+        await base.Repeated_single_result_subquery_over_grouping_key(async);
+
+        AssertSql(
+            """
+SELECT [c].[City] AS [Key], COUNT(*) AS [Count], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+    WHERE [c0].[City] = [c].[City] OR ([c0].[City] IS NULL AND [c].[City] IS NULL)
+    ORDER BY [o].[OrderID]) AS [OrderDate], (
+    SELECT TOP(1) [o0].[EmployeeID]
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c1] ON [o0].[CustomerID] = [c1].[CustomerID]
+    WHERE [c1].[City] = [c].[City] OR ([c1].[City] IS NULL AND [c].[City] IS NULL)
+    ORDER BY [o0].[OrderID]) AS [EmployeeID]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_whose_predicate_repeats_a_subquery_lifts_to_single_join(bool async)
+    {
+        await base.Repeated_single_result_subquery_whose_predicate_repeats_a_subquery_lifts_to_single_join(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [o0].[OrderDate], [o0].[EmployeeID]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o].[OrderDate], [o].[EmployeeID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND (
+        SELECT TOP(1) [e].[City]
+        FROM [Employees] AS [e]
+        WHERE [e].[EmployeeID] = [o].[EmployeeID]) IS NOT NULL AND ((
+        SELECT TOP(1) [e].[City]
+        FROM [Employees] AS [e]
+        WHERE [e].[EmployeeID] = [o].[EmployeeID]) NOT LIKE N'' OR (
+        SELECT TOP(1) [e].[City]
+        FROM [Employees] AS [e]
+        WHERE [e].[EmployeeID] = [o].[EmployeeID]) IS NULL)
+    ORDER BY [o].[OrderID]
+) AS [o0]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_in_orderings_lifts_to_single_join(bool async)
+    {
+        await base.Repeated_single_result_subquery_in_orderings_lifts_to_single_join(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [o0].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o].[OrderDate], [o].[EmployeeID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+) AS [o0]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [o0].[OrderDate], [o0].[EmployeeID], [c].[CustomerID]
+""");
+    }
+
+    public override async Task Single_result_subqueries_reading_different_rows_are_not_lifted(bool async)
+    {
+        await base.Single_result_subqueries_reading_different_rows_are_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) AS [First], (
+    SELECT TOP(1) [o0].[EmployeeID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID] AND ([o0].[EmployeeID] <> 6 OR [o0].[EmployeeID] IS NULL)
+    ORDER BY [o0].[OrderID]) AS [FirstFiltered], (
+    SELECT [o1].[EmployeeID]
+    FROM [Orders] AS [o1]
+    WHERE [c].[CustomerID] = [o1].[CustomerID]
+    ORDER BY [o1].[OrderID]
+    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) AS [Second]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Single_result_subqueries_grouping_by_different_keys_are_not_lifted(bool async)
+    {
+        await base.Single_result_subqueries_grouping_by_different_keys_are_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], ISNULL((
+    SELECT TOP(1) COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = [c].[CustomerID]
+    GROUP BY [o].[EmployeeID]
+    ORDER BY MAX([o].[OrderID]) DESC), 0) AS [ByEmployee], ISNULL((
+    SELECT TOP(1) COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]
+    GROUP BY [o0].[OrderDate]
+    ORDER BY MAX([o0].[OrderID]) DESC), 0) AS [ByDate]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Aggregate_subqueries_over_one_collection_are_not_lifted(bool async)
+    {
+        await base.Aggregate_subqueries_over_one_collection_are_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Count], (
+    SELECT MAX([o0].[OrderID])
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]) AS [LastOrderID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_inside_exists_is_not_lifted(bool async)
+    {
+        await base.Repeated_single_result_subquery_inside_exists_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], CASE
+    WHEN EXISTS (
+        SELECT 1
         FROM [Orders] AS [o]
-    ) AS [o0]
-    WHERE [o0].[row] <= 1
-) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
+        WHERE ISNULL((
+            SELECT TOP(1) CAST([o0].[Quantity] AS int)
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[ProductID] > CAST(LEN([c].[CustomerID]) AS int)
+            ORDER BY [o0].[ProductID]), 0) = ISNULL((
+            SELECT TOP(1) [o1].[ProductID]
+            FROM [Order Details] AS [o1]
+            WHERE [o].[OrderID] = [o1].[OrderID] AND [o1].[ProductID] > CAST(LEN([c].[CustomerID]) AS int)
+            ORDER BY [o1].[ProductID]), 0)) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasMatch]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Repeated_uncorrelated_single_result_subquery_is_not_lifted(bool async)
+    {
+        await base.Repeated_uncorrelated_single_result_subquery_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]) AS [OrderDate], (
+    SELECT TOP(1) [o0].[EmployeeID]
+    FROM [Orders] AS [o0]
+    ORDER BY [o0].[OrderID]) AS [EmployeeID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_guarded_by_case_is_not_lifted(bool async)
+    {
+        await base.Repeated_single_result_subquery_guarded_by_case_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] / ([o].[OrderID] - 10643) <> 0
+        ORDER BY [o].[OrderID])
+END AS [OrderDate], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o0].[EmployeeID]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] / ([o0].[OrderID] - 10643) <> 0
+        ORDER BY [o0].[OrderID])
+END AS [EmployeeID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_guarded_by_and_is_not_lifted(bool async)
+    {
+        await base.Repeated_single_result_subquery_guarded_by_and_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' AND (
+        SELECT TOP(1) [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] % 2 = 0
+        ORDER BY [o].[OrderID]) IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasOrderDate], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' AND (
+        SELECT TOP(1) [o0].[EmployeeID]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] % 2 = 0
+        ORDER BY [o0].[OrderID]) IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasEmployeeID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_guarded_by_in_is_not_lifted(bool async)
+    {
+        await base.Repeated_single_result_subquery_guarded_by_in_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], CASE
+    WHEN [o].[OrderID] IN (10248, ISNULL((
+        SELECT TOP(1) [o0].[OrderID]
+        FROM [Order Details] AS [o0]
+        WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[ProductID] % 2 = 0
+        ORDER BY [o0].[ProductID]), 0), ISNULL((
+        SELECT TOP(1) [o1].[ProductID]
+        FROM [Order Details] AS [o1]
+        WHERE [o].[OrderID] = [o1].[OrderID] AND [o1].[ProductID] % 2 = 0
+        ORDER BY [o1].[ProductID]), 0)) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Matches]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10252
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_read_only_in_pruned_projection_is_not_lifted(bool async)
+    {
+        await base.Repeated_single_result_subquery_read_only_in_pruned_projection_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+UNION ALL
+SELECT [c0].[CustomerID]
+FROM [Customers] AS [c0]
+WHERE [c0].[CustomerID] LIKE N'B%'
+""");
+    }
+
+    public override async Task Guarded_column_reads_of_single_result_subquery_read_unguarded_lift_to_single_join(bool async)
+    {
+        await base.Guarded_column_reads_of_single_result_subquery_read_unguarded_lift_to_single_join(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [c0].[City], [c0].[ContactName], CASE
+    WHEN [o].[OrderID] <> 10248 AND [c0].[Fax] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasFax], COALESCE([c0].[Region], [c0].[Country]) AS [Region]
+FROM [Orders] AS [o]
+OUTER APPLY (
+    SELECT TOP(1) [c].[City], [c].[ContactName], [c].[Region], [c].[Fax], [c].[Country]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+WHERE [o].[OrderID] < 10300
+""");
+    }
+
+    public override async Task Guarded_reads_of_single_result_subquery_not_read_unguarded_are_not_lifted(bool async)
+    {
+        await base.Guarded_reads_of_single_result_subquery_not_read_unguarded_are_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) AS [FirstOrderDate], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o0].[OrderDate]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] / ([o0].[OrderID] - 10643) <> 0
+        ORDER BY [o0].[OrderID])
+END AS [OrderDate], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o1].[EmployeeID]
+        FROM [Orders] AS [o1]
+        WHERE [c].[CustomerID] = [o1].[CustomerID] AND [o1].[OrderID] / ([o1].[OrderID] - 10643) <> 0
+        ORDER BY [o1].[OrderID])
+END AS [EmployeeID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Guarded_read_of_single_result_subquery_whose_unguarded_read_is_pruned_is_not_lifted(bool async)
+    {
+        await base.Guarded_read_of_single_result_subquery_whose_unguarded_read_is_pruned_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o].[EmployeeID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] / ([o].[OrderID] - 10643) <> 0
+        ORDER BY [o].[OrderID])
+END AS [EmployeeID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+UNION ALL
+SELECT [c0].[CustomerID], NULL AS [EmployeeID]
+FROM [Customers] AS [c0]
+WHERE [c0].[CustomerID] LIKE N'B%'
+""");
+    }
+
+    public override async Task Guarded_expression_read_of_single_result_subquery_read_unguarded_is_not_lifted(bool async)
+    {
+        await base.Guarded_expression_read_of_single_result_subquery_read_unguarded_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) AS [OrderDate], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o0].[OrderID] / ([o0].[OrderID] - 10643)
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+        ORDER BY [o0].[OrderID])
+END AS [Ratio]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_reading_repeated_single_result_subqueries_lifts_both_to_single_joins(bool async)
+    {
+        await base.Repeated_single_result_subquery_reading_repeated_single_result_subqueries_lifts_both_to_single_joins(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [o1].[c] AS [UnitPrice], [o1].[c0] AS [Quantity]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o2].[UnitPrice] AS [c], [o2].[Quantity] AS [c0]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT TOP(1) [o0].[UnitPrice], [o0].[Quantity]
+        FROM [Order Details] AS [o0]
+        WHERE [o].[OrderID] = [o0].[OrderID]
+        ORDER BY [o0].[ProductID]
+    ) AS [o2]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+) AS [o1]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_in_split_query_collection_lifts_to_single_join(bool async)
+    {
+        await base.Repeated_single_result_subquery_in_split_query_collection_lifts_to_single_join(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]
+""",
+            //
+            """
+SELECT [o5].[OrderID], [o8].[UnitPrice], [o8].[Quantity], [c].[CustomerID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o5] ON [c].[CustomerID] = [o5].[CustomerID]
+OUTER APPLY (
+    SELECT TOP(1) [o6].[UnitPrice], [o6].[Quantity]
+    FROM [Order Details] AS [o6]
+    WHERE [o5].[OrderID] = [o6].[OrderID]
+    ORDER BY [o6].[ProductID]
+) AS [o8]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]
 """);
     }
 

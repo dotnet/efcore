@@ -24,7 +24,7 @@ public class SqlServerQueryTranslationPostprocessor(
         queryCompilationContext.SqlAliasManager);
 
     private readonly SqlServerAggregateArgumentPostprocessor _aggregatePostprocessor = new(queryCompilationContext.SqlAliasManager);
-    private readonly SqlServerSqlTreePruner _pruner = new();
+    private readonly SqlServerSqlTreePruner _pruner = new(queryCompilationContext.SqlAliasManager);
     private readonly bool _supportsJsonTypeInOpenJson =
         queryCompilationContext.ContextOptions.FindExtension<SqlServerOptionsExtension>()! is
             { EngineType: SqlServerEngineType.SqlServer, SqlServerCompatibilityLevel: >= 170 };

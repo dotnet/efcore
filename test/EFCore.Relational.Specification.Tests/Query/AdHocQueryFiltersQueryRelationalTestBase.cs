@@ -950,6 +950,34 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Repeated_single_result_subquery_reads_through_same_filtered_required_navigation(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38965>(
+            onConfiguring: b => b.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)),
+            seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        // For group 2 the latest dependent is its own, whose principal is filtered out: the principal reads skip to group 1's row.
+        var query = from d in context.Dependents
+                    let latest = context.Dependents
+                        .Where(e => e.GroupId <= d.GroupId)
+                        .OrderByDescending(e => e.GroupId)
+                        .FirstOrDefault()
+                    orderby d.GroupId
+                    select new
+                    {
+                        GroupId = (int?)latest!.GroupId,
+                        Value = (int?)latest.Principal.Value,
+                        Filtered = (bool?)latest.Principal.Filtered
+                    };
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal([(1, 10, false), (2, 10, false)], results.Select(r => (r.GroupId, r.Value, r.Filtered)));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Single_result_subquery_null_check_preserves_filtered_projection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context38965>(
