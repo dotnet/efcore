@@ -311,7 +311,7 @@ public partial class RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer);
-        modelBuilder.Model.FindEntityType(typeof(Customer))!.FindNavigation(nameof(Customer.Orders))!.SetIsNullable(true);
+        modelBuilder.Entity<Customer>().Navigation(c => c.Orders).IsRequired(false);
 
         VerifyError(
             RelationalStrings.NullableCollectionNavigationNotMappedToJson(nameof(Customer.Orders), nameof(Customer)),
@@ -338,11 +338,14 @@ public partial class RelationalModelValidatorTest
                     bb.Ignore(x => x.NestedReference);
                     bb.Ignore(x => x.NestedCollection);
                 });
+            b.Navigation(x => x.OwnedCollection).IsRequired(false);
         });
-        modelBuilder.Model.FindEntityType(typeof(ValidatorJsonEntityBasic))!
-            .FindNavigation(nameof(ValidatorJsonEntityBasic.OwnedCollection))!.SetIsNullable(true);
 
-        Validate(modelBuilder);
+        var model = Validate(modelBuilder);
+
+        Assert.True(
+            model.FindEntityType(typeof(ValidatorJsonEntityBasic))!
+                .FindNavigation(nameof(ValidatorJsonEntityBasic.OwnedCollection))!.IsNullable);
     }
 
     [Fact]

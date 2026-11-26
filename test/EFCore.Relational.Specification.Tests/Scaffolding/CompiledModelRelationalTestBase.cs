@@ -5,6 +5,7 @@
 
 using System.Data;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
@@ -249,12 +250,10 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         var referenceOwnership = referenceOwnedNavigation.ForeignKey;
         var ownedCollectionNavigation = principalDerived.GetDeclaredNavigations().Last();
         var collectionOwnership = ownedCollectionNavigation.ForeignKey;
-#pragma warning disable EF1001 // Internal EF Core API usage.
         Assert.Equal(jsonColumns, ownedCollectionNavigation.IsNullable);
-        Assert.Equal(jsonColumns ? 1 : 0, ((Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType)principalDerived).NullableCollectionCount);
-        Assert.Equal(0, ((Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType)principalBase).NullableCollectionCount);
-        Assert.Equal(jsonColumns, Microsoft.EntityFrameworkCore.Metadata.Internal.PropertyBaseExtensions.GetOriginalValueIndex(ownedCollectionNavigation) >= 0);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+        Assert.Equal(jsonColumns ? 1 : 0, ((IRuntimeEntityType)principalDerived).NullableCollectionCount);
+        Assert.Equal(0, ((IRuntimeEntityType)principalBase).NullableCollectionCount);
+        Assert.Equal(jsonColumns, ownedCollectionNavigation.GetOriginalValueIndex() >= 0);
 
         var tptForeignKey = principalDerived.GetForeignKeys().SingleOrDefault();
         if (jsonColumns)

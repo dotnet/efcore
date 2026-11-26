@@ -27,7 +27,7 @@ public class InMemoryModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = base.CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer);
-        modelBuilder.Model.FindEntityType(typeof(Customer))!.FindNavigation(nameof(Customer.Orders))!.SetIsNullable(true);
+        modelBuilder.Entity<Customer>().Navigation(c => c.Orders).IsRequired(false);
 
         VerifyError(
             InMemoryStrings.NullableCollectionNavigationNotSupported(nameof(Customer.Orders), nameof(Customer)),
