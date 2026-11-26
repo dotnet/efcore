@@ -21,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 /// </summary>
 public class RelationalBulkImporter : IBulkImporter
 {
+    private const int DefaultBatchSize = 1000;
+    private const int DefaultMaxParameters = 1000;
+    private const int DefaultValuesBatchSize = 500;
+
     private readonly IRelationalConnection _connection;
     private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
@@ -198,8 +202,8 @@ public class RelationalBulkImporter : IBulkImporter
             return;
         }
 
-        var maxBatchSize = options?.BatchSize ?? 1000;
-        var maxRowsPerBatch = Math.Max(1, Math.Min(maxBatchSize, 1000 / columns.Count));
+        var maxBatchSize = options?.BatchSize ?? DefaultBatchSize;
+        var maxRowsPerBatch = Math.Max(1, Math.Min(maxBatchSize, DefaultMaxParameters / columns.Count));
         var columnList = string.Join(", ", columns.Select(c => _sqlGenerationHelper.DelimitIdentifier(c.ColumnName)));
 
         var transactionEnlistManager = _connection as ITransactionEnlistmentManager;
@@ -269,6 +273,7 @@ public class RelationalBulkImporter : IBulkImporter
         var keepIdentity = options?.KeepIdentity ?? false;
 
         var reader = new EntityDataReader<TEntity>(entityType, entities, storeObject, keepIdentity, cancellationToken: cancellationToken);
+        await using var _ = reader.ConfigureAwait(false);
         var columns = reader.ColumnMappings;
         if (columns.Count == 0)
         {
@@ -276,8 +281,8 @@ public class RelationalBulkImporter : IBulkImporter
             return;
         }
 
-        var maxBatchSize = options?.BatchSize ?? 1000;
-        var maxRowsPerBatch = Math.Max(1, Math.Min(maxBatchSize, 1000 / columns.Count));
+        var maxBatchSize = options?.BatchSize ?? DefaultBatchSize;
+        var maxRowsPerBatch = Math.Max(1, Math.Min(maxBatchSize, DefaultMaxParameters / columns.Count));
         var columnList = string.Join(", ", columns.Select(c => _sqlGenerationHelper.DelimitIdentifier(c.ColumnName)));
 
         var transactionEnlistManager = _connection as ITransactionEnlistmentManager;
@@ -382,7 +387,7 @@ public class RelationalBulkImporter : IBulkImporter
             {
                 commandBuilder.AppendLine($"INSERT INTO {delimitedTableName} DEFAULT VALUES;");
                 batchCount++;
-                if (batchCount >= 500)
+                if (batchCount >= DefaultValuesBatchSize)
                 {
                     commandBuilder.Build().ExecuteNonQuery(
                         new RelationalCommandParameterObject(
@@ -463,7 +468,7 @@ public class RelationalBulkImporter : IBulkImporter
             {
                 commandBuilder.AppendLine($"INSERT INTO {delimitedTableName} DEFAULT VALUES;");
                 batchCount++;
-                if (batchCount >= 500)
+                if (batchCount >= DefaultValuesBatchSize)
                 {
                     await commandBuilder.Build().ExecuteNonQueryAsync(
                         new RelationalCommandParameterObject(

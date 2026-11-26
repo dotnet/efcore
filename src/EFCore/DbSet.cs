@@ -720,7 +720,7 @@ public abstract class DbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyA
         => false;
 
     /// <summary>
-    ///     Imports the specified entities directly into the database table without change tracking.
+    ///     Imports the specified entities directly into the database table without using change tracking.
     /// </summary>
     /// <param name="entities">The entities to import.</param>
     /// <param name="options">Options to configure the bulk import operation.</param>
@@ -730,7 +730,7 @@ public abstract class DbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyA
         => throw new NotSupportedException();
 
     /// <summary>
-    ///     Asynchronously imports the specified entities directly into the database table without change tracking.
+    ///     Asynchronously imports the specified entities directly into the database table without using change tracking.
     /// </summary>
     /// <param name="entities">The entities to import.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -741,7 +741,7 @@ public abstract class DbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyA
         => ImportFromAsync(entities, options: null, cancellationToken);
 
     /// <summary>
-    ///     Asynchronously imports the specified entities directly into the database table without change tracking.
+    ///     Asynchronously imports the specified entities directly into the database table without using change tracking.
     /// </summary>
     /// <param name="entities">The entities to import.</param>
     /// <param name="options">Options to configure the bulk import operation.</param>
@@ -754,7 +754,7 @@ public abstract class DbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyA
         => throw new NotSupportedException();
 
     /// <summary>
-    ///     Asynchronously imports the specified entities stream directly into the database table without change tracking.
+    ///     Asynchronously imports the specified entities stream directly into the database table without using change tracking.
     /// </summary>
     /// <param name="entities">The stream of entities to import.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -765,7 +765,7 @@ public abstract class DbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyA
         => ImportFromAsync(entities, options: null, cancellationToken);
 
     /// <summary>
-    ///     Asynchronously imports the specified entities stream directly into the database table without change tracking.
+    ///     Asynchronously imports the specified entities stream directly into the database table without using change tracking.
     /// </summary>
     /// <param name="entities">The stream of entities to import.</param>
     /// <param name="options">Options to configure the bulk import operation.</param>
