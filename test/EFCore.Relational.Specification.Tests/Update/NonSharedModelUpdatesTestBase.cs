@@ -850,14 +850,28 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         ProjectionWithEntity
     }
 
-    [Theory] // Issue #33452
-    [InlineData(NullableJsonCollectionValue.Empty, NullableJsonCollectionValue.Null, false)]
-    [InlineData(NullableJsonCollectionValue.Empty, NullableJsonCollectionValue.Null, true)]
-    [InlineData(NullableJsonCollectionValue.Null, NullableJsonCollectionValue.Empty, false)]
-    [InlineData(NullableJsonCollectionValue.Null, NullableJsonCollectionValue.Empty, true)]
-    [InlineData(NullableJsonCollectionValue.Null, NullableJsonCollectionValue.WithElements, false)]
-    [InlineData(NullableJsonCollectionValue.WithElements, NullableJsonCollectionValue.Null, false)]
+    public static readonly IEnumerable<object[]> IsAsyncAndNotifyingStrategyData =
+        from a in new[] { false, true }
+        from strategy in NotifyingStrategies
+        select new object[] { a, strategy };
+
+    public static readonly IEnumerable<object[]> IsAsyncNotifyingStrategyAndBoolData =
+        from a in new[] { false, true }
+        from strategy in NotifyingStrategies
+        from b in new[] { false, true }
+        select new object[] { a, strategy, b };
+
+    private static ChangeTrackingStrategy[] NotifyingStrategies
+        =>
+        [
+            ChangeTrackingStrategy.ChangedNotifications,
+            ChangeTrackingStrategy.ChangingAndChangedNotifications,
+            ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues
+        ];
+
+    [Theory, MemberData(nameof(NullableJsonCollectionChangeData))] // Issue #33452
     public virtual async Task Nullable_json_collection_change_is_saved(
+        bool async,
         NullableJsonCollectionValue from,
         NullableJsonCollectionValue to,
         bool alsoModifyName)
@@ -883,7 +897,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 }
 
                 parent.Children = CreateChildren(to);
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -919,8 +933,23 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         }
     }
 
-    [Theory, InlineData(true), InlineData(false)] // Issue #33452
-    public virtual async Task Nullable_json_collection_nested_in_a_json_reference_changed_from_empty_to_null_is_saved(bool alsoModifyReference)
+    public static readonly IEnumerable<object[]> NullableJsonCollectionChangeData =
+        from a in new[] { false, true }
+        from row in new object[][]
+        {
+            [NullableJsonCollectionValue.Empty, NullableJsonCollectionValue.Null, false],
+            [NullableJsonCollectionValue.Empty, NullableJsonCollectionValue.Null, true],
+            [NullableJsonCollectionValue.Null, NullableJsonCollectionValue.Empty, false],
+            [NullableJsonCollectionValue.Null, NullableJsonCollectionValue.Empty, true],
+            [NullableJsonCollectionValue.Null, NullableJsonCollectionValue.WithElements, false],
+            [NullableJsonCollectionValue.WithElements, NullableJsonCollectionValue.Null, false]
+        }
+        select new object[] { a, row[0], row[1], row[2] };
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Nullable_json_collection_nested_in_a_json_reference_changed_from_empty_to_null_is_saved(
+        bool async,
+        bool alsoModifyReference)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -943,7 +972,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 }
 
                 parent.Reference.Items = null;
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -953,8 +982,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(true), InlineData(false)] // Issue #33452
-    public virtual async Task Nullable_json_collection_nested_in_a_json_reference_changed_from_null_is_saved(bool withElements)
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Nullable_json_collection_nested_in_a_json_reference_changed_from_null_is_saved(bool async, bool withElements)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -971,7 +1000,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 Assert.Null(parent.Reference!.Items);
 
                 parent.Reference.Items = withElements ? [new JsonChild { Name = "C1" }] : [];
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -982,8 +1011,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Fact] // Issue #33452
-    public virtual async Task Nullable_json_collection_nested_in_json_collection_elements_changed_from_empty_to_null_is_saved()
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Nullable_json_collection_nested_in_json_collection_elements_changed_from_empty_to_null_is_saved(bool async)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1011,7 +1040,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 Assert.All(parent.Outer, i => Assert.NotNull(i.Inner));
 
                 parent.Outer[0].Inner = null;
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -1024,8 +1053,10 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(true), InlineData(false)] // Issue #33452
-    public virtual async Task Nullable_json_collection_nested_in_json_collection_elements_changed_from_null_is_saved(bool withElements)
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Nullable_json_collection_nested_in_json_collection_elements_changed_from_null_is_saved(
+        bool async,
+        bool withElements)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1053,7 +1084,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 Assert.All(parent.Outer, i => Assert.Null(i.Inner));
 
                 parent.Outer[0].Inner = withElements ? [new JsonChild { Name = "C1" }] : [];
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -1066,8 +1097,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Fact] // Issue #33452
-    public virtual async Task Nullable_json_collection_declared_on_a_derived_type_changed_to_null_is_saved()
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Nullable_json_collection_declared_on_a_derived_type_changed_to_null_is_saved(bool async)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1086,7 +1117,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 Assert.Empty(derived.DerivedChildren);
 
                 derived.DerivedChildren = null;
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -1098,12 +1129,10 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory] // Issue #33452
-    [InlineData(NullableJsonCollectionQuery.Tracking)]
-    [InlineData(NullableJsonCollectionQuery.NoTracking)]
-    [InlineData(NullableJsonCollectionQuery.NoTrackingWithIdentityResolution)]
-    [InlineData(NullableJsonCollectionQuery.ProjectionWithEntity)]
-    public virtual async Task Nullable_json_collection_stored_as_null_or_empty_is_loaded_as_null_or_empty(NullableJsonCollectionQuery queryKind)
+    [Theory, MemberData(nameof(IsAsyncAndQueryKindData))] // Issue #33452
+    public virtual async Task Nullable_json_collection_stored_as_null_or_empty_is_loaded_as_null_or_empty(
+        bool async,
+        NullableJsonCollectionQuery queryKind)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1112,8 +1141,24 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             async context =>
             {
                 // InitializedChildren is initialized to an empty collection, which must not hide a stored null
-                context.Add(new NullableJsonParent { Name = "Null", Children = null, InitializedChildren = null });
-                context.Add(new NullableJsonParent { Name = "Empty", Children = [], InitializedChildren = [] });
+                context.Add(
+                    new NullableJsonParent
+                    {
+                        Name = "Null",
+                        Children = null,
+                        InitializedChildren = null,
+                        Reference = new JsonReference { Name = "R1", Items = null },
+                        Outer = [new JsonOuterItem { Name = "O1", Inner = null }, new JsonOuterItem { Name = "O2", Inner = [] }]
+                    });
+                context.Add(
+                    new NullableJsonParent
+                    {
+                        Name = "Empty",
+                        Children = [],
+                        InitializedChildren = [],
+                        Reference = new JsonReference { Name = "R2", Items = [] },
+                        Outer = []
+                    });
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -1121,11 +1166,11 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 var query = context.Set<NullableJsonParent>().OrderBy(p => p.Name);
                 var parents = queryKind switch
                 {
-                    NullableJsonCollectionQuery.Tracking => await query.ToListAsync(),
-                    NullableJsonCollectionQuery.NoTracking => await query.AsNoTracking().ToListAsync(),
+                    NullableJsonCollectionQuery.Tracking => await QueryList(query, async),
+                    NullableJsonCollectionQuery.NoTracking => await QueryList(query.AsNoTracking(), async),
                     NullableJsonCollectionQuery.NoTrackingWithIdentityResolution
-                        => await query.AsNoTrackingWithIdentityResolution().ToListAsync(),
-                    _ => (await query.Select(p => new { Parent = p, p.Name }).ToListAsync()).Select(r => r.Parent).ToList()
+                        => await QueryList(query.AsNoTrackingWithIdentityResolution(), async),
+                    _ => (await QueryList(query.Select(p => new { Parent = p, p.Name }), async)).Select(r => r.Parent).ToList()
                 };
 
                 Assert.Equal(2, parents.Count);
@@ -1135,10 +1180,20 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 Assert.Empty(parents[0].Children!);
                 Assert.NotNull(parents[0].InitializedChildren);
                 Assert.Empty(parents[0].InitializedChildren!);
+                Assert.NotNull(parents[0].Reference!.Items);
+                Assert.Empty(parents[0].Reference!.Items!);
+                Assert.NotNull(parents[0].Outer);
+                Assert.Empty(parents[0].Outer!);
 
                 Assert.Equal("Null", parents[1].Name);
                 Assert.Null(parents[1].Children);
                 Assert.Null(parents[1].InitializedChildren);
+                Assert.Equal("R1", parents[1].Reference!.Name);
+                Assert.Null(parents[1].Reference!.Items);
+                Assert.Equal(["O1", "O2"], parents[1].Outer!.Select(o => o.Name));
+                Assert.Null(parents[1].Outer![0].Inner);
+                Assert.NotNull(parents[1].Outer![1].Inner);
+                Assert.Empty(parents[1].Outer![1].Inner!);
 
                 switch (queryKind)
                 {
@@ -1157,8 +1212,100 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(true), InlineData(false)] // Issue #33452
-    public virtual async Task Update_of_a_disconnected_entity_saves_the_nullness_of_a_nullable_json_collection(bool toNull)
+    public static readonly IEnumerable<object[]> IsAsyncAndQueryKindData =
+        from a in new[] { false, true }
+        from queryKind in Enum.GetValues<NullableJsonCollectionQuery>()
+        select new object[] { a, queryKind };
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Nullable_json_collection_missing_from_the_stored_json_is_loaded_as_null(bool async, bool tracking)
+    {
+        var contextFactory = await InitializeNullableJsonCollectionTest();
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new NullableJsonParent
+                    {
+                        Name = "A",
+                        Reference = new JsonReference { Name = "R", Items = [] },
+                        Outer = [new JsonOuterItem { Name = "O1", Inner = [] }]
+                    });
+                await context.SaveChangesAsync();
+
+                // Written as if by something other than EF, leaving out the properties of the collections instead of writing null
+                await SetColumnValueAsync(context, "NullableJsonParent", "Reference", """'{"Name":"R"}'""");
+                await SetColumnValueAsync(context, "NullableJsonParent", "Outer", """'[{"Name":"O1"}]'""");
+            },
+            async context =>
+            {
+                var query = context.Set<NullableJsonParent>();
+                var parent = await QuerySingle(tracking ? query : query.AsNoTracking(), async);
+
+                // A missing property is read the same way as a property stored as null
+                Assert.Equal("R", parent.Reference!.Name);
+                Assert.Null(parent.Reference.Items);
+                Assert.Equal("O1", Assert.Single(parent.Outer!).Name);
+                Assert.Null(parent.Outer![0].Inner);
+
+                if (!tracking)
+                {
+                    Assert.Empty(context.ChangeTracker.Entries());
+                    return;
+                }
+
+                Assert.False(context.ChangeTracker.HasChanges());
+
+                // An unrelated change doesn't rewrite the columns that contain the missing collections
+                parent.Name = "B";
+                await SaveChanges(context, async);
+
+                Assert.Null(parent.Reference.Items);
+                Assert.Null(parent.Outer[0].Inner);
+                Assert.False(context.ChangeTracker.HasChanges());
+            },
+            async context =>
+            {
+                var parent = await context.Set<NullableJsonParent>().SingleAsync();
+                Assert.Equal(tracking ? "B" : "A", parent.Name);
+                Assert.Null(parent.Reference!.Items);
+                Assert.Null(Assert.Single(parent.Outer!).Inner);
+            });
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Nullable_json_collection_projected_directly_is_loaded_as_null_or_empty(bool async, bool nested)
+    {
+        var contextFactory = await InitializeNullableJsonCollectionTest();
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new NullableJsonParent { Name = "Null", Children = null, Reference = new JsonReference { Name = "R1", Items = null } });
+                context.Add(new NullableJsonParent { Name = "Empty", Children = [], Reference = new JsonReference { Name = "R2", Items = [] } });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                // Owned entities can only be projected without their owner by a no-tracking query
+                var query = context.Set<NullableJsonParent>().AsNoTracking().OrderBy(p => p.Name);
+                var collections = nested
+                    ? await QueryList(query.Select(p => p.Reference!.Items), async)
+                    : await QueryList(query.Select(p => p.Children), async);
+
+                Assert.Equal(2, collections.Count);
+                Assert.NotNull(collections[0]);
+                Assert.Empty(collections[0]!);
+                Assert.Null(collections[1]);
+            });
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Update_of_a_disconnected_entity_saves_the_nullness_of_a_nullable_json_collection(bool async, bool toNull)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1176,7 +1323,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             async context =>
             {
                 context.Update(new NullableJsonParent { Id = id, Name = "A", Children = toNull ? null : [] });
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -1193,8 +1340,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(true), InlineData(false)] // Issue #33452
-    public virtual async Task Replacing_an_owner_with_the_same_key_saves_the_nullness_of_a_nullable_json_collection(bool toNull)
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Replacing_an_owner_with_the_same_key_saves_the_nullness_of_a_nullable_json_collection(bool async, bool toNull)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1214,7 +1361,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 var old = await context.Set<NullableJsonParent>().SingleAsync();
                 context.Remove(old);
                 context.Add(new NullableJsonParent { Id = id, Name = "B", Children = toNull ? null : [] });
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -1232,8 +1379,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Fact] // Issue #33452
-    public virtual async Task Mixed_changes_of_nullable_json_collections_are_saved_in_one_batch()
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Mixed_changes_of_nullable_json_collections_are_saved_in_one_batch(bool async)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1256,7 +1403,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 parents["ToEmpty"].Children = [];
                 parents["OnlyName"].Name = "OnlyNameChanged";
                 parents["Elements"].Children!.Add(new JsonChild { Name = "C2" });
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -1274,8 +1421,11 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(true), InlineData(false)] // Issue #33452
-    public virtual async Task Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nullable_json_collection(bool toNull)
+    [Theory, MemberData(nameof(IsAsyncAndTwoBoolsData))] // Issue #33452
+    public virtual async Task Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nullable_json_collection(
+        bool async,
+        bool toNull,
+        bool detectChanges)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1291,20 +1441,20 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 var parent = await context.Set<NullableJsonParent>().SingleAsync();
                 Assert.Equal(!toNull, parent.Children is null);
 
-                if (toNull)
+                parent.Children = toNull ? null : [];
+
+                // Whether or not the change has been detected before the query, it's kept
+                if (detectChanges)
                 {
-                    parent.Children = null;
-                }
-                else
-                {
-                    parent.Children = [];
                     context.ChangeTracker.DetectChanges();
+                    Assert.Equal(EntityState.Modified, context.Entry(parent).State);
                 }
 
-                var again = await context.Set<NullableJsonParent>().SingleAsync();
+                var again = await QuerySingle(context.Set<NullableJsonParent>(), async);
 
                 Assert.Same(parent, again);
                 Assert.Equal(toNull, again.Children is null);
+                Assert.Equal(!toNull, again.Children is { Count: 0 });
 
                 await context.SaveChangesAsync();
             },
@@ -1323,8 +1473,81 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Fact] // Issue #33452
-    public virtual async Task Streamed_duplicate_of_a_tracked_entity_does_not_overwrite_a_change_to_a_nullable_json_collection()
+    public static readonly IEnumerable<object[]> IsAsyncAndTwoBoolsData =
+        from a in new[] { false, true }
+        from b in new[] { false, true }
+        from c in new[] { false, true }
+        select new object[] { a, b, c };
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nested_nullable_json_collection(
+        bool async,
+        bool inReference)
+    {
+        var contextFactory = await InitializeNullableJsonCollectionTest();
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new NullableJsonParent
+                    {
+                        Name = "A",
+                        Reference = new JsonReference { Name = "R", Items = [] },
+                        Outer = [new JsonOuterItem { Name = "O1", Inner = null }]
+                    });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var parent = await context.Set<NullableJsonParent>().SingleAsync();
+                Assert.NotNull(parent.Reference!.Items);
+                Assert.Null(parent.Outer![0].Inner);
+
+                // The change isn't detected before the query
+                if (inReference)
+                {
+                    parent.Reference.Items = null;
+                }
+                else
+                {
+                    parent.Outer[0].Inner = [];
+                }
+
+                var again = await QuerySingle(context.Set<NullableJsonParent>(), async);
+
+                Assert.Same(parent, again);
+                Assert.Same(parent.Reference, again.Reference);
+                Assert.Same(parent.Outer[0], again.Outer![0]);
+                AssertChanged(again);
+
+                await SaveChanges(context, async);
+
+                AssertChanged(again);
+                Assert.False(context.ChangeTracker.HasChanges());
+            },
+            async context => AssertChanged(await context.Set<NullableJsonParent>().SingleAsync()));
+
+        void AssertChanged(NullableJsonParent parent)
+        {
+            if (inReference)
+            {
+                Assert.Null(parent.Reference!.Items);
+                Assert.Null(parent.Outer![0].Inner);
+            }
+            else
+            {
+                Assert.NotNull(parent.Reference!.Items);
+                Assert.Empty(parent.Reference.Items);
+                Assert.NotNull(parent.Outer![0].Inner);
+                Assert.Empty(parent.Outer[0].Inner!);
+            }
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Streamed_duplicate_of_a_tracked_entity_does_not_overwrite_a_change_to_a_nullable_json_collection(bool async)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1343,7 +1566,29 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                             select p;
 
                 var results = 0;
-                foreach (var parent in query.AsEnumerable())
+                if (async)
+                {
+                    await foreach (var parent in query.AsAsyncEnumerable())
+                    {
+                        Visit(parent);
+                    }
+                }
+                else
+                {
+                    foreach (var parent in query.AsEnumerable())
+                    {
+                        Visit(parent);
+                    }
+                }
+
+                Assert.Equal(2, results);
+
+                var tracked = context.ChangeTracker.Entries<NullableJsonParent>().Single(e => e.Entity.Name == "A");
+                Assert.Equal(EntityState.Modified, tracked.State);
+
+                await context.SaveChangesAsync();
+
+                void Visit(NullableJsonParent parent)
                 {
                     if (results++ == 0)
                     {
@@ -1356,13 +1601,6 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                         Assert.Empty(parent.Children);
                     }
                 }
-
-                Assert.Equal(2, results);
-
-                var tracked = context.ChangeTracker.Entries<NullableJsonParent>().Single(e => e.Entity.Name == "A");
-                Assert.Equal(EntityState.Modified, tracked.State);
-
-                await context.SaveChangesAsync();
             },
             async context =>
             {
@@ -1433,8 +1671,9 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Fact] // Issue #33452
-    public virtual async Task Querying_a_tracked_entity_keeps_a_pending_null_of_a_nullable_json_collection_that_is_stored_with_elements()
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Querying_a_tracked_entity_keeps_a_pending_null_of_a_nullable_json_collection_that_is_stored_with_elements(
+        bool async)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1455,7 +1694,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 var tracked = new NullableJsonParent { Id = id, Name = "A", Children = null };
                 context.Update(tracked);
 
-                var queried = await context.Set<NullableJsonParent>().SingleAsync();
+                var queried = await QuerySingle(context.Set<NullableJsonParent>(), async);
 
                 Assert.Same(tracked, queried);
                 Assert.Null(queried.Children);
@@ -1473,8 +1712,10 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(true), InlineData(false)] // Issue #33452
-    public virtual async Task Querying_a_tracked_entity_keeps_the_in_memory_nullness_of_a_nullable_json_collection(bool inMemoryNull)
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Querying_a_tracked_entity_keeps_the_in_memory_nullness_of_a_nullable_json_collection(
+        bool async,
+        bool inMemoryNull)
     {
         var contextFactory = await InitializeNullableJsonCollectionTest();
 
@@ -1493,7 +1734,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 // Changed behind the back of the context, as if by another one
                 await SetColumnValueAsync(context, "NullableJsonParent", "Children", inMemoryNull ? "'[]'" : "NULL");
 
-                var again = await context.Set<NullableJsonParent>().SingleAsync();
+                var again = await QuerySingle(context.Set<NullableJsonParent>(), async);
 
                 Assert.Same(parent, again);
                 if (inMemoryNull)
@@ -1510,23 +1751,56 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Fact] // Issue #33452
-    public virtual async Task Json_collection_that_is_not_nullable_or_opted_out_stored_as_null_is_loaded_as_empty_with_initializer()
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Reloading_an_entity_discards_a_pending_change_of_a_nullable_json_collection(bool async, bool toNull)
     {
-        var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb =>
-            {
-                mb.Entity<NotNullableJsonParent>(b =>
-                {
-                    b.OwnsMany(p => p.Children, c => c.ToJson());
-                    b.OwnsMany(p => p.OptedOutChildren, c => c.ToJson());
-                    b.OwnsMany(p => p.RequiredChildren, c => c.ToJson());
+        var contextFactory = await InitializeNullableJsonCollectionTest();
 
-                    // Opts out of the nullable collection that the nullable reference type annotation would configure
-                    b.Navigation(p => p.OptedOutChildren).IsRequired();
-                });
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new NullableJsonParent { Name = "A", Children = toNull ? [] : null });
+                await context.SaveChangesAsync();
             },
-            onConfiguring: IgnoreOwnedEntityMappedToJsonCollectionWarning);
+            async context =>
+            {
+                var parent = await context.Set<NullableJsonParent>().SingleAsync();
+                var entry = context.Entry(parent);
+
+                parent.Children = toNull ? null : [];
+                context.ChangeTracker.DetectChanges();
+                Assert.Equal(EntityState.Modified, entry.State);
+
+                if (async)
+                {
+                    await entry.ReloadAsync();
+                }
+                else
+                {
+                    entry.Reload();
+                }
+
+                // Reloading discards the pending change, so the entity ends up with the collection that is stored in the database
+                Assert.Equal(EntityState.Unchanged, entry.State);
+                if (toNull)
+                {
+                    Assert.NotNull(parent.Children);
+                    Assert.Empty(parent.Children);
+                }
+                else
+                {
+                    Assert.Null(parent.Children);
+                }
+
+                Assert.False(context.ChangeTracker.HasChanges());
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Json_collection_that_is_not_nullable_or_opted_out_stored_as_null_is_loaded_as_empty_with_initializer(bool async)
+    {
+        var contextFactory = await InitializeNotNullableJsonCollectionTest();
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,
@@ -1537,7 +1811,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             },
             async context =>
             {
-                var parent = await context.Set<NotNullableJsonParent>().SingleAsync();
+                var parent = await QuerySingle(context.Set<NotNullableJsonParent>(), async);
 
                 Assert.NotNull(parent.Children);
                 Assert.Empty(parent.Children);
@@ -1549,8 +1823,42 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Fact] // Issue #33452
-    public virtual async Task Nullable_json_collection_with_a_coercing_setter_loaded_as_null_has_no_changes()
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Json_collection_that_is_opted_out_of_being_nullable_set_to_null_is_not_saved_as_null(bool async)
+    {
+        var contextFactory = await InitializeNotNullableJsonCollectionTest();
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new NotNullableJsonParent());
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var parent = await context.Set<NotNullableJsonParent>().SingleAsync();
+                Assert.NotNull(parent.OptedOutChildren);
+                Assert.NotNull(parent.RequiredChildren);
+
+                // Setting a collection that isn't nullable to null is not a change of the stored value
+                parent.OptedOutChildren = null;
+                parent.RequiredChildren = null;
+                await SaveChanges(context, async);
+            },
+            async context =>
+            {
+                var parent = await context.Set<NotNullableJsonParent>().SingleAsync();
+
+                Assert.NotNull(parent.OptedOutChildren);
+                Assert.Empty(parent.OptedOutChildren);
+                Assert.NotNull(parent.RequiredChildren);
+                Assert.Empty(parent.RequiredChildren);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Nullable_json_collection_with_a_coercing_setter_loaded_as_null_has_no_changes(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
@@ -1570,17 +1878,101 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             },
             async context =>
             {
-                var parent = await context.Set<CoercingNullableJsonParent>().SingleAsync();
+                var parent = await QuerySingle(context.Set<CoercingNullableJsonParent>(), async);
 
                 Assert.False(context.ChangeTracker.HasChanges());
                 Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
             });
     }
 
-    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications), InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
-     InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #33452
+    public virtual async Task Nullable_json_collection_of_an_owner_loaded_from_several_rows_is_not_changed_by_the_later_rows(
+        bool async,
+        bool splitQuery)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<NullableJsonBlog>(b =>
+                {
+                    b.OwnsMany(p => p.Children, c => c.ToJson());
+                    b.HasMany(p => p.Posts).WithOne().HasForeignKey(p => p.BlogId);
+                });
+            },
+            onConfiguring: IgnoreOwnedEntityMappedToJsonCollectionWarning);
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.AddRange(
+                    new NullableJsonBlog
+                    {
+                        Name = "Null",
+                        Children = null,
+                        Posts = [new NullableJsonPost { Title = "P1" }, new NullableJsonPost { Title = "P2" }]
+                    },
+                    new NullableJsonBlog
+                    {
+                        Name = "Elements",
+                        Children = [new JsonChild { Name = "C1" }],
+                        Posts = [new NullableJsonPost { Title = "P3" }, new NullableJsonPost { Title = "P4" }]
+                    });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                // Each blog is read from one row per post in a single query
+                var query = context.Set<NullableJsonBlog>().Include(b => b.Posts).OrderBy(b => b.Name);
+                var blogs = await QueryList(splitQuery ? query.AsSplitQuery() : query, async);
+
+                Assert.Equal(["Elements", "Null"], blogs.Select(b => b.Name));
+                Assert.All(blogs, b => Assert.Equal(2, b.Posts.Count));
+                Assert.Equal(["C1"], blogs[0].Children!.Select(c => c.Name));
+                Assert.Null(blogs[1].Children);
+                Assert.Single(context.ChangeTracker.Entries<JsonChild>());
+                Assert.False(context.ChangeTracker.HasChanges());
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #33452
+    public virtual async Task Nullable_json_collection_with_elements_set_to_null_is_saved_when_orphans_are_deleted_on_SaveChanges(bool async)
+    {
+        var contextFactory = await InitializeNullableJsonCollectionTest();
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new NullableJsonParent { Name = "A", Children = [new JsonChild { Name = "C1" }, new JsonChild { Name = "C2" }] });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+
+                var parent = await context.Set<NullableJsonParent>().SingleAsync();
+                Assert.Equal(2, parent.Children!.Count);
+
+                parent.Children = null;
+                await SaveChanges(context, async);
+
+                Assert.Null(parent.Children);
+                Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                Assert.Empty(context.ChangeTracker.Entries<JsonChild>());
+                Assert.False(context.ChangeTracker.HasChanges());
+            },
+            async context =>
+            {
+                var parent = await context.Set<NullableJsonParent>().SingleAsync();
+                Assert.Null(parent.Children);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncAndNotifyingStrategyData))] // Issue #33452
     public virtual async Task Nullable_json_collection_of_a_notifying_entity_changed_from_empty_to_null_is_saved(
-        ChangeTrackingStrategy strategy) // Issue #33452
+        bool async,
+        ChangeTrackingStrategy strategy)
     {
         var contextFactory = await InitializeNotifyingNullableJsonCollectionTest(strategy);
 
@@ -1598,7 +1990,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 Assert.Empty(parent.Children);
 
                 parent.Children = null;
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -1607,10 +1999,67 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications), InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
-     InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    [Theory, MemberData(nameof(IsAsyncNotifyingStrategyAndBoolData))] // Issue #33452
+    public virtual async Task Nullable_json_collection_of_a_notifying_entity_replaced_between_null_and_populated_is_saved(
+        bool async,
+        ChangeTrackingStrategy strategy,
+        bool toNull)
+    {
+        var contextFactory = await InitializeNotifyingNullableJsonCollectionTest(strategy);
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new NotifyingNullableJsonParent
+                    {
+                        Name = "A",
+                        Children = toNull ? [new NotifyingJsonChild { Name = "C1" }, new NotifyingJsonChild { Name = "C2" }] : null
+                    });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var parent = await context.Set<NotifyingNullableJsonParent>().SingleAsync();
+                if (toNull)
+                {
+                    Assert.Equal(2, parent.Children!.Count);
+                    parent.Children = null;
+                }
+                else
+                {
+                    Assert.Null(parent.Children);
+                    parent.Children = [new NotifyingJsonChild { Name = "C3" }, new NotifyingJsonChild { Name = "C4" }];
+                }
+
+                await SaveChanges(context, async);
+
+                // The removed elements are no longer tracked, and the added ones are tracked as saved
+                Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                var childEntries = context.ChangeTracker.Entries<NotifyingJsonChild>().ToList();
+                Assert.Equal(toNull ? 0 : 2, childEntries.Count);
+                Assert.All(childEntries, e => Assert.Equal(EntityState.Unchanged, e.State));
+                Assert.False(context.ChangeTracker.HasChanges());
+            },
+            async context =>
+            {
+                var parent = await context.Set<NotifyingNullableJsonParent>().SingleAsync();
+                if (toNull)
+                {
+                    Assert.Null(parent.Children);
+                }
+                else
+                {
+                    Assert.Equal(["C3", "C4"], parent.Children!.Select(c => c.Name).Order());
+                }
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncAndNotifyingStrategyData))] // Issue #33452
     public virtual async Task Nullable_json_collection_of_a_notifying_entity_loaded_by_a_query_is_notified_of_added_and_removed_elements(
-        ChangeTrackingStrategy strategy) // Issue #33452
+        bool async,
+        ChangeTrackingStrategy strategy)
     {
         var contextFactory = await InitializeNotifyingNullableJsonCollectionTest(strategy);
 
@@ -1635,7 +2084,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 parents[0].Children!.Remove(parents[0].Children!.Single(c => c.Name == "C1"));
                 parents[1].Children!.Add(new NotifyingJsonChild { Name = "D1" });
 
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
             },
             async context =>
             {
@@ -1646,9 +2095,10 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications), InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [Theory, MemberData(nameof(IsAsyncAndNotifyingStrategyData))] // Issue #33452
     public virtual async Task Nullable_json_collections_of_a_notifying_entity_stored_as_null_stay_null_when_tracked(
-        ChangeTrackingStrategy strategy) // Issue #33452
+        bool async,
+        ChangeTrackingStrategy strategy)
     {
         var contextFactory = await InitializeNotifyingNullableJsonCollectionTest(strategy);
 
@@ -1667,7 +2117,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             },
             async context =>
             {
-                var parent = await context.Set<NotifyingNullableJsonParent>().SingleAsync();
+                var parent = await QuerySingle(context.Set<NotifyingNullableJsonParent>(), async);
 
                 Assert.Null(parent.Children);
                 var items = parent.Outer!.OrderBy(i => i.Name).ToList();
@@ -1677,7 +2127,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 Assert.False(context.ChangeTracker.HasChanges());
 
                 parent.Name = "B";
-                await context.SaveChangesAsync();
+                await SaveChanges(context, async);
 
                 Assert.Null(parent.Children);
             },
@@ -1693,9 +2143,10 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications), InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [Theory, MemberData(nameof(IsAsyncAndNotifyingStrategyData))] // Issue #33452
     public virtual async Task Nullable_json_collection_of_a_notifying_entity_with_an_initializer_loaded_as_null_has_no_changes(
-        ChangeTrackingStrategy strategy) // Issue #33452
+        bool async,
+        ChangeTrackingStrategy strategy)
     {
         var contextFactory = await InitializeNotifyingNullableJsonCollectionTest(strategy);
 
@@ -1709,13 +2160,22 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             },
             async context =>
             {
-                var parent = await context.Set<NotifyingNullableJsonParent>().SingleAsync();
+                var parent = await QuerySingle(context.Set<NotifyingNullableJsonParent>(), async);
 
                 Assert.Null(parent.InitializedChildren);
                 Assert.False(context.ChangeTracker.HasChanges());
                 Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
             });
     }
+
+    private static Task<int> SaveChanges(DbContext context, bool async)
+        => async ? context.SaveChangesAsync() : Task.FromResult(context.SaveChanges());
+
+    private static Task<List<T>> QueryList<T>(IQueryable<T> query, bool async)
+        => async ? query.ToListAsync() : Task.FromResult(query.ToList());
+
+    private static Task<T> QuerySingle<T>(IQueryable<T> query, bool async)
+        => async ? query.SingleAsync() : Task.FromResult(query.Single());
 
     /// <summary>
     ///     The model shared by the tests of nullable JSON collections (issue #33452) that don't need a particular entity shape: a root
@@ -1744,6 +2204,26 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                         });
                 });
                 mb.Entity<NullableJsonDerivedParent>().OwnsMany(p => p.DerivedChildren, c => c.ToJson());
+            },
+            onConfiguring: IgnoreOwnedEntityMappedToJsonCollectionWarning);
+
+    /// <summary>
+    ///     The model shared by the tests of JSON collections that aren't nullable (issue #33452): one that isn't annotated as nullable,
+    ///     one that is opted out with <c>IsRequired()</c>, and one that is opted out with <see cref="RequiredAttribute" />.
+    /// </summary>
+    protected virtual Task<ContextFactory<DbContext>> InitializeNotNullableJsonCollectionTest()
+        => InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<NotNullableJsonParent>(b =>
+                {
+                    b.OwnsMany(p => p.Children, c => c.ToJson());
+                    b.OwnsMany(p => p.OptedOutChildren, c => c.ToJson());
+                    b.OwnsMany(p => p.RequiredChildren, c => c.ToJson());
+
+                    // Opts out of the nullable collection that the nullable reference type annotation would configure
+                    b.Navigation(p => p.OptedOutChildren).IsRequired();
+                });
             },
             onConfiguring: IgnoreOwnedEntityMappedToJsonCollectionWarning);
 
@@ -1777,8 +2257,10 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     {
         var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
 
+        // The braces of a JSON literal would otherwise be taken as the placeholders of parameters
         return context.Database.ExecuteSqlRawAsync(
-            $"UPDATE {sqlGenerationHelper.DelimitIdentifier(table)} SET {sqlGenerationHelper.DelimitIdentifier(column)} = {sqlLiteral}");
+            $"UPDATE {sqlGenerationHelper.DelimitIdentifier(table)} SET {sqlGenerationHelper.DelimitIdentifier(column)} = {sqlLiteral}"
+                .Replace("{", "{{").Replace("}", "}}"));
     }
 
     private static void IgnoreOwnedEntityMappedToJsonCollectionWarning(DbContextOptionsBuilder builder)
@@ -1829,6 +2311,21 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         // [Required] opts out of the nullable collection that the nullable reference type annotation would configure
         [Required]
         public List<JsonChild>? RequiredChildren { get; set; } = [];
+    }
+
+    private class NullableJsonBlog
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public List<JsonChild>? Children { get; set; }
+        public List<NullableJsonPost> Posts { get; set; } = [];
+    }
+
+    private class NullableJsonPost
+    {
+        public int Id { get; set; }
+        public int BlogId { get; set; }
+        public string? Title { get; set; }
     }
 
     private class CoercingNullableJsonParent

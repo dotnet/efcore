@@ -166,11 +166,12 @@ RETURNING "Id";
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
     public override async Task Nullable_json_collection_change_is_saved(
+        bool async,
         NullableJsonCollectionValue from,
         NullableJsonCollectionValue to,
         bool alsoModifyName)
     {
-        await base.Nullable_json_collection_change_is_saved(from, to, alsoModifyName);
+        await base.Nullable_json_collection_change_is_saved(async, from, to, alsoModifyName);
 
         if (to == NullableJsonCollectionValue.WithElements)
         {
@@ -401,9 +402,11 @@ LIMIT 2
         }
     }
 
-    public override async Task Nullable_json_collection_nested_in_a_json_reference_changed_from_empty_to_null_is_saved(bool alsoModifyReference)
+    public override async Task Nullable_json_collection_nested_in_a_json_reference_changed_from_empty_to_null_is_saved(
+        bool async,
+        bool alsoModifyReference)
     {
-        await base.Nullable_json_collection_nested_in_a_json_reference_changed_from_empty_to_null_is_saved(alsoModifyReference);
+        await base.Nullable_json_collection_nested_in_a_json_reference_changed_from_empty_to_null_is_saved(async, alsoModifyReference);
 
         if (alsoModifyReference)
         {
@@ -483,9 +486,9 @@ LIMIT 2
         }
     }
 
-    public override async Task Nullable_json_collection_nested_in_a_json_reference_changed_from_null_is_saved(bool withElements)
+    public override async Task Nullable_json_collection_nested_in_a_json_reference_changed_from_null_is_saved(bool async, bool withElements)
     {
-        await base.Nullable_json_collection_nested_in_a_json_reference_changed_from_null_is_saved(withElements);
+        await base.Nullable_json_collection_nested_in_a_json_reference_changed_from_null_is_saved(async, withElements);
 
         if (withElements)
         {
@@ -565,9 +568,9 @@ LIMIT 2
         }
     }
 
-    public override async Task Nullable_json_collection_nested_in_json_collection_elements_changed_from_empty_to_null_is_saved()
+    public override async Task Nullable_json_collection_nested_in_json_collection_elements_changed_from_empty_to_null_is_saved(bool async)
     {
-        await base.Nullable_json_collection_nested_in_json_collection_elements_changed_from_empty_to_null_is_saved();
+        await base.Nullable_json_collection_nested_in_json_collection_elements_changed_from_empty_to_null_is_saved(async);
 
         AssertSql(
             """
@@ -606,9 +609,11 @@ LIMIT 2
 """);
     }
 
-    public override async Task Nullable_json_collection_nested_in_json_collection_elements_changed_from_null_is_saved(bool withElements)
+    public override async Task Nullable_json_collection_nested_in_json_collection_elements_changed_from_null_is_saved(
+        bool async,
+        bool withElements)
     {
-        await base.Nullable_json_collection_nested_in_json_collection_elements_changed_from_null_is_saved(withElements);
+        await base.Nullable_json_collection_nested_in_json_collection_elements_changed_from_null_is_saved(async, withElements);
 
         if (withElements)
         {
@@ -688,9 +693,9 @@ LIMIT 2
         }
     }
 
-    public override async Task Nullable_json_collection_declared_on_a_derived_type_changed_to_null_is_saved()
+    public override async Task Nullable_json_collection_declared_on_a_derived_type_changed_to_null_is_saved(bool async)
     {
-        await base.Nullable_json_collection_declared_on_a_derived_type_changed_to_null_is_saved();
+        await base.Nullable_json_collection_declared_on_a_derived_type_changed_to_null_is_saved(async);
 
         AssertSql(
             """
@@ -742,32 +747,37 @@ ORDER BY "n"."Name"
     }
 
     public override async Task Nullable_json_collection_stored_as_null_or_empty_is_loaded_as_null_or_empty(
+        bool async,
         NullableJsonCollectionQuery queryKind)
     {
-        await base.Nullable_json_collection_stored_as_null_or_empty_is_loaded_as_null_or_empty(queryKind);
+        await base.Nullable_json_collection_stored_as_null_or_empty_is_loaded_as_null_or_empty(async, queryKind);
 
         if (queryKind == NullableJsonCollectionQuery.Tracking)
         {
             AssertSql(
                 """
-@p0='NullableJsonParent' (Nullable = false) (Size = 18)
-@p1='Null' (Size = 4)
-@p2=NULL
+@p0='[{"Name":"O1","Inner":null},{"Name":"O2","Inner":[]}]' (Nullable = false) (Size = 53)
+@p1='{"Name":"R1","Items":null}' (Nullable = false) (Size = 26)
+@p2='NullableJsonParent' (Nullable = false) (Size = 18)
+@p3='Null' (Size = 4)
+@p4=NULL
 
-INSERT INTO "NullableJsonParent" ("Discriminator", "Name", "Token")
-VALUES (@p0, @p1, @p2)
+INSERT INTO "NullableJsonParent" ("Outer", "Reference", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4)
 RETURNING "Id";
 """,
                 //
                 """
-@p0='[]' (Nullable = false) (Size = 2)
+@p0='{"Name":"R2","Items":[]}' (Nullable = false) (Size = 24)
 @p1='[]' (Nullable = false) (Size = 2)
-@p2='NullableJsonParent' (Nullable = false) (Size = 18)
-@p3='Empty' (Size = 5)
-@p4=NULL
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='[]' (Nullable = false) (Size = 2)
+@p4='NullableJsonParent' (Nullable = false) (Size = 18)
+@p5='Empty' (Size = 5)
+@p6=NULL
 
-INSERT INTO "NullableJsonParent" ("Children", "InitializedChildren", "Discriminator", "Name", "Token")
-VALUES (@p0, @p1, @p2, @p3, @p4)
+INSERT INTO "NullableJsonParent" ("Reference", "Children", "InitializedChildren", "Outer", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
 RETURNING "Id";
 """,
                 //
@@ -787,24 +797,28 @@ ORDER BY "n"."Name"
         {
             AssertSql(
                 """
-@p0='NullableJsonParent' (Nullable = false) (Size = 18)
-@p1='Null' (Size = 4)
-@p2=NULL
+@p0='[{"Name":"O1","Inner":null},{"Name":"O2","Inner":[]}]' (Nullable = false) (Size = 53)
+@p1='{"Name":"R1","Items":null}' (Nullable = false) (Size = 26)
+@p2='NullableJsonParent' (Nullable = false) (Size = 18)
+@p3='Null' (Size = 4)
+@p4=NULL
 
-INSERT INTO "NullableJsonParent" ("Discriminator", "Name", "Token")
-VALUES (@p0, @p1, @p2)
+INSERT INTO "NullableJsonParent" ("Outer", "Reference", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4)
 RETURNING "Id";
 """,
                 //
                 """
-@p0='[]' (Nullable = false) (Size = 2)
+@p0='{"Name":"R2","Items":[]}' (Nullable = false) (Size = 24)
 @p1='[]' (Nullable = false) (Size = 2)
-@p2='NullableJsonParent' (Nullable = false) (Size = 18)
-@p3='Empty' (Size = 5)
-@p4=NULL
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='[]' (Nullable = false) (Size = 2)
+@p4='NullableJsonParent' (Nullable = false) (Size = 18)
+@p5='Empty' (Size = 5)
+@p6=NULL
 
-INSERT INTO "NullableJsonParent" ("Children", "InitializedChildren", "Discriminator", "Name", "Token")
-VALUES (@p0, @p1, @p2, @p3, @p4)
+INSERT INTO "NullableJsonParent" ("Reference", "Children", "InitializedChildren", "Outer", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
 RETURNING "Id";
 """,
                 //
@@ -816,9 +830,172 @@ ORDER BY "n"."Name"
         }
     }
 
-    public override async Task Update_of_a_disconnected_entity_saves_the_nullness_of_a_nullable_json_collection(bool toNull)
+    public override async Task Nullable_json_collection_missing_from_the_stored_json_is_loaded_as_null(bool async, bool tracking)
     {
-        await base.Update_of_a_disconnected_entity_saves_the_nullness_of_a_nullable_json_collection(toNull);
+        await base.Nullable_json_collection_missing_from_the_stored_json_is_loaded_as_null(async, tracking);
+
+        if (tracking)
+        {
+            AssertSql(
+                """
+@p0='[{"Name":"O1","Inner":[]}]' (Nullable = false) (Size = 26)
+@p1='{"Name":"R","Items":[]}' (Nullable = false) (Size = 23)
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='NullableJsonParent' (Nullable = false) (Size = 18)
+@p4='A' (Size = 1)
+@p5=NULL
+
+INSERT INTO "NullableJsonParent" ("Outer", "Reference", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+RETURNING "Id";
+""",
+                //
+                """
+UPDATE "NullableJsonParent" SET "Reference" = '{"Name":"R"}'
+""",
+                //
+                """
+UPDATE "NullableJsonParent" SET "Outer" = '[{"Name":"O1"}]'
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p2='1'
+@p1='B' (Size = 1)
+@p3=NULL
+
+UPDATE "NullableJsonParent" SET "InitializedChildren" = @p0, "Name" = @p1
+WHERE "Id" = @p2 AND "Token" IS NULL
+RETURNING 1;
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='[{"Name":"O1","Inner":[]}]' (Nullable = false) (Size = 26)
+@p1='{"Name":"R","Items":[]}' (Nullable = false) (Size = 23)
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='NullableJsonParent' (Nullable = false) (Size = 18)
+@p4='A' (Size = 1)
+@p5=NULL
+
+INSERT INTO "NullableJsonParent" ("Outer", "Reference", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+RETURNING "Id";
+""",
+                //
+                """
+UPDATE "NullableJsonParent" SET "Reference" = '{"Name":"R"}'
+""",
+                //
+                """
+UPDATE "NullableJsonParent" SET "Outer" = '[{"Name":"O1"}]'
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""");
+        }
+    }
+
+    public override async Task Nullable_json_collection_projected_directly_is_loaded_as_null_or_empty(bool async, bool nested)
+    {
+        await base.Nullable_json_collection_projected_directly_is_loaded_as_null_or_empty(async, nested);
+
+        if (nested)
+        {
+            AssertSql(
+                """
+@p0='{"Name":"R1","Items":null}' (Nullable = false) (Size = 26)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='NullableJsonParent' (Nullable = false) (Size = 18)
+@p3='Null' (Size = 4)
+@p4=NULL
+
+INSERT INTO "NullableJsonParent" ("Reference", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='{"Name":"R2","Items":[]}' (Nullable = false) (Size = 24)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='NullableJsonParent' (Nullable = false) (Size = 18)
+@p4='Empty' (Size = 5)
+@p5=NULL
+
+INSERT INTO "NullableJsonParent" ("Reference", "Children", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Reference" ->> 'Items', "n"."Id"
+FROM "NullableJsonParent" AS "n"
+ORDER BY "n"."Name"
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='{"Name":"R1","Items":null}' (Nullable = false) (Size = 26)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='NullableJsonParent' (Nullable = false) (Size = 18)
+@p3='Null' (Size = 4)
+@p4=NULL
+
+INSERT INTO "NullableJsonParent" ("Reference", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='{"Name":"R2","Items":[]}' (Nullable = false) (Size = 24)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='NullableJsonParent' (Nullable = false) (Size = 18)
+@p4='Empty' (Size = 5)
+@p5=NULL
+
+INSERT INTO "NullableJsonParent" ("Reference", "Children", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Children", "n"."Id"
+FROM "NullableJsonParent" AS "n"
+ORDER BY "n"."Name"
+""");
+        }
+    }
+
+    public override async Task Update_of_a_disconnected_entity_saves_the_nullness_of_a_nullable_json_collection(bool async, bool toNull)
+    {
+        await base.Update_of_a_disconnected_entity_saves_the_nullness_of_a_nullable_json_collection(async, toNull);
 
         if (toNull)
         {
@@ -891,9 +1068,11 @@ LIMIT 2
         }
     }
 
-    public override async Task Replacing_an_owner_with_the_same_key_saves_the_nullness_of_a_nullable_json_collection(bool toNull)
+    public override async Task Replacing_an_owner_with_the_same_key_saves_the_nullness_of_a_nullable_json_collection(
+        bool async,
+        bool toNull)
     {
-        await base.Replacing_an_owner_with_the_same_key_saves_the_nullness_of_a_nullable_json_collection(toNull);
+        await base.Replacing_an_owner_with_the_same_key_saves_the_nullness_of_a_nullable_json_collection(async, toNull);
 
         if (toNull)
         {
@@ -976,9 +1155,9 @@ LIMIT 2
         }
     }
 
-    public override async Task Mixed_changes_of_nullable_json_collections_are_saved_in_one_batch()
+    public override async Task Mixed_changes_of_nullable_json_collections_are_saved_in_one_batch(bool async)
     {
-        await base.Mixed_changes_of_nullable_json_collections_are_saved_in_one_batch();
+        await base.Mixed_changes_of_nullable_json_collections_are_saved_in_one_batch(async);
 
         AssertSql(
             """
@@ -1084,9 +1263,12 @@ FROM "NullableJsonParent" AS "n"
 """);
     }
 
-    public override async Task Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nullable_json_collection(bool toNull)
+    public override async Task Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nullable_json_collection(
+        bool async,
+        bool toNull,
+        bool detectChanges)
     {
-        await base.Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nullable_json_collection(toNull);
+        await base.Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nullable_json_collection(async, toNull, detectChanges);
 
         if (toNull)
         {
@@ -1177,9 +1359,107 @@ LIMIT 2
         }
     }
 
-    public override async Task Streamed_duplicate_of_a_tracked_entity_does_not_overwrite_a_change_to_a_nullable_json_collection()
+    public override async Task Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nested_nullable_json_collection(
+        bool async,
+        bool inReference)
     {
-        await base.Streamed_duplicate_of_a_tracked_entity_does_not_overwrite_a_change_to_a_nullable_json_collection();
+        await base.Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nested_nullable_json_collection(async, inReference);
+
+        if (inReference)
+        {
+            AssertSql(
+                """
+@p0='[{"Name":"O1","Inner":null}]' (Nullable = false) (Size = 28)
+@p1='{"Name":"R","Items":[]}' (Nullable = false) (Size = 23)
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='NullableJsonParent' (Nullable = false) (Size = 18)
+@p4='A' (Size = 1)
+@p5=NULL
+
+INSERT INTO "NullableJsonParent" ("Outer", "Reference", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+@p0='{"Name":"R","Items":null}' (Nullable = false) (Size = 25)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='1'
+@p3=NULL
+
+UPDATE "NullableJsonParent" SET "Reference" = @p0, "InitializedChildren" = @p1
+WHERE "Id" = @p2 AND "Token" IS NULL
+RETURNING 1;
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='[{"Name":"O1","Inner":null}]' (Nullable = false) (Size = 28)
+@p1='{"Name":"R","Items":[]}' (Nullable = false) (Size = 23)
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='NullableJsonParent' (Nullable = false) (Size = 18)
+@p4='A' (Size = 1)
+@p5=NULL
+
+INSERT INTO "NullableJsonParent" ("Outer", "Reference", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+@p0='{"Name":"O1","Inner":[]}' (Nullable = false) (Size = 24)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='1'
+@p3=NULL
+
+UPDATE "NullableJsonParent" SET "Outer" = json_set("Outer", '$[0]', json(@p0)), "InitializedChildren" = @p1
+WHERE "Id" = @p2 AND "Token" IS NULL
+RETURNING 1;
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""");
+        }
+    }
+
+    public override async Task Streamed_duplicate_of_a_tracked_entity_does_not_overwrite_a_change_to_a_nullable_json_collection(bool async)
+    {
+        await base.Streamed_duplicate_of_a_tracked_entity_does_not_overwrite_a_change_to_a_nullable_json_collection(async);
 
         AssertSql(
             """
@@ -1290,9 +1570,10 @@ LIMIT 2
 """);
     }
 
-    public override async Task Querying_a_tracked_entity_keeps_a_pending_null_of_a_nullable_json_collection_that_is_stored_with_elements()
+    public override async Task Querying_a_tracked_entity_keeps_a_pending_null_of_a_nullable_json_collection_that_is_stored_with_elements(
+        bool async)
     {
-        await base.Querying_a_tracked_entity_keeps_a_pending_null_of_a_nullable_json_collection_that_is_stored_with_elements();
+        await base.Querying_a_tracked_entity_keeps_a_pending_null_of_a_nullable_json_collection_that_is_stored_with_elements(async);
 
         AssertSql(
             """
@@ -1334,9 +1615,11 @@ LIMIT 2
 """);
     }
 
-    public override async Task Querying_a_tracked_entity_keeps_the_in_memory_nullness_of_a_nullable_json_collection(bool inMemoryNull)
+    public override async Task Querying_a_tracked_entity_keeps_the_in_memory_nullness_of_a_nullable_json_collection(
+        bool async,
+        bool inMemoryNull)
     {
-        await base.Querying_a_tracked_entity_keeps_the_in_memory_nullness_of_a_nullable_json_collection(inMemoryNull);
+        await base.Querying_a_tracked_entity_keeps_the_in_memory_nullness_of_a_nullable_json_collection(async, inMemoryNull);
 
         if (inMemoryNull)
         {
@@ -1401,9 +1684,75 @@ LIMIT 2
         }
     }
 
-    public override async Task Json_collection_that_is_not_nullable_or_opted_out_stored_as_null_is_loaded_as_empty_with_initializer()
+    public override async Task Reloading_an_entity_discards_a_pending_change_of_a_nullable_json_collection(bool async, bool toNull)
     {
-        await base.Json_collection_that_is_not_nullable_or_opted_out_stored_as_null_is_loaded_as_empty_with_initializer();
+        await base.Reloading_an_entity_discards_a_pending_change_of_a_nullable_json_collection(async, toNull);
+
+        if (toNull)
+        {
+            AssertSql(
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='NullableJsonParent' (Nullable = false) (Size = 18)
+@p3='A' (Size = 1)
+@p4=NULL
+
+INSERT INTO "NullableJsonParent" ("Children", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+@p='1'
+
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token"
+FROM "NullableJsonParent" AS "n"
+WHERE "n"."Id" = @p
+LIMIT 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='NullableJsonParent' (Nullable = false) (Size = 18)
+@p2='A' (Size = 1)
+@p3=NULL
+
+INSERT INTO "NullableJsonParent" ("InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+@p='1'
+
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token"
+FROM "NullableJsonParent" AS "n"
+WHERE "n"."Id" = @p
+LIMIT 1
+""");
+        }
+    }
+
+    public override async Task Json_collection_that_is_not_nullable_or_opted_out_stored_as_null_is_loaded_as_empty_with_initializer(
+        bool async)
+    {
+        await base.Json_collection_that_is_not_nullable_or_opted_out_stored_as_null_is_loaded_as_empty_with_initializer(async);
 
         AssertSql(
             """
@@ -1419,9 +1768,37 @@ LIMIT 2
 """);
     }
 
-    public override async Task Nullable_json_collection_with_a_coercing_setter_loaded_as_null_has_no_changes()
+    public override async Task Json_collection_that_is_opted_out_of_being_nullable_set_to_null_is_not_saved_as_null(bool async)
     {
-        await base.Nullable_json_collection_with_a_coercing_setter_loaded_as_null_has_no_changes();
+        await base.Json_collection_that_is_opted_out_of_being_nullable_set_to_null_is_not_saved_as_null(async);
+
+        AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='[]' (Nullable = false) (Size = 2)
+
+INSERT INTO "NotNullableJsonParent" ("Children", "OptedOutChildren", "RequiredChildren")
+VALUES (@p0, @p1, @p2)
+RETURNING "Id";
+""",
+            //
+            """
+SELECT "n"."Id", "n"."Children", "n"."OptedOutChildren", "n"."RequiredChildren"
+FROM "NotNullableJsonParent" AS "n"
+LIMIT 2
+""",
+            //
+            """
+SELECT "n"."Id", "n"."Children", "n"."OptedOutChildren", "n"."RequiredChildren"
+FROM "NotNullableJsonParent" AS "n"
+LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_json_collection_with_a_coercing_setter_loaded_as_null_has_no_changes(bool async)
+    {
+        await base.Nullable_json_collection_with_a_coercing_setter_loaded_as_null_has_no_changes(async);
 
         AssertSql(
             """
@@ -1444,10 +1821,193 @@ LIMIT 2
 """);
     }
 
+    public override async Task Nullable_json_collection_of_an_owner_loaded_from_several_rows_is_not_changed_by_the_later_rows(
+        bool async,
+        bool splitQuery)
+    {
+        await base.Nullable_json_collection_of_an_owner_loaded_from_several_rows_is_not_changed_by_the_later_rows(async, splitQuery);
+
+        if (splitQuery)
+        {
+            AssertSql(
+                """
+@p0='Null' (Size = 4)
+
+INSERT INTO "NullableJsonBlog" ("Name")
+VALUES (@p0)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='[{"Name":"C1"}]' (Nullable = false) (Size = 15)
+@p1='Elements' (Size = 8)
+
+INSERT INTO "NullableJsonBlog" ("Children", "Name")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+@p2='1'
+@p3='P1' (Size = 2)
+
+INSERT INTO "NullableJsonPost" ("BlogId", "Title")
+VALUES (@p2, @p3)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='1'
+@p1='P2' (Size = 2)
+
+INSERT INTO "NullableJsonPost" ("BlogId", "Title")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='2'
+@p1='P3' (Size = 2)
+
+INSERT INTO "NullableJsonPost" ("BlogId", "Title")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='2'
+@p1='P4' (Size = 2)
+
+INSERT INTO "NullableJsonPost" ("BlogId", "Title")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Name", "n"."Children"
+FROM "NullableJsonBlog" AS "n"
+ORDER BY "n"."Name", "n"."Id"
+""",
+                //
+                """
+SELECT "n0"."Id", "n0"."BlogId", "n0"."Title", "n"."Id"
+FROM "NullableJsonBlog" AS "n"
+INNER JOIN "NullableJsonPost" AS "n0" ON "n"."Id" = "n0"."BlogId"
+ORDER BY "n"."Name", "n"."Id"
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='Null' (Size = 4)
+
+INSERT INTO "NullableJsonBlog" ("Name")
+VALUES (@p0)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='[{"Name":"C1"}]' (Nullable = false) (Size = 15)
+@p1='Elements' (Size = 8)
+
+INSERT INTO "NullableJsonBlog" ("Children", "Name")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+@p2='1'
+@p3='P1' (Size = 2)
+
+INSERT INTO "NullableJsonPost" ("BlogId", "Title")
+VALUES (@p2, @p3)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='1'
+@p1='P2' (Size = 2)
+
+INSERT INTO "NullableJsonPost" ("BlogId", "Title")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='2'
+@p1='P3' (Size = 2)
+
+INSERT INTO "NullableJsonPost" ("BlogId", "Title")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+@p0='2'
+@p1='P4' (Size = 2)
+
+INSERT INTO "NullableJsonPost" ("BlogId", "Title")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Name", "n"."Children", "n0"."Id", "n0"."BlogId", "n0"."Title"
+FROM "NullableJsonBlog" AS "n"
+LEFT JOIN "NullableJsonPost" AS "n0" ON "n"."Id" = "n0"."BlogId"
+ORDER BY "n"."Name", "n"."Id"
+""");
+        }
+    }
+
+    public override async Task Nullable_json_collection_with_elements_set_to_null_is_saved_when_orphans_are_deleted_on_SaveChanges(
+        bool async)
+    {
+        await base.Nullable_json_collection_with_elements_set_to_null_is_saved_when_orphans_are_deleted_on_SaveChanges(async);
+
+        AssertSql(
+            """
+@p0='[{"Name":"C1"},{"Name":"C2"}]' (Nullable = false) (Size = 29)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='NullableJsonParent' (Nullable = false) (Size = 18)
+@p3='A' (Size = 1)
+@p4=NULL
+
+INSERT INTO "NullableJsonParent" ("Children", "InitializedChildren", "Discriminator", "Name", "Token")
+VALUES (@p0, @p1, @p2, @p3, @p4)
+RETURNING "Id";
+""",
+            //
+            """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""",
+            //
+            """
+@p0=NULL (Nullable = false)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='1'
+@p3=NULL
+
+UPDATE "NullableJsonParent" SET "Children" = @p0, "InitializedChildren" = @p1
+WHERE "Id" = @p2 AND "Token" IS NULL
+RETURNING 1;
+""",
+            //
+            """
+SELECT "n"."Id", "n"."Discriminator", "n"."Name", "n"."Token", "n"."Children", "n"."InitializedChildren", "n"."Outer", "n"."Reference", "n"."DerivedChildren"
+FROM "NullableJsonParent" AS "n"
+LIMIT 2
+""");
+    }
+
     public override async Task Nullable_json_collection_of_a_notifying_entity_changed_from_empty_to_null_is_saved(
+        bool async,
         ChangeTrackingStrategy strategy)
     {
-        await base.Nullable_json_collection_of_a_notifying_entity_changed_from_empty_to_null_is_saved(strategy);
+        await base.Nullable_json_collection_of_a_notifying_entity_changed_from_empty_to_null_is_saved(async, strategy);
 
         AssertSql(
             """
@@ -1483,10 +2043,89 @@ LIMIT 2
 """);
     }
 
+    public override async Task Nullable_json_collection_of_a_notifying_entity_replaced_between_null_and_populated_is_saved(
+        bool async,
+        ChangeTrackingStrategy strategy,
+        bool toNull)
+    {
+        await base.Nullable_json_collection_of_a_notifying_entity_replaced_between_null_and_populated_is_saved(async, strategy, toNull);
+
+        if (toNull)
+        {
+            AssertSql(
+                """
+@p0='[{"Name":"C1"},{"Name":"C2"}]' (Nullable = false) (Size = 29)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='A' (Size = 1)
+
+INSERT INTO "NotifyingNullableJsonParent" ("Children", "InitializedChildren", "Name")
+VALUES (@p0, @p1, @p2)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Name", "n"."Children", "n"."InitializedChildren", "n"."Outer"
+FROM "NotifyingNullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+@p0=NULL (Nullable = false)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='1'
+
+UPDATE "NotifyingNullableJsonParent" SET "Children" = @p0, "InitializedChildren" = @p1
+WHERE "Id" = @p2
+RETURNING 1;
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Name", "n"."Children", "n"."InitializedChildren", "n"."Outer"
+FROM "NotifyingNullableJsonParent" AS "n"
+LIMIT 2
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='A' (Size = 1)
+
+INSERT INTO "NotifyingNullableJsonParent" ("InitializedChildren", "Name")
+VALUES (@p0, @p1)
+RETURNING "Id";
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Name", "n"."Children", "n"."InitializedChildren", "n"."Outer"
+FROM "NotifyingNullableJsonParent" AS "n"
+LIMIT 2
+""",
+                //
+                """
+@p0='[{"Name":"C3"},{"Name":"C4"}]' (Nullable = false) (Size = 29)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='1'
+
+UPDATE "NotifyingNullableJsonParent" SET "Children" = @p0, "InitializedChildren" = @p1
+WHERE "Id" = @p2
+RETURNING 1;
+""",
+                //
+                """
+SELECT "n"."Id", "n"."Name", "n"."Children", "n"."InitializedChildren", "n"."Outer"
+FROM "NotifyingNullableJsonParent" AS "n"
+LIMIT 2
+""");
+        }
+    }
+
     public override async Task Nullable_json_collection_of_a_notifying_entity_loaded_by_a_query_is_notified_of_added_and_removed_elements(
+        bool async,
         ChangeTrackingStrategy strategy)
     {
-        await base.Nullable_json_collection_of_a_notifying_entity_loaded_by_a_query_is_notified_of_added_and_removed_elements(strategy);
+        await base.Nullable_json_collection_of_a_notifying_entity_loaded_by_a_query_is_notified_of_added_and_removed_elements(async, strategy);
 
         AssertSql(
             """
@@ -1543,9 +2182,10 @@ ORDER BY "n"."Name"
     }
 
     public override async Task Nullable_json_collections_of_a_notifying_entity_stored_as_null_stay_null_when_tracked(
+        bool async,
         ChangeTrackingStrategy strategy)
     {
-        await base.Nullable_json_collections_of_a_notifying_entity_stored_as_null_stay_null_when_tracked(strategy);
+        await base.Nullable_json_collections_of_a_notifying_entity_stored_as_null_stay_null_when_tracked(async, strategy);
 
         AssertSql(
             """
@@ -1582,9 +2222,10 @@ LIMIT 2
     }
 
     public override async Task Nullable_json_collection_of_a_notifying_entity_with_an_initializer_loaded_as_null_has_no_changes(
+        bool async,
         ChangeTrackingStrategy strategy)
     {
-        await base.Nullable_json_collection_of_a_notifying_entity_with_an_initializer_loaded_as_null_has_no_changes(strategy);
+        await base.Nullable_json_collection_of_a_notifying_entity_with_an_initializer_loaded_as_null_has_no_changes(async, strategy);
 
         AssertSql(
             """
