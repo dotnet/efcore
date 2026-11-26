@@ -74,9 +74,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             yield return new Annotation(SqlServerAnnotationNames.MemoryOptimized, true);
         }
 
-        if (model.Model.FindAnnotation(SqlServerAnnotationNames.FullTextCatalogs) is IAnnotation annotation)
+        if (model.Model.GetFullTextCatalogs()
+                .Select(c => (c.Name, c.IsDefault, c.IsAccentSensitive))
+                .ToArray() is { Length: > 0 } catalogs)
         {
-            yield return annotation;
+            yield return new Annotation(SqlServerAnnotationNames.FullTextCatalogs, catalogs);
         }
     }
 

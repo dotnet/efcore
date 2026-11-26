@@ -148,7 +148,7 @@
     <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
   </data>
   <data name="CannotGenerateTypeQualifiedMethodCall" xml:space="preserve">
-    <value>A type-qualified method call requires an instance identifier, a MethodInfo and no chained calls.</value>
+    <value>A type-qualified method call requires an instance identifier and a declaring type.</value>
   </data>
   <data name="CircularBaseClassDependency" xml:space="preserve">
     <value>You cannot add a migration with the name 'Migration'.</value>

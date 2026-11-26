@@ -310,6 +310,60 @@ partial class MyMigration
 
     public class MyContext;
 
+    [Theory]
+    [InlineData(null, false, true, "CREATE FULLTEXT CATALOG [Catalog];")]
+    [InlineData(null, true, false, "CREATE FULLTEXT CATALOG [Catalog] WITH ACCENT_SENSITIVITY = OFF AS DEFAULT;")]
+    [InlineData(false, null, true, "DROP FULLTEXT CATALOG [Catalog];")]
+    [InlineData(false, false, false, "ALTER FULLTEXT CATALOG [Catalog] REBUILD WITH ACCENT_SENSITIVITY = OFF;")]
+    [InlineData(false, true, true, "ALTER FULLTEXT CATALOG [Catalog] AS DEFAULT;")]
+    public void Full_text_catalog_migrations_compile(
+        bool? oldIsDefault,
+        bool? isDefault,
+        bool isAccentSensitive,
+        string expectedSql)
+    {
+        var sourceBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        if (oldIsDefault.HasValue)
+        {
+            sourceBuilder.HasFullTextCatalog("Catalog").IsDefault(oldIsDefault.Value);
+        }
+
+        var targetBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        if (isDefault.HasValue)
+        {
+            targetBuilder.HasFullTextCatalog("Catalog").IsDefault(isDefault.Value).IsAccentSensitive(isAccentSensitive);
+        }
+
+        var source = sourceBuilder.FinalizeModel(designTime: true);
+        var target = targetBuilder.FinalizeModel(designTime: true);
+        var services = SqlServerTestHelpers.Instance.CreateContextServices();
+        var differ = services.GetRequiredService<IMigrationsModelDiffer>();
+        var upOperations = differ.GetDifferences(source.GetRelationalModel(), target.GetRelationalModel());
+        var downOperations = differ.GetDifferences(target.GetRelationalModel(), source.GetRelationalModel());
+        var generator = CreateMigrationsCodeGenerator();
+        var migrationCode = generator.GenerateMigration("MyNamespace", "MyMigration", upOperations, downOperations);
+        var metadataCode = generator.GenerateMetadata("MyNamespace", typeof(MyContext), "MyMigration", "1", target);
+
+        var build = new BuildSource
+        {
+            Sources = { { "Migration.cs", migrationCode }, { "Migration.Designer.cs", metadataCode } }
+        };
+        foreach (var reference in GetReferences())
+        {
+            build.References.Add(reference);
+        }
+
+        var assembly = build.BuildInMemory();
+        var migration = (Migration)Activator.CreateInstance(assembly.GetType("MyNamespace.MyMigration")!)!;
+        var sqlGenerator = services.GetRequiredService<IMigrationsSqlGenerator>();
+        var command = Assert.Single(sqlGenerator.Generate(migration.UpOperations, target));
+        Assert.Equal(expectedSql, command.CommandText.Trim());
+        Assert.True(command.TransactionSuppressed);
+        Assert.Equal(
+            sqlGenerator.Generate(downOperations, source).Select(c => c.CommandText),
+            sqlGenerator.Generate(migration.DownOperations, source).Select(c => c.CommandText));
+    }
+
     [Fact]
     public void Namespaces_imported_for_insert_data()
     {
