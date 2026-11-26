@@ -1757,7 +1757,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -1771,7 +1771,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -1785,7 +1785,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -1803,7 +1803,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -1830,7 +1830,7 @@ public class ChangeDetectorTest
 
         Assert.Same(children, parent.Children);
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -1849,7 +1849,7 @@ public class ChangeDetectorTest
 
         Assert.Null(parent.Children);
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -1867,7 +1867,7 @@ public class ChangeDetectorTest
         context.Entry(parent).Property(p => p.Name).IsModified = false;
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -1882,7 +1882,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -1905,7 +1905,7 @@ public class ChangeDetectorTest
 
         parent.Children = null;
         context.ChangeTracker.DetectChanges();
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         if (save)
         {
@@ -1917,7 +1917,7 @@ public class ChangeDetectorTest
         }
 
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         context.ChangeTracker.DetectChanges();
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
@@ -1926,7 +1926,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -1937,12 +1937,12 @@ public class ChangeDetectorTest
         using var context = new NullableCollectionNavigationContext();
         var parent = new NullableCollectionParent { Id = 1, Children = empty ? [] : null };
         context.Attach(parent);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         context.Entry(parent).State = EntityState.Modified;
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -1958,7 +1958,7 @@ public class ChangeDetectorTest
         context.Update(parent);
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.Equal(nullable, IsChildrenModified(context, parent));
+        Assert.Equal(nullable, NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -1971,7 +1971,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -1982,12 +1982,12 @@ public class ChangeDetectorTest
         using var context = new NullableCollectionNavigationContext();
         var parent = new NullableCollectionParent { Id = 1, Children = null };
         context.Update(parent);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         context.Entry(parent).State = state;
 
         Assert.Equal(state, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
         Assert.False(context.Entry(parent).Collection(p => p.Children!).IsModified);
     }
 
@@ -2000,12 +2000,12 @@ public class ChangeDetectorTest
         context.SaveChanges();
 
         context.Entry(parent).State = EntityState.Modified;
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         context.SaveChanges();
 
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -2016,14 +2016,14 @@ public class ChangeDetectorTest
         using var context = new NullableCollectionNavigationContext();
         var parent = new NullableCollectionParent { Id = 1, Children = startNull ? null : [] };
         context.Attach(parent);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         var entry = context.Entry(parent);
         entry.GetInfrastructure().SetOriginalValue(entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, null);
 
         // Setting the original value to match the current value is not a change.
         Assert.Equal(startNull ? EntityState.Unchanged : EntityState.Modified, context.Entry(parent).State);
-        Assert.Equal(!startNull, IsChildrenModified(context, parent));
+        Assert.Equal(!startNull, NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -2034,13 +2034,13 @@ public class ChangeDetectorTest
         context.Attach(parent);
         parent.Children = null;
         context.ChangeTracker.DetectChanges();
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         var entry = context.Entry(parent);
         entry.GetInfrastructure().SetOriginalValue(entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, null);
 
         // Like for properties, changing the original value does not unmodify what was already modified.
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -2051,13 +2051,47 @@ public class ChangeDetectorTest
         context.Attach(parent);
         parent.Children = null;
         context.ChangeTracker.DetectChanges();
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         context.Entry(parent).State = EntityState.Unchanged;
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Detects_nullness_change_of_an_entity_with_more_original_values_than_fit_in_one_snapshot()
+    {
+        using var context = new ManyPropertiesNullableCollectionContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+        var entry = context.Entry(parent);
+        entry.Property<int>("P27").CurrentValue = 27;
+        entry.Property<int>("P27").OriginalValue = 27;
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+
+        // The original values are split across several snapshots, and the navigation starts the second one
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+        Assert.NotNull(((InternalEntityEntry)entry.GetInfrastructure()).GetOriginalValue(entry.Metadata.FindNavigation("Children")!));
+        Assert.Equal(27, entry.Property<int>("P27").OriginalValue);
+    }
+
+    private class ManyPropertiesNullableCollectionContext : NullableCollectionNavigationContext
+    {
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // With Id and Name, the navigation is the 31st original value
+            for (var i = 0; i < Snapshot.MaxGenericTypes - 2; i++)
+            {
+                modelBuilder.Entity<NullableCollectionParent>().Property<int>("P" + i);
+            }
+        }
     }
 
     [Fact]
@@ -2077,7 +2111,7 @@ public class ChangeDetectorTest
         Assert.Equal("A", parent.Name);
         Assert.Null(parent.Children);
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -2094,7 +2128,7 @@ public class ChangeDetectorTest
 
         Assert.NotNull(parent.Children);
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -2118,13 +2152,13 @@ public class ChangeDetectorTest
         using var context = new DerivedNullableCollectionNavigationContext();
         var parent = new DerivedNullableCollectionParent { Id = 1, Children = [], Extra = "X" };
         context.Attach(parent);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         parent.Children = null;
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -2153,7 +2187,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Added, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -2165,7 +2199,7 @@ public class ChangeDetectorTest
         context.SaveChanges();
         parent.Children = null;
         context.ChangeTracker.DetectChanges();
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         context.Remove(parent);
         context.SaveChanges();
@@ -2185,7 +2219,7 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Deleted, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -2196,13 +2230,13 @@ public class ChangeDetectorTest
         context.Attach(parent);
         parent.Children = [];
         context.ChangeTracker.DetectChanges();
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         parent.Children = [new NullableCollectionChild { Id = 5 }];
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -2224,7 +2258,7 @@ public class ChangeDetectorTest
         parent.Children = startNull ? [] : null;
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Fact]
@@ -2237,7 +2271,7 @@ public class ChangeDetectorTest
         parent.Children = [new NotifyingNullableCollectionChild { Id = 2 }];
 
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -2271,7 +2305,7 @@ public class ChangeDetectorTest
         // Without original values, any assignment marks the navigation as modified
         Assert.Equal(
             startNull || strategy == ChangeTrackingStrategy.ChangingAndChangedNotifications,
-            IsChildrenModified(context, parent));
+            NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         // Adding to the assigned collection is also tracked
         var another = new NotifyingNullableCollectionChild();
@@ -2317,7 +2351,7 @@ public class ChangeDetectorTest
         context.Update(parent);
 
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     [Theory]
@@ -2332,164 +2366,15 @@ public class ChangeDetectorTest
         context.SaveChanges();
 
         parent.Children = null;
-        Assert.True(IsChildrenModified(context, parent));
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
         context.SaveChanges();
 
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
-        Assert.False(IsChildrenModified(context, parent));
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
 
         parent.Children = [];
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
-        Assert.True(IsChildrenModified(context, parent));
-    }
-
-    private static bool IsChildrenModified(DbContext context, object parent)
-    {
-        var entry = context.Entry(parent);
-        return ((IUpdateEntry)entry.GetInfrastructure()).IsModified(
-            (INavigation)entry.Metadata.FindNavigation("Children")!);
-    }
-
-    private class NullableCollectionParent
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public List<NullableCollectionChild>? Children { get; set; }
-    }
-
-    private class DerivedNullableCollectionParent : NullableCollectionParent
-    {
-        public string? Extra { get; set; }
-    }
-
-    private class NullableCollectionChild
-    {
-        public int Id { get; set; }
-    }
-
-    private class NullableCollectionNavigationContext : NullableCollectionContext
-    {
-        protected override bool Nullable
-            => true;
-    }
-
-    private class NotNullableCollectionNavigationContext : NullableCollectionContext
-    {
-        protected override bool Nullable
-            => false;
-    }
-
-    private class DerivedNullableCollectionNavigationContext : NullableCollectionNavigationContext
-    {
-        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<DerivedNullableCollectionParent>();
-        }
-    }
-
-    private abstract class NullableCollectionContext : DbContext
-    {
-        protected NullableCollectionContext()
-            // Entry() and SaveChanges() would otherwise run DetectChanges implicitly and mask what these tests observe.
-            => ChangeTracker.AutoDetectChangesEnabled = false;
-
-        protected abstract bool Nullable { get; }
-
-        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                // The in-memory provider rejects nullable collection navigations, but change tracking is what is tested here.
-                .ReplaceService<IModelValidator, ModelValidator>();
-
-        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<NullableCollectionParent>().HasMany(p => p.Children).WithOne();
-
-            if (Nullable)
-            {
-                modelBuilder.Model.FindEntityType(typeof(NullableCollectionParent))!
-                    .FindNavigation(nameof(NullableCollectionParent.Children))!.SetIsNullable(true);
-            }
-        }
-    }
-
-    private class NotifyingNullableCollectionParent : NotifyingEntity
-    {
-        private int _id;
-        private ObservableHashSet<NotifyingNullableCollectionChild>? _children;
-
-        public int Id
-        {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
-        }
-
-        public ObservableHashSet<NotifyingNullableCollectionChild>? Children
-        {
-            get => _children;
-            set => SetWithNotify(value, ref _children);
-        }
-    }
-
-    private class NotifyingNullableCollectionChild : NotifyingEntity
-    {
-        private int _id;
-
-        public int Id
-        {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
-        }
-    }
-
-    private abstract class NotifyingNullableCollectionContext : DbContext
-    {
-        // The model is cached per context type, so each strategy needs its own type.
-        public static NotifyingNullableCollectionContext Create(ChangeTrackingStrategy strategy)
-            => strategy switch
-            {
-                ChangeTrackingStrategy.ChangedNotifications => new ChangedNotificationsNullableCollectionContext(),
-                ChangeTrackingStrategy.ChangingAndChangedNotifications => new ChangingAndChangedNotificationsNullableCollectionContext(),
-                ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues =>
-                    new ChangingAndChangedNotificationsWithOriginalValuesNullableCollectionContext(),
-                _ => throw new ArgumentOutOfRangeException(nameof(strategy))
-            };
-
-        protected abstract ChangeTrackingStrategy Strategy { get; }
-
-        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                // The in-memory provider rejects nullable collection navigations, but change tracking is what is tested here.
-                .ReplaceService<IModelValidator, ModelValidator>();
-
-        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.HasChangeTrackingStrategy(Strategy);
-            modelBuilder.Entity<NotifyingNullableCollectionParent>().HasMany(p => p.Children).WithOne();
-
-            modelBuilder.Model.FindEntityType(typeof(NotifyingNullableCollectionParent))!
-                .FindNavigation(nameof(NotifyingNullableCollectionParent.Children))!.SetIsNullable(true);
-        }
-    }
-
-    private class ChangedNotificationsNullableCollectionContext : NotifyingNullableCollectionContext
-    {
-        protected override ChangeTrackingStrategy Strategy
-            => ChangeTrackingStrategy.ChangedNotifications;
-    }
-
-    private class ChangingAndChangedNotificationsNullableCollectionContext : NotifyingNullableCollectionContext
-    {
-        protected override ChangeTrackingStrategy Strategy
-            => ChangeTrackingStrategy.ChangingAndChangedNotifications;
-    }
-
-    private class ChangingAndChangedNotificationsWithOriginalValuesNullableCollectionContext : NotifyingNullableCollectionContext
-    {
-        protected override ChangeTrackingStrategy Strategy
-            => ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues;
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
     private class Category
