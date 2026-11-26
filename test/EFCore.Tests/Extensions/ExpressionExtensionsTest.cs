@@ -10,6 +10,83 @@ namespace Microsoft.EntityFrameworkCore;
 public class ExpressionExtensionsTest
 {
     [Fact]
+    public void CreateEFPropertyExpression_does_not_add_complex_property_path_for_boxed_complex_type()
+    {
+        var modelBuilder = new ModelBuilder();
+        modelBuilder.Entity<EntityWithBoxedComplexProperty>()
+            .ComplexProperty(e => e.Id, b => b.Property(id => id.Value));
+
+        var property = modelBuilder.FinalizeModel().FindEntityType(typeof(EntityWithBoxedComplexProperty))!
+            .FindComplexProperty(nameof(EntityWithBoxedComplexProperty.Id))!
+            .ComplexType.FindProperty(nameof(BoxedComplexPropertyId.Value))!;
+        Expression<Func<EntityWithBoxedComplexProperty, object>> expression = e => e.Id;
+
+        var propertyAccess = Assert.IsAssignableFrom<MethodCallExpression>(
+            Infrastructure.ExpressionExtensions.CreateEFPropertyExpression(expression.Body, property));
+
+        var target = propertyAccess.Arguments[0];
+        while (target is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } conversion)
+        {
+            target = conversion.Operand;
+        }
+
+        var memberAccess = Assert.IsAssignableFrom<MemberExpression>(target);
+        Assert.Equal(nameof(EntityWithBoxedComplexProperty.Id), memberAccess.Member.Name);
+        Assert.Equal(nameof(BoxedComplexPropertyId.Value), propertyAccess.Arguments[1].GetConstantValue<string>());
+    }
+
+    [Fact]
+    public void CreateEFPropertyExpression_does_not_add_complex_property_path_for_complex_subtype_of_entity()
+    {
+        var modelBuilder = new ModelBuilder();
+        modelBuilder.Entity<EntityWithDerivedComplexProperty>(b =>
+        {
+            b.HasKey(e => e.Key);
+            b.ComplexProperty(e => e.Id, c =>
+            {
+                c.Property(i => i.Value);
+                c.Ignore(i => i.Id);
+            });
+        });
+
+        var property = modelBuilder.FinalizeModel().FindEntityType(typeof(EntityWithDerivedComplexProperty))!
+            .FindComplexProperty(nameof(EntityWithDerivedComplexProperty.Id))!
+            .ComplexType.FindProperty(nameof(DerivedComplexProperty.Value))!;
+        Expression<Func<EntityWithDerivedComplexProperty, object>> expression = e => e.Id;
+
+        var propertyAccess = Assert.IsAssignableFrom<MethodCallExpression>(
+            Infrastructure.ExpressionExtensions.CreateEFPropertyExpression(expression.Body, property));
+
+        var target = propertyAccess.Arguments[0];
+        while (target is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } conversion)
+        {
+            target = conversion.Operand;
+        }
+
+        var memberAccess = Assert.IsAssignableFrom<MemberExpression>(target);
+        Assert.Equal(nameof(EntityWithDerivedComplexProperty.Id), memberAccess.Member.Name);
+        Assert.Equal(nameof(DerivedComplexProperty.Value), propertyAccess.Arguments[1].GetConstantValue<string>());
+    }
+
+    private class EntityWithBoxedComplexProperty
+    {
+        public BoxedComplexPropertyId Id { get; set; }
+    }
+
+    private readonly record struct BoxedComplexPropertyId(int Value);
+
+    private class EntityWithDerivedComplexProperty
+    {
+        public int Key { get; set; }
+        public DerivedComplexProperty Id { get; set; } = null!;
+    }
+
+    private class DerivedComplexProperty : EntityWithDerivedComplexProperty
+    {
+        public int Value { get; set; }
+    }
+
+    [Fact]
     public void Get_property_access_should_return_property_info_when_valid_property_access_expression()
     {
         Expression<Func<DateTime, int>> expression = d => d.Hour;

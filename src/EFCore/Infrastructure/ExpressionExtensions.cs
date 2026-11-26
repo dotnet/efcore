@@ -3,6 +3,7 @@
 
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
+using InternalExpressionExtensions = Microsoft.EntityFrameworkCore.Internal.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -305,11 +306,16 @@ public static class ExpressionExtensions
         IReadOnlyList<IProperty> properties,
         bool makeNullable = false)
         => properties.Count == 1
-            ? target.CreateEFPropertyExpression(properties[0], makeNullable)
+            ? InternalExpressionExtensions.CreateEFPropertyExpression(
+                target, properties[0], makeNullable, useComplexPropertyChain: true)
             : Expression.NewArrayInit(
                 typeof(object),
                 properties
-                    .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p, makeNullable), typeof(object))));
+                    .Select(
+                        p => Expression.Convert(
+                            InternalExpressionExtensions.CreateEFPropertyExpression(
+                                target, p, makeNullable, useComplexPropertyChain: true),
+                            typeof(object))));
 
     /// <summary>
     ///     <para>
@@ -328,7 +334,8 @@ public static class ExpressionExtensions
         this Expression target,
         IPropertyBase property,
         bool makeNullable = true) // No shadow entities in runtime
-        => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
+        => InternalExpressionExtensions.CreateEFPropertyExpression(
+            target, property, makeNullable, useComplexPropertyChain: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

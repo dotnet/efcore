@@ -8,6 +8,154 @@ public class AdHocNavigationsQuerySqlServerTest(NonSharedFixture fixture) : AdHo
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    public override async Task Include_collection_with_complex_struct_key_39722(bool async)
+    {
+        await base.Include_collection_with_complex_struct_key_39722(async);
+        AssertSql(
+            """
+SELECT [p].[Id_Value], [c].[Id], [c].[ParentId]
+FROM [Parent] AS [p]
+LEFT JOIN [Child] AS [c] ON [p].[Id_Value] = [c].[ParentId]
+ORDER BY [p].[Id_Value]
+""");
+    }
+
+    public override async Task Include_collection_with_complex_struct_key_and_filter_39722(bool async)
+    {
+        await base.Include_collection_with_complex_struct_key_and_filter_39722(async);
+        AssertSql(
+            """
+@entity_equality_id_Value='00000000-0000-0000-0000-000000000001' (Nullable = true)
+
+SELECT [p0].[Id_Value], [c].[Id], [c].[ParentId]
+FROM (
+    SELECT TOP(2) [p].[Id_Value]
+    FROM [Parent] AS [p]
+    WHERE [p].[Id_Value] = @entity_equality_id_Value
+) AS [p0]
+LEFT JOIN [Child] AS [c] ON [p0].[Id_Value] = [c].[ParentId]
+ORDER BY [p0].[Id_Value]
+""");
+    }
+
+    public override async Task Include_reference_with_complex_struct_key_39722(bool async)
+    {
+        await base.Include_reference_with_complex_struct_key_39722(async);
+        AssertSql(
+            """
+SELECT [c].[Id], [c].[ParentId], [p].[Id_Value]
+FROM [Child] AS [c]
+LEFT JOIN [Parent] AS [p] ON [c].[ParentId] = [p].[Id_Value]
+ORDER BY [c].[Id]
+""");
+    }
+
+    public override async Task Find_with_complex_struct_key_39722(bool async)
+    {
+        await base.Find_with_complex_struct_key_39722(async);
+        AssertSql(
+            """
+@p='00000000-0000-0000-0000-000000000001' (Nullable = true)
+
+SELECT TOP(1) [p].[Id_Value]
+FROM [Parent] AS [p]
+WHERE [p].[Id_Value] = @p
+""");
+    }
+
+    public override async Task Load_reference_with_complex_struct_key_39722(bool async)
+    {
+        await base.Load_reference_with_complex_struct_key_39722(async);
+        AssertSql(
+            """
+SELECT TOP(2) [c].[Id], [c].[ParentId]
+FROM [Child] AS [c]
+WHERE [c].[Id] = 11
+""",
+            //
+            """
+@p='00000000-0000-0000-0000-000000000001' (Nullable = true)
+
+SELECT TOP(1) [p].[Id_Value]
+FROM [Parent] AS [p]
+WHERE [p].[Id_Value] = @p
+""");
+    }
+
+    public override async Task Include_collection_with_complex_composite_key_39722(bool async)
+    {
+        await base.Include_collection_with_complex_composite_key_39722(async);
+        AssertSql(
+            """
+SELECT [p].[Id_Id], [p].[Id_TenantId], [c].[Id], [c].[ParentId], [c].[ParentTenantId]
+FROM [Parent] AS [p]
+LEFT JOIN [Child] AS [c] ON [p].[Id_Id] = [c].[ParentId] AND [p].[Id_TenantId] = [c].[ParentTenantId]
+ORDER BY [p].[Id_Id], [p].[Id_TenantId]
+""");
+    }
+
+    public override async Task Find_with_complex_composite_key_and_auto_include_39722(bool async)
+    {
+        await base.Find_with_complex_composite_key_and_auto_include_39722(async);
+        AssertSql(
+            """
+@p='1'
+@p1='B' (Size = 450)
+
+SELECT [p0].[Id_Id], [p0].[Id_TenantId], [c].[Id], [c].[ParentId], [c].[ParentTenantId]
+FROM (
+    SELECT TOP(1) [p].[Id_Id], [p].[Id_TenantId]
+    FROM [Parent] AS [p]
+    WHERE [p].[Id_Id] = @p AND [p].[Id_TenantId] = @p1
+) AS [p0]
+LEFT JOIN [Child] AS [c] ON [p0].[Id_Id] = [c].[ParentId] AND [p0].[Id_TenantId] = [c].[ParentTenantId]
+ORDER BY [p0].[Id_Id], [p0].[Id_TenantId]
+""");
+    }
+
+    public override async Task Include_and_find_with_nested_complex_key_39722(bool async)
+    {
+        await base.Include_and_find_with_nested_complex_key_39722(async);
+        AssertSql(
+            """
+SELECT [p0].[Id_Inner_Value], [c].[Id], [c].[ParentId]
+FROM (
+    SELECT TOP(2) [p].[Id_Inner_Value]
+    FROM [Parent] AS [p]
+) AS [p0]
+LEFT JOIN [Child] AS [c] ON [p0].[Id_Inner_Value] = [c].[ParentId]
+ORDER BY [p0].[Id_Inner_Value]
+""",
+            //
+            """
+@p='3'
+
+SELECT TOP(1) [p].[Id_Inner_Value]
+FROM [Parent] AS [p]
+WHERE [p].[Id_Inner_Value] = @p
+""");
+    }
+
+    public override async Task Include_and_find_with_inherited_complex_key_type_39722(bool async)
+    {
+        await base.Include_and_find_with_inherited_complex_key_type_39722(async);
+        AssertSql(
+            """
+SELECT [p].[Value], [p].[Id_Value], [c].[Id], [c].[ParentId]
+FROM [Parent] AS [p]
+LEFT JOIN [Child] AS [c] ON [p].[Id_Value] = [c].[ParentId]
+ORDER BY [p].[Id_Value]
+""",
+            //
+            """
+@p='1'
+
+SELECT TOP(1) [p].[Value], [p].[Id_Value]
+FROM [Parent] AS [p]
+WHERE [p].[Id_Value] = @p
+""");
+    }
+
     #region 10447
 
     [Fact]

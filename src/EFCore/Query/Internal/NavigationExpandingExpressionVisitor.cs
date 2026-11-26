@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
+using InternalExpressionExtensions = Microsoft.EntityFrameworkCore.Internal.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -2065,8 +2066,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                                 : orderingMethod;
 
                             var keyPropertyLambda = GenerateLambda(
-                                navigationTreeExpression.CreateEFPropertyExpression(
-                                    primaryKeyProperties[i], entityReference.IsOptional),
+                                InternalExpressionExtensions.CreateEFPropertyExpression(
+                                    navigationTreeExpression,
+                                    primaryKeyProperties[i],
+                                    entityReference.IsOptional,
+                                    useComplexPropertyChain: true),
                                 source.CurrentParameter);
 
                             source.UpdateSource(
@@ -2097,8 +2101,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                                 : orderingMethod;
 
                             var keyPropertyLambda = GenerateLambda(
-                                navigationExpansionExpression.CreateEFPropertyExpression(
-                                    primaryKeyProperties[i], subqueryEntityReference.IsOptional),
+                                InternalExpressionExtensions.CreateEFPropertyExpression(
+                                    navigationExpansionExpression,
+                                    primaryKeyProperties[i],
+                                    subqueryEntityReference.IsOptional,
+                                    useComplexPropertyChain: true),
                                 source.CurrentParameter);
 
                             source.UpdateSource(
