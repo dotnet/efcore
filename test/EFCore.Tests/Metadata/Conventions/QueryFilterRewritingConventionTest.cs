@@ -39,6 +39,34 @@ public class QueryFilterRewritingConventionTest
     }
 
     [Fact]
+    public virtual void QueryFilter_containing_db_set_with_not_included_named_type()
+    {
+        var modelBuilder = new InternalModelBuilder(new Model());
+        modelBuilder.SharedTypeEntity("Post1", typeof(Post), ConfigurationSource.Explicit);
+        Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Post>("Missing").Single().Id == e.Id;
+        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)!
+            .HasQueryFilter(lambda, ConfigurationSource.Explicit);
+
+        Assert.Equal(
+            CoreStrings.InvalidSetTypeWithName(typeof(Post).ShortDisplayName(), "Missing"),
+            Assert.Throws<InvalidOperationException>(() => RunConvention(modelBuilder)).Message);
+    }
+
+    [Fact]
+    public virtual void QueryFilter_containing_db_set_member_access_with_shared_type()
+    {
+        var modelBuilder = new InternalModelBuilder(new Model());
+        modelBuilder.SharedTypeEntity("Post1", typeof(Post), ConfigurationSource.Explicit);
+        Expression<Func<Blog, bool>> lambda = e => new MyContext().Posts.Single().Id == e.Id;
+        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)!
+            .HasQueryFilter(lambda, ConfigurationSource.Explicit);
+
+        Assert.Equal(
+            CoreStrings.InvalidSetSharedType(typeof(Post).ShortDisplayName()),
+            Assert.Throws<InvalidOperationException>(() => RunConvention(modelBuilder)).Message);
+    }
+
+    [Fact]
     public virtual void QueryFilter_containing_db_set_of_incorrect_type()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
@@ -97,5 +125,8 @@ public class QueryFilterRewritingConventionTest
         public Blog Blog { get; set; } = null!;
     }
 
-    protected class MyContext : DbContext;
+    protected class MyContext : DbContext
+    {
+        public DbSet<Post> Posts => Set<Post>();
+    }
 }
