@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -26,6 +27,22 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     public SqliteSqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
         : base(dependencies)
         => _boolTypeMapping = dependencies.TypeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static bool IsStoredAs(SqlExpression expression, Type type)
+        // The SQL functions only understand the default text storage; e.g. a value converted to a number would be read as days.
+        // The built-in string converters write that same text, but custom ones may use any format.
+        => expression.TypeMapping?.Converter switch
+        {
+            null => (expression.TypeMapping?.ClrType ?? expression.Type).UnwrapNullableType() == type,
+            TimeOnlyToStringConverter or DateOnlyToStringConverter or DateTimeToStringConverter => true,
+            var converter => converter.ProviderClrType.UnwrapNullableType() == type
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

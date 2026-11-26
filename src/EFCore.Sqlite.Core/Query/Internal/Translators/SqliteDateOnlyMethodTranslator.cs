@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -25,9 +26,29 @@ public class SqliteDateOnlyMethodTranslator(SqliteSqlExpressionFactory sqlExpres
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => method.DeclaringType == typeof(DateOnly)
-            && method.Name == nameof(DateOnly.FromDateTime)
-            && arguments is [var arg]
-                ? sqlExpressionFactory.Date(method.ReturnType, arg)
-                : null;
+        => method.DeclaringType != typeof(DateOnly)
+            ? null
+            : (instance, method.Name, arguments) switch
+            {
+                (null, nameof(DateOnly.FromDateTime), [var dateTime]) => sqlExpressionFactory.Date(method.ReturnType, dateTime),
+
+                // Done in .NET, since datetime() would drop the sub-millisecond part of the time.
+                // Unmapped parameters get their default mapping first, which may carry a converter.
+                (not null, nameof(DateOnly.ToDateTime), [var time]) when time.Type == typeof(TimeOnly)
+                    => ToDateTime(sqlExpressionFactory.ApplyDefaultTypeMapping(instance), sqlExpressionFactory.ApplyDefaultTypeMapping(time)),
+
+                _ => null
+            };
+
+    private SqlExpression? ToDateTime(SqlExpression date, SqlExpression time)
+        => SqliteSqlExpressionFactory.IsStoredAs(date, typeof(DateOnly)) && SqliteSqlExpressionFactory.IsStoredAs(time, typeof(TimeOnly))
+            ? sqlExpressionFactory.Function(
+                "ef_datetime",
+                [date, time],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[2],
+                typeof(DateTime),
+                // The function returns text, whatever the default DateTime mapping is.
+                SqliteDateTimeTypeMapping.Default)
+            : null;
 }

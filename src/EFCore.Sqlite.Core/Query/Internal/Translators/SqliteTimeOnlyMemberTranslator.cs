@@ -26,13 +26,27 @@ public class SqliteTimeOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpres
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        return member.DeclaringType != typeof(TimeOnly) || instance is null
+        if (member.DeclaringType != typeof(TimeOnly) || instance is null)
+        {
+            return null;
+        }
+
+        // Unmapped parameters get their default mapping first, which may carry a converter.
+        instance = sqlExpressionFactory.ApplyDefaultTypeMapping(instance);
+
+        return !SqliteSqlExpressionFactory.IsStoredAs(instance, typeof(TimeOnly))
             ? null
             : member.Name switch
             {
                 nameof(TimeOnly.Hour) => DatePart("%H"),
                 nameof(TimeOnly.Minute) => DatePart("%M"),
                 nameof(TimeOnly.Second) => DatePart("%S"),
+
+                // strftime('%f') rounds to milliseconds, so the digits are read from the text instead. Padding covers values
+                // without a fraction or with fewer than seven digits.
+                nameof(TimeOnly.Millisecond) => FractionPart(10, 3),
+                nameof(TimeOnly.Microsecond) => FractionPart(13, 3),
+                nameof(TimeOnly.Nanosecond) => sqlExpressionFactory.Multiply(FractionPart(16, 1), sqlExpressionFactory.Constant(100)),
 
                 _ => null
             };
@@ -44,5 +58,28 @@ public class SqliteTimeOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                     datePart,
                     instance),
                 returnType);
+
+        SqlExpression FractionPart(int start, int length)
+        {
+            var padding = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant("0000000"));
+
+            var fraction = sqlExpressionFactory.Convert(
+                sqlExpressionFactory.Function(
+                    "substr",
+                    [
+                        new SqlBinaryExpression(ExpressionType.Add, instance, padding, typeof(string), padding.TypeMapping),
+                        sqlExpressionFactory.Constant(start),
+                        sqlExpressionFactory.Constant(length)
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
+                    typeof(string)),
+                returnType);
+
+            // Null protection on the padding concatenation would turn a NULL time into '', so NULL is propagated explicitly.
+            return sqlExpressionFactory.Case(
+                [new CaseWhenClause(sqlExpressionFactory.IsNotNull(instance), fraction)],
+                elseResult: null);
+        }
     }
 }

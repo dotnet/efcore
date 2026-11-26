@@ -241,37 +241,74 @@ WHERE date("b"."DateOnly", CAST(476 AS TEXT) || ' days', CAST(1 AS TEXT) || ' ye
 
     public override async Task ToDateTime_property_with_constant_TimeOnly()
     {
-        await AssertTranslationFailed(base.ToDateTime_property_with_constant_TimeOnly);
+        await base.ToDateTime_property_with_constant_TimeOnly();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE ef_datetime("b"."DateOnly", '21:05:19.9405000') = '2020-01-01 21:05:19.9405'
+""");
     }
 
     public override async Task ToDateTime_property_with_property_TimeOnly()
     {
-        await AssertTranslationFailed(base.ToDateTime_property_with_property_TimeOnly);
+        await base.ToDateTime_property_with_property_TimeOnly();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE ef_datetime("b"."DateOnly", "b"."TimeOnly") = '2020-01-01 15:30:10'
+""");
     }
 
     public override async Task ToDateTime_constant_DateTime_with_property_TimeOnly()
     {
-        await AssertTranslationFailed(base.ToDateTime_constant_DateTime_with_property_TimeOnly);
+        await base.ToDateTime_constant_DateTime_with_property_TimeOnly();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE ef_datetime('1990-11-10', "b"."TimeOnly") = '1990-11-10 15:30:10'
+""");
     }
 
     public override async Task ToDateTime_with_complex_DateTime()
     {
-        await AssertTranslationFailed(base.ToDateTime_with_complex_DateTime);
+        await base.ToDateTime_with_complex_DateTime();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE ef_datetime(date("b"."DateOnly", CAST(1 AS TEXT) || ' years', 'floor'), "b"."TimeOnly") = '2021-01-01 15:30:10'
+""");
     }
 
     public override async Task ToDateTime_with_complex_TimeOnly()
     {
-        await AssertTranslationFailed(base.ToDateTime_with_complex_TimeOnly);
+        await base.ToDateTime_with_complex_TimeOnly();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE ef_datetime("b"."DateOnly", ef_time_add("b"."TimeOnly", 36000000000)) = '2020-01-01 16:30:10'
+""");
+    }
+
+    [Fact]
+    public virtual async Task Project_ToDateTime_keeps_fraction()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Select(b => b.DateOnly.ToDateTime(b.TimeOnly)));
+
+        AssertSql(
+            """
+SELECT ef_datetime("b"."DateOnly", "b"."TimeOnly")
+FROM "BasicTypesEntities" AS "b"
+""");
     }
 
     [Fact]
