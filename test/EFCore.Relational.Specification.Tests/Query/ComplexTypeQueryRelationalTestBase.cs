@@ -179,6 +179,85 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
 
     #endregion 35025
 
+    #region 39814
+
+    [Fact]
+    public virtual async Task Select_TPC_base_with_json_complex_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39814>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context39814.First
+                    {
+                        Id = 1,
+                        Document = new Context39814.Document { Value = "A" },
+                        Documents = [new Context39814.Document { Value = "A1" }]
+                    },
+                    new Context39814.Second
+                    {
+                        Id = 2,
+                        Document = new Context39814.Document { Value = "B" },
+                        Documents = [new Context39814.Document { Value = "B1" }, new Context39814.Document { Value = "B2" }]
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var entities = await context.Set<Context39814.Base>().OrderBy(e => e.Id).ToListAsync();
+
+        Assert.Collection(
+            entities,
+            e =>
+            {
+                Assert.IsType<Context39814.First>(e);
+                Assert.Equal("A", e.Document.Value);
+                Assert.Equal(["A1"], e.Documents.Select(d => d.Value));
+            },
+            e =>
+            {
+                Assert.IsType<Context39814.Second>(e);
+                Assert.Equal("B", e.Document.Value);
+                Assert.Equal(["B1", "B2"], e.Documents.Select(d => d.Value));
+            });
+    }
+
+    protected class Context39814(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Base>(b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.ComplexProperty(e => e.Document).ToJson();
+                b.ComplexCollection(e => e.Documents).ToJson();
+            });
+            modelBuilder.Entity<First>().ToTable("First");
+            modelBuilder.Entity<Second>().ToTable("Second");
+        }
+
+        public abstract class Base
+        {
+            public int Id { get; set; }
+            public required Document Document { get; set; }
+            public required List<Document> Documents { get; set; }
+        }
+
+        public class First : Base;
+
+        public class Second : Base;
+
+        public class Document
+        {
+            public required string Value { get; set; }
+        }
+    }
+
+    #endregion 39814
+
     #region 34706
 
     [Fact]
