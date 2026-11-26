@@ -145,6 +145,27 @@ LIMIT 1
 """);
     }
 
+    public override async Task Include_and_find_with_inherited_complex_key_type_39722(bool async)
+    {
+        await base.Include_and_find_with_inherited_complex_key_type_39722(async);
+        AssertSql(
+            """
+SELECT "p"."Value", "p"."Id_Value", "c"."Id", "c"."ParentId"
+FROM "Parent" AS "p"
+LEFT JOIN "Child" AS "c" ON "p"."Id_Value" = "c"."ParentId"
+ORDER BY "p"."Id_Value"
+""",
+            //
+            """
+@p='1'
+
+SELECT "p"."Value", "p"."Id_Value"
+FROM "Parent" AS "p"
+WHERE "p"."Id_Value" = @p
+LIMIT 1
+""");
+    }
+
     public override async Task Projection_with_multiple_includes_and_subquery_with_set_operation()
     {
         Assert.Equal(

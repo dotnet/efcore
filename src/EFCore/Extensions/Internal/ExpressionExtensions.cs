@@ -23,9 +23,32 @@ public static class ExpressionExtensions
     /// </summary>
     internal static Expression CreateComplexPropertyChainExpression(this Expression target, IReadOnlyTypeBase declaringType)
     {
-        if (UseOldBehavior39722
-            || declaringType is not IReadOnlyComplexType complexType
-            || complexType.ClrType.IsAssignableFrom(target.Type.UnwrapNullableType()))
+        if (UseOldBehavior39722 || declaringType is not IReadOnlyComplexType complexType)
+        {
+            return target;
+        }
+
+        var targetForTypeCheck = target;
+        while (targetForTypeCheck is UnaryExpression
+               {
+                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked,
+                   Type: var conversionType,
+                   Method: null
+               } unaryExpression
+               && conversionType == typeof(object))
+        {
+            targetForTypeCheck = unaryExpression.Operand;
+        }
+
+        var targetType = targetForTypeCheck.Type.UnwrapNullableType();
+        var declaringEntityType = complexType.ComplexProperty.DeclaringType;
+        while (declaringEntityType is IReadOnlyComplexType parentComplexType)
+        {
+            declaringEntityType = parentComplexType.ComplexProperty.DeclaringType;
+        }
+
+        if (!declaringEntityType.ClrType.IsAssignableFrom(targetType)
+            && complexType.ClrType.IsAssignableFrom(targetType))
         {
             return target;
         }

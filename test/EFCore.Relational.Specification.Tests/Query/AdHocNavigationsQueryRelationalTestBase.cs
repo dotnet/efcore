@@ -146,6 +146,42 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
         Assert.Equal(3, found.Id.Inner.Value);
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Include_and_find_with_inherited_complex_key_type_39722(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<InheritedKeyContext39722>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<InheritedKeyContext39722.Parent>()
+            .Include(p => p.Children)
+            .OrderBy(p => p.Id.Value);
+        var parents = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Collection(
+            parents,
+            p =>
+            {
+                Assert.Equal(1, p.Id.Value);
+                Assert.Equal(2, p.Value);
+                Assert.Equal([11], p.Children.Select(c => c.Id));
+            },
+            p =>
+            {
+                Assert.Equal(2, p.Id.Value);
+                Assert.Equal(1, p.Value);
+                Assert.Equal([21], p.Children.Select(c => c.Id));
+            });
+
+        context.ChangeTracker.Clear();
+        var found = async
+            ? await context.Set<InheritedKeyContext39722.Parent>().FindAsync(1)
+            : context.Set<InheritedKeyContext39722.Parent>().Find(1);
+
+        Assert.NotNull(found);
+        Assert.Equal(1, found.Id.Value);
+        Assert.Equal(2, found.Value);
+    }
+
     protected class Context39722(DbContextOptions options) : DbContext(options)
     {
         public static readonly Guid FirstId = new("00000000-0000-0000-0000-000000000001");
@@ -262,6 +298,47 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
         public Task SeedAsync()
         {
             Add(new Parent { Id = new ParentId { Inner = new InnerId(3) }, Children = { new Child { Id = 31 } } });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class InheritedKeyContext39722(DbContextOptions options) : DbContext(options)
+    {
+        public class ParentId
+        {
+            public int Value { get; set; }
+        }
+
+        public class Parent : ParentId
+        {
+            public ParentId Id { get; set; } = null!;
+            public List<Child> Children { get; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Ignore<ParentId>();
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.ComplexProperty(p => p.Id);
+                b.HasKey(p => p.Id.Value);
+                b.Property(p => p.Id.Value).ValueGeneratedNever();
+                b.HasMany(p => p.Children).WithOne().HasForeignKey("ParentId");
+            });
+            modelBuilder.Entity<Child>().Property(c => c.Id).ValueGeneratedNever();
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Parent { Value = 2, Id = new ParentId { Value = 1 }, Children = { new Child { Id = 11 } } },
+                new Parent { Value = 1, Id = new ParentId { Value = 2 }, Children = { new Child { Id = 21 } } });
 
             return SaveChangesAsync();
         }
