@@ -66,8 +66,10 @@ public interface IConventionNavigationBuilder : IConventionPropertyBaseBuilder<I
     ///     Configures whether this navigation is required.
     /// </summary>
     /// <remarks>
-    ///     For a collection navigation, a navigation that is not required can be <see langword="null" /> as distinct from empty.
-    ///     See <see cref="IReadOnlyNavigation.IsNullable" />.
+    ///     For an owned collection navigation, this configures whether the collection can be <see langword="null" /> as distinct
+    ///     from empty, see <see cref="IReadOnlyNavigation.IsNullable" />. This is only supported for owned collections that are
+    ///     stored with their owner, for example as a JSON array, and model validation fails for collection navigations that are
+    ///     not owned. To configure whether a relationship is required, use the relationship builder instead.
     /// </remarks>
     /// <param name="required">
     ///     A value indicating whether this is a required navigation.
@@ -83,6 +85,10 @@ public interface IConventionNavigationBuilder : IConventionPropertyBaseBuilder<I
     ///     Returns a value indicating whether this navigation requiredness can be configured
     ///     from the current configuration source.
     /// </summary>
+    /// <remarks>
+    ///     For a collection navigation, this can only be configured by conventions or data annotations if the collection is owned,
+    ///     see <see cref="IReadOnlyNavigation.IsNullable" />.
+    /// </remarks>
     /// <param name="required">A value indicating whether the navigation should be required.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if requiredness can be set for this navigation.</returns>

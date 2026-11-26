@@ -58,8 +58,10 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
     ///         mapped to JSON as nullable when the navigation is annotated as nullable and can be set to <see langword="null" />.
     ///     </para>
     ///     <para>
-    ///         This can only be set for collection navigations that are stored inline with their owner, for example as a JSON array,
-    ///         and only if the database provider supports it. Model validation fails otherwise.
+    ///         This can only be set for owned collection navigations that are stored with their owner, for example as a JSON array.
+    ///         Model validation fails for collection navigations that are not owned. Database providers that don't support this are
+    ///         responsible for rejecting it during model validation, otherwise a change between <see langword="null" /> and an empty
+    ///         collection is tracked but not saved.
     ///     </para>
     /// </remarks>
     bool IsNullable

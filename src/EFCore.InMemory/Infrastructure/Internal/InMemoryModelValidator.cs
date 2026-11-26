@@ -47,13 +47,15 @@ public class InMemoryModelValidator : ModelValidator
         INavigation navigation,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateNavigation(navigation, logger);
-
-        if (navigation.IsNullable)
+        // The other checks don't matter for an owned collection when it isn't supported at all
+        if (navigation is { IsNullable: true, IsCollection: true }
+            && navigation.ForeignKey.IsOwnership)
         {
             throw new InvalidOperationException(
                 InMemoryStrings.NullableCollectionNavigationNotSupported(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
         }
+
+        base.ValidateNavigation(navigation, logger);
     }
 
     /// <summary>

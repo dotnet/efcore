@@ -2428,6 +2428,71 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Modified, context.Entry(child).State);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Modified_flag_of_a_nullable_collection_whose_index_is_past_the_last_property_is_cleared(bool acceptChanges)
+    {
+        using var context = new ManyNullableCollectionsContext();
+        var parent = new ManyNullableCollectionsParent { Id = 1, First = [], Second = [], Third = [] };
+        context.Attach(parent);
+        var entry = context.Entry(parent);
+
+        // With a single property, the flag of the last navigation is stored in a slot that no property uses
+        Assert.Equal(1, entry.Metadata.GetProperties().Count());
+        parent.Third = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(entry.Collection(p => p.Third!).IsModified);
+
+        if (acceptChanges)
+        {
+            context.ChangeTracker.AcceptAllChanges();
+            Assert.Null(parent.Third);
+        }
+        else
+        {
+            entry.State = EntityState.Unchanged;
+            Assert.NotNull(parent.Third);
+        }
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+        Assert.False(entry.Collection(p => p.Third!).IsModified);
+
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Unchanged, entry.State);
+    }
+
+    private class ManyNullableCollectionsParent
+    {
+        public int Id { get; set; }
+        public List<NullableCollectionChild>? First { get; set; }
+        public List<NullableCollectionChild>? Second { get; set; }
+        public List<NullableCollectionChild>? Third { get; set; }
+    }
+
+    private class ManyNullableCollectionsContext : DbContext
+    {
+        public ManyNullableCollectionsContext()
+            => ChangeTracker.AutoDetectChangesEnabled = false;
+
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ReplaceService<IModelValidator, ModelValidator>();
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<ManyNullableCollectionsParent>(b =>
+            {
+                b.OwnsMany(p => p.First);
+                b.OwnsMany(p => p.Second);
+                b.OwnsMany(p => p.Third);
+                b.Navigation(p => p.First).IsRequired(false);
+                b.Navigation(p => p.Second).IsRequired(false);
+                b.Navigation(p => p.Third).IsRequired(false);
+            });
+    }
+
     [Fact]
     public void Nullness_change_is_not_reported_as_modified_for_an_entity_that_is_not_Modified()
     {

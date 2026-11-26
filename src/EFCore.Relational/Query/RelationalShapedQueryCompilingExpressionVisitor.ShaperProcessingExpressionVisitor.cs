@@ -1866,7 +1866,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             fixup,
                             // Perform fixup only for non-tracking queries - for tracking queries the change tracker does fixup.
                             // Note that for complex JSON types we also perform fixup, even for tracking queries.
-                            Constant(!_isTracking || structuralType is IComplexType));
+                            Constant(!_isTracking || structuralType is IComplexType),
+                            // A nullable collection distinguishes a stored null from an empty collection
+                            Constant(structuralProperty is INavigation { IsNullable: true } && !structuralProperty.IsShadowProperty()));
 
                     return declaringClrType.IsAssignableFrom(containerEntityExpression.Type)
                         ? includeJsonEntityCollectionMethodCall

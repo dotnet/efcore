@@ -2751,11 +2751,13 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 ((IReadOnlyNavigation)oldNavigation).LazyLoadingEnabled, oldLazyLoadingEnabledConfigurationSource.Value)!;
         }
 
-        // The requiredness of a collection navigation is whether it can be null, which is not stored on the foreign key. It is
-        // copied as it is, because the new relationship might not be an ownership yet.
+        // The requiredness of a collection navigation is whether it can be null, which is not stored on the foreign key. Explicit
+        // configuration is kept even if the new relationship isn't an ownership yet, like for the other facets.
         var oldIsNullable = oldNavigation.FindAnnotation(CoreAnnotationNames.NullableCollection);
         if (oldIsNullable != null
-            && builder.Metadata.IsCollection)
+            && builder.Metadata.IsCollection
+            && (oldIsNullable.GetConfigurationSource() == ConfigurationSource.Explicit
+                || oldNavigation.ForeignKey.IsOwnership))
         {
             builder.HasAnnotation(
                 CoreAnnotationNames.NullableCollection, oldIsNullable.Value, oldIsNullable.GetConfigurationSource());

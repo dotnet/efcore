@@ -310,7 +310,7 @@ public partial class RelationalModelValidatorTest
     public void Nullable_collection_navigation_that_is_not_mapped_to_json_is_not_supported()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer);
+        modelBuilder.Entity<Customer>().OwnsMany(c => c.Orders);
         modelBuilder.Entity<Customer>().Navigation(c => c.Orders).IsRequired(false);
 
         VerifyError(

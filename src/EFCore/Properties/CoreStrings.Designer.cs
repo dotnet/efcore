@@ -2610,6 +2610,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
+        ///     The collection navigation '{entityType}.{navigation}' is configured using 'IsRequired', but it is not owned. For a collection navigation, 'IsRequired' configures whether an owned collection can be null as distinct from empty. To configure whether the relationship is required, call 'IsRequired' on the relationship instead, for example 'HasMany(...).WithOne(...).IsRequired()'.
+        /// </summary>
+        public static string NonOwnedCollectionNavigationIsRequired(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NonOwnedCollectionNavigationIsRequired", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     The foreign key {foreignKeyProperties} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.
         /// </summary>
         public static string NonUniqueRequiredDependentForeignKey(object? foreignKeyProperties, object? declaringEntityType)

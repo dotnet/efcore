@@ -717,6 +717,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             // A change between null and a non-null collection can't be expressed as an update of a single property
             static bool HasModifiedNullableCollection(IUpdateEntry entry)
             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                if (entry.EntityType is IRuntimeEntityType { NullableCollectionCount: 0 })
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                {
+                    return false;
+                }
+
                 foreach (var navigation in entry.EntityType.GetNavigations())
                 {
                     if (navigation.IsNullable
@@ -829,11 +836,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
                              .Where(n => n.IsCollection
                                  && n.TargetEntityType.IsMappedToJson()
-                                 && ((entry.GetCurrentValue(n) as IEnumerable)?.Any() == false
+                                 && entry.GetCurrentValue(n) as IEnumerable is var collection
+                                 && (collection?.Any() == false
                                      || (n.IsNullable
                                          // A replacement of an entity with the same key doesn't have its own modified flag.
                                          && (entry.IsModified(n)
-                                             || (entry.SharedIdentityEntry != null && entry.GetCurrentValue(n) is null))))))
+                                             || (entry.SharedIdentityEntry != null && collection is null))))))
                 {
                     var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
                     var jsonCollectionColumn =

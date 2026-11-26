@@ -1475,6 +1475,9 @@
   <data name="NonQueryTranslationFailed" xml:space="preserve">
     <value>The following 'ExecuteUpdate' or 'ExecuteDelete' expression could not be translated, see inner exception for more details: '{expression}'</value>
   </data>
+  <data name="NonOwnedCollectionNavigationIsRequired" xml:space="preserve">
+    <value>The collection navigation '{entityType}.{navigation}' is configured using 'IsRequired', but it is not owned. For a collection navigation, 'IsRequired' configures whether an owned collection can be null as distinct from empty. To configure whether the relationship is required, call 'IsRequired' on the relationship instead, for example 'HasMany(...).WithOne(...).IsRequired()'.</value>
+  </data>
   <data name="NonUniqueRequiredDependentForeignKey" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.</value>
   </data>

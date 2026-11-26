@@ -5,6 +5,7 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -1247,7 +1248,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1264,22 +1264,32 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, object[]?, JsonReaderData, TIncludedCollectionElement> innerShaper,
             Action<TIncludingEntity> getOrCreateCollectionObject,
             Action<TIncludingEntity, TIncludedCollectionElement> fixup,
-            bool performFixup)
+            bool performFixup,
+            bool nullableCollection)
             where TIncludingEntity : class
             where TIncludedCollectionElement : class
         {
             // For a nullable collection navigation the stored null or non-null value is applied to the entity, overriding any initial
             // value, and recorded as the original null-ness so that a later change between the two is detected.
-            var nullableNavigation = structuralProperty is INavigation { IsNullable: true } navigation && !navigation.IsShadowProperty()
-                ? navigation
-                : null;
-            var applyNullness = nullableNavigation != null && queryContext.CanLoadCollectionNullness(nullableNavigation, entity);
+            INavigation? nullableNavigation = null;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            InternalEntityEntry? entry = null;
+            var applyNullness = false;
+            if (nullableCollection)
+            {
+                nullableNavigation = (INavigation)structuralProperty;
+                entry = queryContext.TryGetEntry(entity);
+                applyNullness = queryContext.CanLoadCollectionNullness(nullableNavigation, entry);
+            }
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             if (jsonReaderData == null)
             {
                 if (applyNullness)
                 {
-                    queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: true);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, entry, storedAsNull: true);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
                 return;
@@ -1293,7 +1303,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 case JsonTokenType.Null:
                     if (applyNullness)
                     {
-                        queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: true);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, entry, storedAsNull: true);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
 
                     return;
@@ -1376,14 +1388,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
             }
 
-            if (applyNullness)
+            // Without an entry, the populated collection is all there is to load
+            if (applyNullness
+                && entry != null)
             {
-                queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: false);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, entry, storedAsNull: false);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
 
             manager.CaptureState();
         }
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

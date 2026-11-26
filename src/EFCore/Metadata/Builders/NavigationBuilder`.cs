@@ -99,8 +99,10 @@ public class NavigationBuilder<TSource, TTarget> : NavigationBuilder
     ///     Configures whether this navigation is required.
     /// </summary>
     /// <remarks>
-    ///     For a collection navigation, a navigation that is not required can be <see langword="null" /> as distinct from empty.
-    ///     See <see cref="IReadOnlyNavigation.IsNullable" />.
+    ///     For an owned collection navigation, this configures whether the collection can be <see langword="null" /> as distinct
+    ///     from empty, see <see cref="IReadOnlyNavigation.IsNullable" />. This is only supported for owned collections that are
+    ///     stored with their owner, for example as a JSON array, and model validation fails for collection navigations that are
+    ///     not owned. To configure whether a relationship is required, use the relationship builder instead.
     /// </remarks>
     /// <param name="required">A value indicating whether the navigation should be required.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
