@@ -2162,8 +2162,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<JsonItemsForeignKeyOwner>().HasMany(e => e.Children).WithOne();
+            // The relationship is found by convention, so it can still become an ownership
+            modelBuilder.Entity<JsonItemsForeignKeyOwner>();
             modelBuilder.Entity<JsonItemsForeignKeyOwner>().Navigation(e => e.Children).IsRequired(false);
+            Assert.False(modelBuilder.Model.FindEntityType(typeof(JsonItemsForeignKeyOwner))!
+                .FindNavigation(nameof(JsonItemsForeignKeyOwner.Children))!.ForeignKey.IsOwnership);
             modelBuilder.Entity<JsonItemsForeignKeyOwner>().OwnsMany(e => e.Children, b => b.ToJson());
 
             var model = modelBuilder.FinalizeModel();
