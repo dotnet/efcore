@@ -38,6 +38,16 @@ public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecution
     {
     }
 
+    public TestSqlServerRetryingExecutionStrategy(DbContext context, TimeSpan maxDelay, TimeSpan minThrottlingDelay)
+        : base(
+            context,
+            DefaultMaxRetryCount,
+            maxDelay,
+            _additionalErrorNumbers,
+            minThrottlingDelay)
+    {
+    }
+
     public TestSqlServerRetryingExecutionStrategy(ExecutionStrategyDependencies dependencies)
         : base(dependencies, DefaultMaxRetryCount, DefaultMaxDelay, _additionalErrorNumbers)
     {

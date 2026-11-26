@@ -411,7 +411,13 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder EnableRetryOnFailure(System.Collections.Generic.ICollection<int> errorNumbersToAdd);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder EnableRetryOnFailure(System.TimeSpan minThrottlingDelay);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd, System.TimeSpan minThrottlingDelay);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel);"
@@ -2570,13 +2576,25 @@
           "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies dependencies, int maxRetryCount);"
         },
         {
+          "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.DbContext context, System.TimeSpan minThrottlingDelay);"
+        },
+        {
+          "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies dependencies, System.TimeSpan minThrottlingDelay);"
+        },
+        {
           "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies dependencies, System.Collections.Generic.IEnumerable<int> errorNumbersToAdd);"
         },
         {
           "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.DbContext context, int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd);"
         },
         {
+          "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.DbContext context, int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd, System.TimeSpan minThrottlingDelay);"
+        },
+        {
           "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies dependencies, int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd);"
+        },
+        {
+          "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies dependencies, int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd, System.TimeSpan minThrottlingDelay);"
         }
       ],
       "Fields": [

@@ -81,6 +81,28 @@ public class SqlServerDbContextOptionsBuilder : SqlEngineDbContextOptionsBuilder
         => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, errorNumbersToAdd));
 
     /// <summary>
+    ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" /> with a specified minimum
+    ///     delay for throttling errors.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This strategy is specifically tailored to SQL Server. It is pre-configured with
+    ///         error numbers for throttling errors that can be retried.
+    ///     </para>
+    ///     <para>
+    ///         Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="minThrottlingDelay">The minimum additional delay for throttling errors.</param>
+    public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(TimeSpan minThrottlingDelay)
+        => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, minThrottlingDelay));
+
+
+    /// <summary>
     ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
     /// </summary>
     /// <remarks>
@@ -96,11 +118,41 @@ public class SqlServerDbContextOptionsBuilder : SqlEngineDbContextOptionsBuilder
     /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
     /// <param name="maxRetryDelay">The maximum delay between retries.</param>
     /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
+
     public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
         int maxRetryCount,
         TimeSpan maxRetryDelay,
         IEnumerable<int>? errorNumbersToAdd)
         => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
+
+    /// <summary>
+    ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This strategy is specifically tailored to SQL Server. It is pre-configured with
+    ///         error numbers for transient errors that can be retried, but additional error numbers can also be supplied.
+    ///     </para>
+    ///     <para>
+    ///         The minimum delay for throttling errors is configured separately from the maximum delay between retries.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+    /// <param name="maxRetryDelay">The maximum delay between retries.</param>
+    /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
+    /// <param name="minThrottlingDelay">The minimum additional delay for throttling errors.</param>
+    public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
+        int maxRetryCount,
+        TimeSpan maxRetryDelay,
+        IEnumerable<int>? errorNumbersToAdd,
+        TimeSpan minThrottlingDelay)
+        => ExecutionStrategy(
+            c => new SqlServerRetryingExecutionStrategy(
+                c, maxRetryCount, maxRetryDelay, errorNumbersToAdd, minThrottlingDelay));
 
     /// <summary>
     ///     Sets the SQL Server compatibility level that EF Core will use when interacting with the database. This allows configuring EF
