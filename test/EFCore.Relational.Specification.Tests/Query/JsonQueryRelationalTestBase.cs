@@ -1873,5 +1873,192 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
 
     #endregion
 
+    #region 39781
+
+    [Fact]
+    public virtual async Task Include_json_complex_collection_with_null_element()
+    {
+        var contextFactory = await InitializeContext39781();
+        await using var context = contextFactory.CreateDbContext();
+
+        var calendar = await context.Set<Context39781.Calendar>().SingleAsync(x => x.Id == 1);
+
+        Assert.Collection(
+            calendar.Holidays,
+            h => Assert.Equal("New Year", h!.Name),
+            h => Assert.Null(h),
+            h => Assert.Equal("Christmas", h!.Name));
+    }
+
+    [Fact]
+    public virtual async Task Include_json_complex_collection_with_null_element_no_tracking()
+    {
+        var contextFactory = await InitializeContext39781();
+        await using var context = contextFactory.CreateDbContext();
+
+        var calendar = await context.Set<Context39781.Calendar>().AsNoTracking().SingleAsync(x => x.Id == 1);
+
+        Assert.Collection(
+            calendar.Holidays,
+            h => Assert.Equal("New Year", h!.Name),
+            h => Assert.Null(h),
+            h => Assert.Equal("Christmas", h!.Name));
+    }
+
+    [Fact]
+    public virtual async Task Include_json_complex_collection_with_consecutive_null_elements()
+    {
+        var contextFactory = await InitializeContext39781();
+        await using var context = contextFactory.CreateDbContext();
+
+        var calendar = await context.Set<Context39781.Calendar>().SingleAsync(x => x.Id == 2);
+
+        // Each null owns an ordinal, so the two of them must not collapse into one element.
+        Assert.Collection(
+            calendar.Holidays,
+            h => Assert.Null(h),
+            h => Assert.Null(h),
+            h => Assert.Equal("Easter", h!.Name));
+    }
+
+    [Fact]
+    public virtual async Task Materialize_json_complex_collection_with_null_element()
+    {
+        var contextFactory = await InitializeContext39781();
+        await using var context = contextFactory.CreateDbContext();
+
+        var holidays = await context.Set<Context39781.Calendar>()
+            .Where(x => x.Id == 1)
+            .Select(x => x.Holidays)
+            .SingleAsync();
+
+        Assert.Collection(
+            holidays,
+            h => Assert.Equal("New Year", h!.Name),
+            h => Assert.Null(h),
+            h => Assert.Equal("Christmas", h!.Name));
+    }
+
+    [Fact]
+    public virtual async Task Materialize_json_complex_collection_with_only_null_elements()
+    {
+        var contextFactory = await InitializeContext39781();
+        await using var context = contextFactory.CreateDbContext();
+
+        var holidays = await context.Set<Context39781.Calendar>()
+            .Where(x => x.Id == 3)
+            .Select(x => x.Holidays)
+            .SingleAsync();
+
+        Assert.Collection(holidays, h => Assert.Null(h));
+    }
+
+    [Fact]
+    public virtual async Task Include_nested_json_complex_collection_with_null_element()
+    {
+        var contextFactory = await InitializeContext39781();
+        await using var context = contextFactory.CreateDbContext();
+
+        var planner = await context.Set<Context39781.Planner>().SingleAsync(x => x.Id == 1);
+
+        Assert.Equal("me", planner.Details.Owner);
+        Assert.Collection(
+            planner.Details.Holidays,
+            h => Assert.Equal("New Year", h!.Name),
+            h => Assert.Null(h));
+    }
+
+    [Fact]
+    public virtual async Task Save_and_materialize_json_complex_collection_with_null_element()
+    {
+        var contextFactory = await InitializeContext39781();
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Add(
+                new Context39781.Calendar { Id = 4, Holidays = [new Context39781.Holiday { Name = "Midsummer" }, null] });
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var calendar = await context.Set<Context39781.Calendar>().SingleAsync(x => x.Id == 4);
+
+            Assert.Collection(
+                calendar.Holidays,
+                h => Assert.Equal("Midsummer", h!.Name),
+                h => Assert.Null(h));
+        }
+    }
+
+    private Task<ContextFactory<Context39781>> InitializeContext39781()
+        => InitializeNonSharedTest<Context39781>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m =>
+            {
+                m.Entity<Context39781.Calendar>(b =>
+                {
+                    b.ToTable("Calendars");
+                    b.Property(x => x.Id).ValueGeneratedNever();
+                    b.ComplexCollection(x => x.Holidays, c => c.ToJson());
+                });
+                m.Entity<Context39781.Planner>(b =>
+                {
+                    b.ToTable("Planners");
+                    b.Property(x => x.Id).ValueGeneratedNever();
+                    b.ComplexProperty(x => x.Details, c => c.ToJson());
+                });
+            },
+            seed: async context =>
+            {
+                var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+
+                await context.Database.ExecuteSqlRawAsync(
+                    $$$"""
+                       INSERT INTO {{{Q("Calendars")}}} ({{{Q("Id")}}}, {{{Q("Holidays")}}}) VALUES
+                       (1, '[{{"Name":"New Year"}},null,{{"Name":"Christmas"}}]'),
+                       (2, '[null,null,{{"Name":"Easter"}}]'),
+                       (3, '[null]')
+                       """);
+
+                await context.Database.ExecuteSqlRawAsync(
+                    $$$"""
+                       INSERT INTO {{{Q("Planners")}}} ({{{Q("Id")}}}, {{{Q("Details")}}}) VALUES
+                       (1, '{{"Owner":"me","Holidays":[{{"Name":"New Year"}},null]}}')
+                       """);
+
+                string Q(string name)
+                    => sqlGenerationHelper.DelimitIdentifier(name);
+            });
+
+    protected class Context39781(DbContextOptions options) : DbContext(options)
+    {
+        public class Calendar
+        {
+            public int Id { get; set; }
+            public List<Holiday?> Holidays { get; set; } = [];
+        }
+
+        public class Planner
+        {
+            public int Id { get; set; }
+            public PlannerDetails Details { get; set; } = null!;
+        }
+
+        public class PlannerDetails
+        {
+            public string? Owner { get; set; }
+            public List<Holiday?> Holidays { get; set; } = [];
+        }
+
+        public class Holiday
+        {
+            public string? Name { get; set; }
+        }
+    }
+
+    #endregion
+
     #endregion
 }

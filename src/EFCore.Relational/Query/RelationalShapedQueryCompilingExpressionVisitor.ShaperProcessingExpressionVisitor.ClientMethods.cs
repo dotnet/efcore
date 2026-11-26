@@ -1186,10 +1186,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
                 else if (tokenType == JsonTokenType.Null)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.JsonEntityCollectionNullElement(
-                            structuralProperty.DeclaringType.DisplayName(),
-                            structuralProperty.Name));
+                    AddNullCollectionElement<TEntity>(result!, structuralProperty);
+
+                    tokenType = manager.MoveNext();
                 }
                 else
                 {
@@ -1326,10 +1325,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
                 else if (tokenType == JsonTokenType.Null)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.JsonEntityCollectionNullElement(
-                            structuralProperty.DeclaringType.DisplayName(),
-                            structuralProperty.Name));
+                    AddNullCollectionElement<TIncludedCollectionElement>(
+                        structuralProperty.GetCollectionAccessor()!.GetOrCreate(entity, forMaterialization: true),
+                        structuralProperty);
+
+                    tokenType = manager.MoveNext();
                 }
                 else
                 {
@@ -1373,6 +1373,23 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 await taskFactories[i]().ConfigureAwait(false);
             }
+        }
+
+        // A complex collection keeps a null element, as a primitive collection does; EF never allowed one in a collection navigation.
+        // The element doesn't go through the collection accessor, which skips a value the collection already contains: consecutive
+        // nulls would collapse into one and shift the ordinals after them. See #39781.
+        private static void AddNullCollectionElement<TElement>(object collection, IPropertyBase structuralProperty)
+            where TElement : class
+        {
+            if (structuralProperty is not IComplexProperty)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityCollectionNullElement(
+                        structuralProperty.DeclaringType.DisplayName(),
+                        structuralProperty.Name));
+            }
+
+            ((ICollection<TElement>)collection).Add(null!);
         }
 
         private static bool CompareIdentifiers(IReadOnlyList<Func<object, object, bool>> valueComparers, object[] left, object[] right)
