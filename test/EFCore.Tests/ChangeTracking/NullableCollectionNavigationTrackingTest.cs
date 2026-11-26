@@ -670,6 +670,45 @@ public class NullableCollectionNavigationTrackingTest
     }
 
     [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, true)]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, false)]
+    public void Assigning_a_populated_collection_to_a_notifying_nullable_collection_navigation_tracks_its_elements(
+        ChangeTrackingStrategy strategy,
+        bool startNull)
+    {
+        using var context = NotifyingContext.Create(strategy);
+        var tracked = new NotifyingChild { Id = 100 };
+        var parent = new NotifyingParent { Id = 1, Children = startNull ? null : [tracked] };
+        context.Attach(parent);
+        if (startNull)
+        {
+            context.Attach(tracked);
+        }
+
+        // The keys are generated, so these are tracked as new
+        var child = new NotifyingChild();
+        parent.Children = [tracked, child];
+
+        Assert.Equal(EntityState.Added, context.Entry(child).State);
+        Assert.Equal(startNull ? EntityState.Modified : EntityState.Unchanged, context.Entry(tracked).State);
+        Assert.Equal(1, context.Entry(child).Property<int?>("NotifyingParentId").CurrentValue);
+        Assert.Equal(1, context.Entry(tracked).Property<int?>("NotifyingParentId").CurrentValue);
+        // Without original values, any assignment marks the navigation as modified
+        Assert.Equal(
+            startNull || strategy == ChangeTrackingStrategy.ChangingAndChangedNotifications,
+            IsChildrenModified(context, parent));
+
+        // Adding to the assigned collection is also tracked
+        var another = new NotifyingChild();
+        parent.Children!.Add(another);
+        Assert.Equal(EntityState.Added, context.Entry(another).State);
+    }
+
+    [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]

@@ -101,6 +101,21 @@ public class ChangeDetector : IChangeDetector
                     }
                 }
 
+                // Without a relationship snapshot nothing else finds the elements of a collection that is assigned to the
+                // navigation, as it is when changing from null. Elements that are already tracked are unaffected.
+                if (setModified
+                    && entry.EntityState is not (EntityState.Detached or EntityState.Deleted)
+                    && entry is InternalEntityEntry assignedCollectionEntry
+                    && assignedCollectionEntry[nullableCollection] is IEnumerable assignedCollection)
+                {
+                    var added = assignedCollection.Cast<object>().Where(e => e != null).ToList();
+                    if (added.Count > 0)
+                    {
+                        assignedCollectionEntry.StateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(
+                            assignedCollectionEntry, nullableCollection, added, []);
+                    }
+                }
+
                 break;
         }
     }
