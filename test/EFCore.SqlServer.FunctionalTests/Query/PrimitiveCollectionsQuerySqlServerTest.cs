@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Xunit.Sdk;
 using static System.Linq.Expressions.Expression;
@@ -2905,6 +2906,411 @@ WHERE (
     FROM (VALUES (CAST(11 AS int)), (111)) AS [v]([Value])
     INNER JOIN OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i] ON [v].[Value] = [i].[value]) = 2
 """);
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains()
+    {
+        await base.Concat_of_column_collections_then_Contains();
+
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 10) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE 10 IN (
+    SELECT [i].[value]
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+)
+""");
+        }
+    }
+
+    public override async Task Union_of_column_collections_then_Contains()
+    {
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            // The json data type isn't comparable, so it can't be used with UNION or DISTINCT (UNION ALL is fine)
+            await Assert.ThrowsAsync<SqlException>(() => base.Union_of_column_collections_then_Contains());
+
+            AssertSql(
+                """
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 10) = 1
+""");
+        }
+        else
+        {
+            await base.Union_of_column_collections_then_Contains();
+
+            AssertSql(
+                """
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE 10 IN (
+    SELECT [i].[value]
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+)
+""");
+        }
+    }
+
+    public override async Task Concat_of_anonymous_types_with_column_collection_then_Contains()
+    {
+        await base.Concat_of_anonymous_types_with_column_collection_then_Contains();
+
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [u].[Id], [u].[Ints]
+FROM (
+    SELECT [p].[Id], [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Id], [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 10) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [u].[Id], [u].[Ints]
+FROM (
+    SELECT [p].[Id], [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Id], [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE 10 IN (
+    SELECT [i].[value]
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+)
+""");
+        }
+    }
+
+    public override async Task Concat_of_column_collections_then_Where_Count()
+    {
+        await base.Concat_of_column_collections_then_Where_Count();
+
+        AssertSql(
+            """
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > 10) = 2
+""");
+    }
+
+    public override async Task Concat_of_string_column_collections_then_Contains()
+    {
+        await base.Concat_of_string_column_collections_then_Contains();
+
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [u].[Strings]
+FROM (
+    SELECT [p].[Strings]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Strings]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Strings], N'10') = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [u].[Strings]
+FROM (
+    SELECT [p].[Strings]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Strings]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE N'10' IN (
+    SELECT [s].[value]
+    FROM OPENJSON([u].[Strings]) WITH ([value] nvarchar(max) '$') AS [s]
+)
+""");
+        }
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains_parameter()
+    {
+        await base.Concat_of_column_collections_then_Contains_parameter();
+
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@value='10'
+
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], @value) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@value='10'
+
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE @value IN (
+    SELECT [i].[value]
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+)
+""");
+        }
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains_then_Select_Count()
+    {
+        await base.Concat_of_column_collections_then_Contains_then_Select_Count();
+
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT (
+    SELECT COUNT(*)
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > 1)
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 10) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT (
+    SELECT COUNT(*)
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i0]
+    WHERE [i0].[value] > 1)
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE 10 IN (
+    SELECT [i].[value]
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+)
+""");
+        }
+    }
+
+    public override async Task Distinct_of_column_collection_then_Contains()
+    {
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            // The json data type isn't comparable, so it can't be used with UNION or DISTINCT (UNION ALL is fine)
+            await Assert.ThrowsAsync<SqlException>(() => base.Distinct_of_column_collection_then_Contains());
+
+            AssertSql(
+                """
+SELECT DISTINCT [p].[Ints]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_CONTAINS([p].[Ints], 10) = 1
+""");
+        }
+        else
+        {
+            await base.Distinct_of_column_collection_then_Contains();
+
+            AssertSql(
+                """
+SELECT DISTINCT [p].[Ints]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE 10 IN (
+    SELECT [i].[value]
+    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+)
+""");
+        }
+    }
+
+    public override async Task Concat_of_column_collections_then_Select_Contains_with_client_argument()
+    {
+        await base.Concat_of_column_collections_then_Select_Contains_with_client_argument();
+
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT ~CAST(JSON_CONTAINS([u].[Ints], 10) ^ 1 AS bit)
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT CASE
+    WHEN 10 IN (
+        SELECT [i].[value]
+        FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+    ) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+""");
+        }
+    }
+
+    public override async Task Concat_of_List_column_collections_then_Contains()
+    {
+        await base.Concat_of_List_column_collections_then_Contains();
+
+        if (SqlServerTestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [u].[Ints]
+FROM (
+    SELECT [t].[Ints]
+    FROM [TestEntityWithList] AS [t]
+    UNION ALL
+    SELECT [t0].[Ints]
+    FROM [TestEntityWithList] AS [t0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 3) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [u].[Ints]
+FROM (
+    SELECT [t].[Ints]
+    FROM [TestEntityWithList] AS [t]
+    UNION ALL
+    SELECT [t0].[Ints]
+    FROM [TestEntityWithList] AS [t0]
+) AS [u]
+WHERE 3 IN (
+    SELECT [i].[value]
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+)
+""");
+        }
+    }
+
+    public override async Task Concat_of_column_collections_with_same_element_conversion_then_Contains()
+    {
+        await base.Concat_of_column_collections_with_same_element_conversion_then_Contains();
+
+        AssertSql(
+            """
+SELECT [u].[Ints]
+FROM (
+    SELECT [t].[Ints]
+    FROM [TestEntityWithConvertedInts] AS [t]
+    UNION ALL
+    SELECT [t0].[Ints]
+    FROM [TestEntityWithConvertedInts] AS [t0]
+) AS [u]
+WHERE N'10' IN (
+    SELECT [i].[value]
+    FROM OPENJSON([u].[Ints]) WITH ([value] nvarchar(64) '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Concat_of_column_collections_with_different_element_conversions_throws()
+    {
+        await base.Concat_of_column_collections_with_different_element_conversions_throws();
+
+        AssertSql();
     }
 
     public override async Task Parameter_collection_Concat_column_collection()

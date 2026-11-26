@@ -311,6 +311,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var translated = base.VisitMethodCall(methodCallExpression);
 
+        // AsQueryable over a primitive collection column that was projected out of a subquery, e.g. after a set operation (#33258).
+        // Unlike a property of an entity, it isn't bound by TranslateMemberAccess, so translate the column as a collection here.
+        if (translated == QueryCompilationContext.NotTranslatedExpression
+            && method.IsGenericMethod
+            && method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+            && methodCallExpression.Arguments[0] is not MethodCallExpression // EF.Property etc. are handled by the base class
+            && _sqlTranslator.Visit(methodCallExpression.Arguments[0]) is ColumnExpression { TypeMapping.ElementTypeMapping: not null } column
+            && TranslatePrimitiveCollection(column, property: null, _sqlAliasManager.GenerateTableAlias(column.Name))
+            is { } columnCollection)
+        {
+            return columnCollection;
+        }
+
         // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
         // Server), we need to fall back to the previous IN translation.
         if (translated == QueryCompilationContext.NotTranslatedExpression
@@ -421,7 +434,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <param name="sqlExpression">The expression to try to translate as a primitive collection expression.</param>
     /// <param name="property">
     ///     If the primitive collection is a property, contains the <see cref="IProperty" /> for that property. Otherwise, the collection
-    ///     represents a parameter, and this contains <see langword="null" />.
+    ///     represents a parameter, or a collection column projected out of a subquery (for example by a set operation), and this
+    ///     contains <see langword="null" />. In the latter case, <paramref name="sqlExpression" /> is a column with a type mapping that has
+    ///     an <see cref="CoreTypeMapping.ElementTypeMapping" />, unlike for a parameter, whose element type mapping is inferred later.
     /// </param>
     /// <param name="tableAlias">
     ///     Provides an alias to be used for the table returned from translation, which will represent the collection.

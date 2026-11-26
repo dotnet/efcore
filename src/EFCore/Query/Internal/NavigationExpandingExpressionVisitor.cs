@@ -849,6 +849,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         navigationTreeExpression);
                 }
 
+                if (IsProjectedPrimitiveCollection(firstArgument, out var projectedElementType))
+                {
+                    // The collection was projected out of a subquery (e.g. by a set operation), which loses the
+                    // PrimitiveCollectionReference that would otherwise keep the collection queryable, so preserve the AsQueryable (#33258).
+                    return Expression.Call(
+                        QueryableMethods.AsQueryable.MakeGenericMethod(projectedElementType),
+                        firstArgument);
+                }
+
                 return UnwrapCollectionMaterialization(firstArgument);
             }
 
@@ -1559,6 +1568,27 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
         // TODO: Improve this exception message
         throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionSelector.Print()));
+    }
+
+    // An array or IList of non-entity elements that is either the element of a projection, or a member of an element that was
+    // projected into an anonymous type. Entity collections are excluded; they're navigations, not primitive collections.
+    private bool IsProjectedPrimitiveCollection(Expression expression, out Type elementType)
+    {
+        elementType = null!;
+
+        if (expression is not (NavigationTreeExpression { Value.NodeType: ExpressionType.Default }
+            or MemberExpression { Expression: NavigationTreeExpression { Value.NodeType: ExpressionType.New or ExpressionType.Default } })
+            || expression.Type == typeof(byte[])
+            || expression.Type.TryGetElementType(typeof(IQueryable<>)) != null
+            || expression.Type.TryGetElementType(typeof(IEnumerable<>)) is not { } candidate
+            || !(expression.Type.IsArray || typeof(IList<>).MakeGenericType(candidate).IsAssignableFrom(expression.Type))
+            || _queryCompilationContext.Model.FindEntityType(candidate) != null)
+        {
+            return false;
+        }
+
+        elementType = candidate;
+        return true;
     }
 
     private NavigationExpansionExpression ProcessSetOperation(

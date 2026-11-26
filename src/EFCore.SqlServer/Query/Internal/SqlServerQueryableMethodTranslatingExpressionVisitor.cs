@@ -724,7 +724,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             && (
                 translatedItem is ColumnExpression { IsNullable: false } or SqlConstantExpression { Value: not null }
                 || !translatedItem.Type.IsNullableType()
-                || (json.Type.GetSequenceType() is var elementClrType && !elementClrType.IsNullableType())))
+                || (json.Type.GetSequenceType() is var elementClrType && !elementClrType.IsNullableType()))
+            // JSON_CONTAINS() compares the item with the elements as they're stored in the JSON, so the item must be sent in the same
+            // representation. If the elements have a value converter that changes it (e.g. int converted to string), the item would
+            // have to be converted too; use the OPENJSON translation instead, which applies the element mapping to the item.
+            && IsStoredLikeItem(json.TypeMapping!.ElementTypeMapping as RelationalTypeMapping, translatedItem))
         {
             // JSON_CONTAINS returns 1 if found, 0 if not found. It's a search condition expression.
             var jsonContains = _sqlExpressionFactory.Equal(
@@ -747,6 +751,22 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         }
 
         return base.TranslateContains(source, item);
+    }
+
+    private bool IsStoredLikeItem(RelationalTypeMapping? elementTypeMapping, SqlExpression item)
+    {
+        if (elementTypeMapping is null)
+        {
+            return true;
+        }
+
+        var itemTypeMapping = item.TypeMapping ?? _typeMappingSource.FindMapping(item.Type);
+
+        return itemTypeMapping is null
+            || GetStoredClrType(elementTypeMapping) == GetStoredClrType(itemTypeMapping);
+
+        static Type GetStoredClrType(RelationalTypeMapping typeMapping)
+            => (typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType).UnwrapNullableType();
     }
 
     /// <summary>

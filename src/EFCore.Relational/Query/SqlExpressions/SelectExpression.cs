@@ -2399,6 +2399,19 @@ public sealed partial class SelectExpression : TableExpressionBase
             var innerColumn1 = (SqlExpression)expression1;
             var innerColumn2 = (SqlExpression)expression2;
 
+            // The result takes its type mapping from the first operand, so primitive collections whose elements are stored differently
+            // (e.g. one with a value converter and one without) would be read, and queried over, using the wrong element mapping (#33258).
+            if (innerColumn1.TypeMapping?.ElementTypeMapping is RelationalTypeMapping elementTypeMapping1
+                && innerColumn2.TypeMapping?.ElementTypeMapping is RelationalTypeMapping elementTypeMapping2
+                && (elementTypeMapping1.StoreType != elementTypeMapping2.StoreType
+                    || (elementTypeMapping1.Converter?.ProviderClrType ?? elementTypeMapping1.ClrType)
+                    != (elementTypeMapping2.Converter?.ProviderClrType ?? elementTypeMapping2.ClrType)))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.SetOperationOverCollectionsWithIncompatibleElementMappings(
+                        elementTypeMapping1.StoreType, elementTypeMapping2.StoreType));
+            }
+
             var projectionAlias = GenerateUniqueColumnAlias(
                 GetProjectionAlias(projectionMember)
                 ?? (innerColumn1 as ColumnExpression)?.Name

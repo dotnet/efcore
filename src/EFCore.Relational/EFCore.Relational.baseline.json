@@ -15985,6 +15985,9 @@
           "Member": "static string SelectExpressionNonTphWithCustomTable(object? entityType);"
         },
         {
+          "Member": "static string SetOperationOverCollectionsWithIncompatibleElementMappings(object? storeType1, object? storeType2);"
+        },
+        {
           "Member": "static string SetOperationOverDifferentStructuralTypes(object? type1, object? type2);"
         },
         {

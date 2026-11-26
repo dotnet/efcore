@@ -11,6 +11,67 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         DbContextOptionsBuilder optionsBuilder,
         ParameterTranslationMode parameterizedCollectionMode);
 
+    [Fact] // #33258
+    public virtual async Task Concat_of_column_collections_with_same_element_conversion_then_Contains()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntityWithConvertedInts>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.PrimitiveCollection(e => e.Ints).ElementType().HasConversion<string>();
+            }),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntityWithConvertedInts { Id = 1, Ints = [1, 10] },
+                    new TestEntityWithConvertedInts { Id = 2, Ints = [2, 20] });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Set<TestEntityWithConvertedInts>().Select(e => e.Ints)
+            .Concat(context.Set<TestEntityWithConvertedInts>().Select(e => e.Ints))
+            .Where(x => x.Contains(10))
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.All(results, r => Assert.Equal([1, 10], r));
+    }
+
+    [Fact] // #33258
+    public virtual async Task Concat_of_column_collections_with_different_element_conversions_throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<TestEntity>().Property(e => e.Id).ValueGeneratedNever();
+                mb.Entity<TestEntityWithConvertedInts>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.PrimitiveCollection(e => e.Ints).ElementType().HasConversion<string>();
+                });
+            },
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1, Ints = [1] },
+                    new TestEntityWithConvertedInts { Id = 1, Ints = [1] });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        // The two collections are stored differently ([1] and ["1"]), so the set operation result has no single element mapping.
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<TestEntity>().Select(e => e.Ints!)
+                .Concat(context.Set<TestEntityWithConvertedInts>().Select(e => e.Ints))
+                .Where(x => x.Contains(1))
+                .ToListAsync());
+
+        Assert.Contains("aren't compatible", exception.Message);
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_collection_with_identity_select_split_query(bool async)
         => AssertQuery(
