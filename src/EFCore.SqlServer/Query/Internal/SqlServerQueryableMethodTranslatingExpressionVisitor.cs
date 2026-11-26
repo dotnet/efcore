@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
 {
+    private static readonly bool UseOldBehavior39625 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39625", out var enabled) && enabled;
+
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -631,7 +634,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     // JSON_CONTAINS() is only supported over json, not nvarchar
                     Json: { TypeMapping: SqlServerJsonTypeMapping } json,
                     Path: null,
-                    ColumnInfos: [{ Name: "value" }]
+                    ColumnInfos: [{ Name: "value" } columnInfo]
                 }
                 ],
                 Predicate: null,
@@ -654,6 +657,25 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 || !translatedItem.Type.IsNullableType()
                 || (json.Type.GetSequenceType() is var elementClrType && !elementClrType.IsNullableType())))
         {
+            if (!UseOldBehavior39625)
+            {
+                // JSON_CONTAINS only accepts numeric, character and bit SQL values, and the item must use the same
+                // representation as the collection elements.
+                if (columnInfo.TypeMapping is not { Converter: null } elementTypeMapping
+                    || _sqlExpressionFactory.ApplyDefaultTypeMapping(translatedItem) is not
+                    {
+                        TypeMapping.StoreTypeNameBase: "bigint" or "int" or "smallint" or "tinyint" or "decimal" or "numeric"
+                            or "float" or "real" or "money" or "smallmoney" or "bit" or "char" or "varchar" or "nchar" or "nvarchar"
+                    } mappedItem
+                    || !string.Equals(
+                        mappedItem.TypeMapping!.StoreTypeNameBase, elementTypeMapping.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase))
+                {
+                    return base.TranslateContains(source, item);
+                }
+
+                translatedItem = mappedItem;
+            }
+
             // JSON_CONTAINS returns 1 if found, 0 if not found. It's a search condition expression.
             var jsonContains = _sqlExpressionFactory.Equal(
                 _sqlExpressionFactory.Function(

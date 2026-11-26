@@ -19,3 +19,4 @@ user-invocable: false
 - `ToQueryString()` shows generated SQL without executing
 - `ExpressionPrinter` dumps expression trees at any pipeline stage
 - SQL baselines verified via `AssertSql()` in provider functional tests and the generated SQL corresponds to the LINQ query in the base method
+- SQL Server `JSON_CONTAINS` requires a numeric, character, or bit search value; fall back to `OPENJSON` for other SQL types or converted collection elements.

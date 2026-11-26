@@ -1924,6 +1924,65 @@ WHERE [t].[Ints] = @ints
 """);
     }
 
+    public override async Task Column_collections_Contains_with_non_json_scalar_types(bool async)
+    {
+        await base.Column_collections_Contains_with_non_json_scalar_types(async);
+
+        AssertSql(
+            """
+@id='12345678-1234-1234-1234-123456789abc'
+
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE @id IN (
+    SELECT [g].[value]
+    FROM OPENJSON([c].[Guids]) WITH ([value] uniqueidentifier '$') AS [g]
+)
+""",
+            //
+            """
+@date='2026-01-02T12:30:00.0000000'
+
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE @date IN (
+    SELECT [d].[value]
+    FROM OPENJSON([c].[Dates]) WITH ([value] datetime2 '$') AS [d]
+)
+""",
+            //
+            """
+@id='12345678-1234-1234-1234-123456789abc'
+
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE @id IN (
+    SELECT [g].[value]
+    FROM OPENJSON(JSON_QUERY([c].[Owned], '$.Guids')) WITH ([value] uniqueidentifier '$') AS [g]
+)
+""",
+            //
+            """
+@date='2026-01-02T12:30:00.0000000'
+
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE @date IN (
+    SELECT [d].[value]
+    FROM OPENJSON(JSON_QUERY([c].[Owned], '$.Dates')) WITH ([value] datetime2 '$') AS [d]
+)
+""",
+            //
+            """
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE N'42' IN (
+    SELECT [c0].[value]
+    FROM OPENJSON([c].[ConvertedInts]) WITH ([value] nvarchar(64) '$') AS [c0]
+)
+""");
+    }
+
     public override async Task Column_collection_inside_json_owned_entity()
     {
         await base.Column_collection_inside_json_owned_entity();
