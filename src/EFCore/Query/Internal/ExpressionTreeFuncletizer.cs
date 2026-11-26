@@ -1132,6 +1132,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             }
 
             // Revisit with the updated _evaluatableParameters.
+            StateArrayPool.Return(argumentStates);
             state = objectState.StateType;
             arguments = Visit(methodCall.Arguments, ref state, out argumentStates);
         }
@@ -1212,6 +1213,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             default:
                 throw new UnreachableException();
         }
+
+        StateArrayPool.Return(argumentStates);
 
         var finalArguments = ((IReadOnlyList<Expression>?)arguments) ?? methodCall.Arguments;
 
