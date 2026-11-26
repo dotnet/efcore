@@ -268,39 +268,30 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     /// </summary>
     protected override void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
     {
-        if (((IRuntimeEntityType)EntityType).NullableCollectionCount > 0)
+        if (StructuralType.NullableCollectionCount > 0)
         {
             if (newState == EntityState.Modified
                 && modifyProperties)
             {
                 // Like all properties, the null-ness of nullable collection navigations is saved when the state is set to Modified.
-                foreach (var navigation in EntityType.GetNavigations())
-                {
-                    if (navigation is { IsCollection: true, IsNullable: true })
-                    {
-                        PropertyStateData.FlagProperty(navigation.GetIndex(), PropertyFlag.NavigationModified, isFlagged: true);
-                    }
-                }
+                FlagNullableCollections(isModified: true);
             }
-            else if (newState == EntityState.Unchanged
-                     && oldState != newState
-                     && !acceptChanges)
+            else if (oldState != newState)
             {
-                // Rejecting the changes of a collection navigation would mean restoring the old collection and the state of
-                // everything in it, so, instead, the current null-ness is taken as the one that is already saved. Otherwise, it
-                // would be detected as a change again.
-                ResetNullableCollectionBaselines();
-            }
-            else if (newState == EntityState.Added
-                     && oldState != newState)
-            {
-                // All values are written for an Added entity, so there is nothing to track.
-                foreach (var navigation in EntityType.GetNavigations())
+                switch (newState)
                 {
-                    if (navigation is { IsCollection: true, IsNullable: true })
-                    {
-                        PropertyStateData.FlagProperty(navigation.GetIndex(), PropertyFlag.NavigationModified, isFlagged: false);
-                    }
+                    case EntityState.Added:
+                        // All values are written for an Added entity, so there is nothing to track.
+                        FlagNullableCollections(isModified: false);
+                        break;
+                    case EntityState.Unchanged when oldState == EntityState.Added:
+                        // Like for properties, the current values become the ones that are saved.
+                        AcceptNullableCollections();
+                        break;
+                    case EntityState.Unchanged when oldState == EntityState.Modified && !acceptChanges:
+                        // Like for properties, the changes are rejected by restoring the original values.
+                        RejectNullableCollections();
+                        break;
                 }
             }
         }
@@ -308,16 +299,49 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
         base.SetEntityState(oldState, newState, acceptChanges, modifyProperties);
     }
 
-    private void ResetNullableCollectionBaselines()
+    private void FlagNullableCollections(bool isModified)
     {
         foreach (var navigation in EntityType.GetNavigations())
         {
-            if (navigation is { IsCollection: true, IsNullable: true }
-                && navigation.GetOriginalValueIndex() >= 0
-                && PropertyStateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.NavigationModified))
+            if (navigation.IsNullable)
+            {
+                PropertyStateData.FlagProperty(navigation.GetIndex(), PropertyFlag.NavigationModified, isModified);
+            }
+        }
+    }
+
+    private void AcceptNullableCollections()
+    {
+        foreach (var navigation in EntityType.GetNavigations())
+        {
+            if (navigation.IsNullable
+                && navigation.GetOriginalValueIndex() >= 0)
             {
                 SetOriginalValue(navigation, this[navigation], skipChangeDetection: true);
             }
+        }
+    }
+
+    private void RejectNullableCollections()
+    {
+        foreach (var navigation in EntityType.GetNavigations())
+        {
+            if (navigation.IsNullable
+                && navigation.GetOriginalValueIndex() >= 0)
+            {
+                RevertCollectionNullness(navigation);
+            }
+        }
+    }
+
+    // Replacing a collection with another one is not a change that is tracked, so only a change between null and a non-null
+    // collection is reverted. Any change to the elements of the collection is found by change detection as usual.
+    private void RevertCollectionNullness(INavigation navigation)
+    {
+        var originalValue = GetOriginalValue(navigation);
+        if ((originalValue == null) != (this[navigation] == null))
+        {
+            SetProperty(navigation, originalValue, isMaterialization: false, setModified: false);
         }
     }
 
@@ -1158,14 +1182,8 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
             }
             else
             {
-                // Like for properties, the change is reverted by restoring the original value. Any change to the elements of the
-                // collection is found by change detection as usual. Replacing a collection with another one is not a change that is
-                // tracked, so it is not reverted.
-                var originalValue = GetOriginalValue(navigation);
-                if ((originalValue == null) != (this[navigation] == null))
-                {
-                    SetProperty(navigation, originalValue, isMaterialization: false, setModified: false);
-                }
+                // Like for properties, the change is reverted by restoring the original value
+                RevertCollectionNullness(navigation);
             }
         }
 

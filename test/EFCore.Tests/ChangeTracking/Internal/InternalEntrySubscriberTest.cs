@@ -780,6 +780,9 @@ public class InternalEntrySubscriberTest
 
         public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty)
             => throw new NotImplementedException();
+
+        public bool DetectCollectionNullnessChange(InternalEntityEntry entry, INavigation navigation)
+            => false;
     }
 
     private class TestNavigationListener : INavigationFixer

@@ -324,6 +324,9 @@ public partial class DbContextTest
 
         public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty)
             => throw new NotImplementedException();
+
+        public bool DetectCollectionNullnessChange(InternalEntityEntry entry, INavigation navigation)
+            => false;
     }
 
     [Theory, InlineData(false), InlineData(true)]

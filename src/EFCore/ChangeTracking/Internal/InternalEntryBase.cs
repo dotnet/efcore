@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -594,7 +595,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
                  && changeState
                  && !isModified
                  && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified)
-                 && !_stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified)
+                 && (StructuralType.NullableCollectionCount == 0 || !_stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified))
                  && StructuralType.GetFlattenedComplexProperties()
                      .All(p => !p.IsCollection || !_complexCollectionEntries[p.GetIndex()].IsModified()))
         {
@@ -700,7 +701,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         else if (currentState == EntityState.Modified
                  && !isModified
                  && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified)
-                 && !_stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified)
+                 && (StructuralType.NullableCollectionCount == 0 || !_stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified))
                  && StructuralType.GetFlattenedComplexProperties()
                      .All(p => !p.IsCollection || !_complexCollectionEntries[p.GetIndex()].IsModified()))
         {
@@ -1080,7 +1081,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         else if (propertyBase is INavigation { IsCollection: true, IsNullable: true } navigation
                  && this is InternalEntityEntry entityEntry)
         {
-            ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectCollectionNullnessChange(entityEntry, navigation);
+            ((IDbContextDependencies)StateManager.Context).ChangeDetector.DetectCollectionNullnessChange(entityEntry, navigation);
         }
     }
 
