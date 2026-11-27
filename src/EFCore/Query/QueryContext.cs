@@ -124,8 +124,9 @@ public abstract class QueryContext
 
         // An entity returned by a tracking query provably exists in the store, so an entry that is being tracked as
         // Added (e.g. a new entity whose key matches an existing row, possibly created during an Add graph traversal)
-        // must be corrected to Unchanged. Otherwise it would be re-inserted, causing a duplicate key. See #35762.
-        if (entry is { EntityState: EntityState.Added })
+        // must be corrected to Unchanged unless it replaces a deleted entry. Otherwise it would be re-inserted,
+        // causing a duplicate key. See #35762.
+        if (entry is { EntityState: EntityState.Added, SharedIdentityEntry: not { EntityState: EntityState.Deleted } })
         {
             entry.SetEntityState(EntityState.Unchanged);
         }

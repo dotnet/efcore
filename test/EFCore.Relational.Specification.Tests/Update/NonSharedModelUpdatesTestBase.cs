@@ -11,6 +11,116 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     protected override string NonSharedStoreName
         => "NonSharedModelUpdatesTestBase";
 
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #39596
+    public virtual async Task Optional_complex_properties_on_sibling_types_sharing_columns_can_be_set_to_null(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<SharedComplexBase>().HasDiscriminator<int>("Discriminator")
+                    .HasValue<SharedComplexA>(0)
+                    .HasValue<SharedComplexB>(1);
+                mb.Entity<SharedComplexBase>().Property(e => e.Id).ValueGeneratedNever();
+                mb.Entity<SharedComplexA>().ComplexProperty(e => e.Value, ConfigureValue);
+                mb.Entity<SharedComplexB>().ComplexProperty(e => e.Value, ConfigureValue);
+                mb.Entity<SingleComplexBase>().HasDiscriminator<int>("Discriminator").HasValue<SingleComplex>(0);
+                mb.Entity<SingleComplexBase>().Property(e => e.Id).ValueGeneratedNever();
+                mb.Entity<SingleComplex>().ComplexProperty(e => e.Value, ConfigureValue);
+                mb.Entity<PlainComplex>().Property(e => e.Id).ValueGeneratedNever();
+                mb.Entity<PlainComplex>().ComplexProperty(e => e.Value, ConfigureValue);
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.AddRange(
+                    new SharedComplexA { Id = 1, Value = new ComplexValue(1, 2, 3) },
+                    new SharedComplexB { Id = 2, Value = new ComplexValue(4, 5, 6) },
+                    new SharedComplexB { Id = 3, Value = new ComplexValue(7, 8, 9) },
+                    new SingleComplex { Id = 4, Value = new ComplexValue(1, 2, 3) },
+                    new PlainComplex { Id = 5, Value = new ComplexValue(1, 2, 3) });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                (await context.Set<SharedComplexA>().SingleAsync()).Value = null;
+                (await context.Set<SharedComplexB>().SingleAsync(e => e.Id == 2)).Value = null;
+                (await context.Set<SingleComplex>().SingleAsync()).Value = null;
+                (await context.Set<PlainComplex>().SingleAsync()).Value = null;
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var a = await context.Set<SharedComplexA>().SingleAsync();
+                Assert.Null(a.Value);
+                Assert.Null((await context.Set<SharedComplexB>().SingleAsync(e => e.Id == 2)).Value);
+                Assert.Equal(new ComplexValue(7, 8, 9), (await context.Set<SharedComplexB>().SingleAsync(e => e.Id == 3)).Value);
+                Assert.Null((await context.Set<SingleComplex>().SingleAsync()).Value);
+                Assert.Null((await context.Set<PlainComplex>().SingleAsync()).Value);
+
+                a.Value = new ComplexValue(10, 11, 12);
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+                Assert.Equal(new ComplexValue(10, 11, 12), (await context.Set<SharedComplexA>().SingleAsync()).Value));
+
+        static void ConfigureValue(ComplexPropertyBuilder<ComplexValue> builder)
+        {
+            builder.Property(e => e.Amount).HasColumnName("Amount").HasPrecision(18, 2);
+            builder.Property(e => e.Error).HasColumnName("Error").HasPrecision(18, 2);
+            builder.Property(e => e.Precision).HasColumnName("Precision");
+        }
+    }
+
+    private abstract class SharedComplexBase
+    {
+        public int Id { get; set; }
+    }
+
+    private sealed class SharedComplexA : SharedComplexBase
+    {
+        public ComplexValue? Value { get; set; }
+    }
+
+    private sealed class SharedComplexB : SharedComplexBase
+    {
+        public ComplexValue? Value { get; set; }
+    }
+
+    private abstract class SingleComplexBase
+    {
+        public int Id { get; set; }
+    }
+
+    private sealed class SingleComplex : SingleComplexBase
+    {
+        public ComplexValue? Value { get; set; }
+    }
+
+    private sealed class PlainComplex
+    {
+        public int Id { get; set; }
+        public ComplexValue? Value { get; set; }
+    }
+
+    private sealed record ComplexValue(decimal Amount, decimal Error, short Precision);
+
     [Theory, MemberData(nameof(IsAsyncData))] // Issue #29356
     public virtual async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
@@ -188,6 +298,194 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public string Id { get; set; } = "";
         public string? DisplayName { get; set; }
         public WorkItemGroup38917? Group { get; set; }
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #39617
+    public virtual async Task Replacing_owned_entity_preserves_on_add_values(bool async, bool changeFloor)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<Customer39617>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.OwnsOne(e => e.Address, a =>
+                {
+                    a.Property(e => e.Floor).HasDefaultValue(1);
+                    a.Property(e => e.NullableFloor).HasDefaultValue(1);
+                    a.Property(e => e.Note).ValueGeneratedOnAdd();
+                });
+            }));
+
+        var floor = changeFloor ? 4 : 3;
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new Customer39617
+                    {
+                        Id = 1,
+                        Address = new Address39617 { City = "Paris", Floor = 3, NullableFloor = 7, Note = "back door" }
+                    });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var customer = await context.Set<Customer39617>().SingleAsync();
+                customer.Address = new Address39617 { City = "Lyon", Floor = floor, NullableFloor = 7, Note = "back door" };
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                Assert.Equal(floor, customer.Address.Floor);
+                Assert.Equal(7, customer.Address.NullableFloor);
+                Assert.Equal("back door", customer.Address.Note);
+            },
+            async context =>
+            {
+                var customer = await context.Set<Customer39617>().SingleAsync();
+                Assert.Equal("Lyon", customer.Address.City);
+                Assert.Equal(floor, customer.Address.Floor);
+                Assert.Equal(7, customer.Address.NullableFloor);
+                Assert.Equal("back door", customer.Address.Note);
+            });
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #39617
+    public virtual async Task Readding_entity_with_same_key_preserves_on_add_values(bool async, bool changeQuantity)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<OrderLine39617>(b =>
+            {
+                b.HasKey(e => new { e.OrderId, e.ProductId });
+                b.Property(e => e.Quantity).HasDefaultValue(1);
+                b.Property(e => e.Note).HasDefaultValue("none");
+            }));
+
+        var quantity = changeQuantity ? 6 : 5;
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new OrderLine39617 { OrderId = 1, ProductId = 10, Quantity = 5, Note = "original" });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                context.Remove(await context.Set<OrderLine39617>().SingleAsync());
+                var line = new OrderLine39617 { OrderId = 1, ProductId = 10, Quantity = quantity, Note = "original" };
+                context.Add(line);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                Assert.Equal(quantity, line.Quantity);
+                Assert.Equal("original", line.Note);
+            },
+            async context =>
+            {
+                var line = await context.Set<OrderLine39617>().SingleAsync();
+                Assert.Equal(quantity, line.Quantity);
+                Assert.Equal("original", line.Note);
+            });
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #39617
+    public virtual async Task Replacing_owned_entity_preserves_modified_shared_column_value(bool async, bool setNull)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<SharedCustomer39617>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Note).HasColumnName("Note").HasDefaultValue("none");
+                b.OwnsOne(e => e.Address, a => a.Property(e => e.Note).HasColumnName("Note").HasDefaultValue("none"));
+            }));
+
+        var note = setNull ? null : "updated";
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new SharedCustomer39617
+                    {
+                        Id = 1,
+                        Note = "original",
+                        Address = new SharedAddress39617 { City = "Paris", Note = "original" }
+                    });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var customer = await context.Set<SharedCustomer39617>().SingleAsync();
+                customer.Note = note;
+                customer.Address = new SharedAddress39617 { City = "Lyon", Note = "original" };
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                Assert.Equal(note, customer.Note);
+                Assert.Equal(note, customer.Address.Note);
+            },
+            async context =>
+            {
+                var customer = await context.Set<SharedCustomer39617>().SingleAsync();
+                Assert.Equal("Lyon", customer.Address.City);
+                Assert.Equal(note, customer.Note);
+                Assert.Equal(note, customer.Address.Note);
+            });
+    }
+
+    private class Customer39617
+    {
+        public int Id { get; set; }
+        public Address39617 Address { get; set; } = null!;
+    }
+
+    private class Address39617
+    {
+        public string City { get; set; } = "";
+        public int Floor { get; set; }
+        public int? NullableFloor { get; set; }
+        public string? Note { get; set; }
+    }
+
+    private class OrderLine39617
+    {
+        public int OrderId { get; set; }
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
+        public string? Note { get; set; }
+    }
+
+    private class SharedCustomer39617
+    {
+        public int Id { get; set; }
+        public string? Note { get; set; }
+        public SharedAddress39617 Address { get; set; } = null!;
+    }
+
+    private class SharedAddress39617
+    {
+        public string City { get; set; } = "";
+        public string? Note { get; set; }
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]

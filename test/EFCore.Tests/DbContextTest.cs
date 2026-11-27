@@ -189,6 +189,52 @@ public partial class DbContextTest
     }
 
     [Fact]
+    public void SaveChanges_raises_SaveChangesFailed_when_DetectChanges_throws()
+    {
+        var loggerFactory = new ListLoggerFactory();
+
+        var provider =
+            InMemoryTestHelpers.Instance.CreateServiceProvider(
+                new ServiceCollection().AddSingleton<ILoggerFactory>(loggerFactory));
+
+        using var context = new ButTheHedgehogContext(provider);
+        var expected = new InvalidOperationException("DetectChanges failed");
+        context.ChangeTracker.DetectingAllChanges += (_, _) => throw expected;
+
+        Exception? reported = null;
+        context.SaveChangesFailed += (_, e) => reported = e.Exception;
+
+        var thrown = Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+
+        Assert.Same(expected, thrown);
+        Assert.Same(expected, reported);
+        Assert.Contains(CoreEventId.SaveChangesFailed, loggerFactory.Log.Select(l => l.Id));
+    }
+
+    [Fact]
+    public async Task SaveChangesAsync_raises_SaveChangesFailed_when_DetectChanges_throws()
+    {
+        var loggerFactory = new ListLoggerFactory();
+
+        var provider =
+            InMemoryTestHelpers.Instance.CreateServiceProvider(
+                new ServiceCollection().AddSingleton<ILoggerFactory>(loggerFactory));
+
+        using var context = new ButTheHedgehogContext(provider);
+        var expected = new InvalidOperationException("DetectChanges failed");
+        context.ChangeTracker.DetectingAllChanges += (_, _) => throw expected;
+
+        Exception? reported = null;
+        context.SaveChangesFailed += (_, e) => reported = e.Exception;
+
+        var thrown = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+
+        Assert.Same(expected, thrown);
+        Assert.Same(expected, reported);
+        Assert.Contains(CoreEventId.SaveChangesFailed, loggerFactory.Log.Select(l => l.Id));
+    }
+
+    [Fact]
     public void Entry_methods_check_arguments()
     {
         var services = new ServiceCollection()

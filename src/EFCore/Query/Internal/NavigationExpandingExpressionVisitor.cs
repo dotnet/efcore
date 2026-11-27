@@ -1746,12 +1746,27 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
+        // A distinct count over a navigation counts the null of a missing principal as a value in the correlated
+        // translation (COUNT(*) over SELECT DISTINCT), but not once lifted (COUNT(DISTINCT ...)), so keep it there.
+        // This includes the navigation itself (o.Customer, whose Distinct the lifted translation would drop),
+        // EF.Property over it and a navigation reached through a cast (((Derived)o).Navigation.Value).
+        foreach (var aggregate in scanner.Aggregates)
+        {
+            if (aggregate.Chain.Any(c => c.Method.Name == nameof(Enumerable.Distinct))
+                && aggregate.ElementLambdas.Any(
+                    lambda => lambda != null
+                        && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, lambda), includeNavigationValues: true)))
+            {
+                return null;
+            }
+        }
+
         // Flat-aggregate queries keep the existing translation unchanged.
         var traversesNavigation = false;
         foreach (var aggregate in scanner.Aggregates)
         {
-            if (aggregate.Selector != null
-                && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, aggregate.Selector)))
+            if (aggregate.ElementLambdas.Any(
+                    lambda => lambda != null && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, lambda))))
             {
                 traversesNavigation = true;
                 break;
@@ -1767,7 +1782,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // element shape), then generate all lambdas over the final parameter. Re-expanding the key
         // selector is idempotent with respect to joins already applied by ProcessGroupBy.
         var keyBody = ExpandNavigationsForSource(parent, RemapLambdaExpression(parent, originalKeySelector));
-        var aggregateBodies = new Expression?[scanner.Aggregates.Count];
+        var aggregateBodies = new Expression?[scanner.Aggregates.Count][];
 
         // Guard bodies are generated into lambdas below, with the selectors, once every expansion has been
         // applied: each join widens the parent's element shape, so a lambda built here would bind to a
@@ -1785,24 +1800,30 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // since grouping by a filtered principal's column has always removed those rows.
         for (var i = 0; i < scanner.Aggregates.Count; i++)
         {
-            var aggregateSelector = scanner.Aggregates[i].Selector;
-            if (aggregateSelector == null)
-            {
-                continue;
-            }
+            var elementLambdas = scanner.Aggregates[i].ElementLambdas;
+            var bodies = aggregateBodies[i] = new Expression?[elementLambdas.Count];
 
             relaxation.Recorded.Clear();
-            aggregateBodies[i] = ExpandNavigationsForSource(
-                parent, RemapLambdaExpression(parent, aggregateSelector), relaxation);
+            for (var j = 0; j < elementLambdas.Count; j++)
+            {
+                if (elementLambdas[j] is { } elementLambda)
+                {
+                    bodies[j] = ExpandNavigationsForSource(parent, RemapLambdaExpression(parent, elementLambda), relaxation);
+                }
+            }
+
             var relaxedPrincipals = relaxation.Recorded.ToList();
 
             // The row an outer join keeps for a filtered-out principal has to be kept away from the
             // aggregate, unless the aggregate cannot observe it anyway: a selector that only reads a column
             // off a relaxed principal reads null there, and every aggregate except All() folds a null away.
-            // All() counts the rows whose predicate is not true, and a null predicate is not true.
+            // All() counts the rows whose predicate is not true, and a null predicate is not true. An
+            // operator chain before the aggregate (Where, Select, Distinct) can observe the row, so it is
+            // always guarded.
             if (relaxedPrincipals.Count > 0
                 && (scanner.Aggregates[i].IsAll
-                    || !IsColumnReadOffPrincipal(aggregateBodies[i]!, relaxedPrincipals)))
+                    || scanner.Aggregates[i].Chain.Count > 0
+                    || !IsColumnReadOffPrincipal(bodies[^1]!, relaxedPrincipals)))
             {
                 aggregateGuardBodies[i] = BuildFilteredPrincipalGuard(relaxedPrincipals);
             }
@@ -1818,18 +1839,23 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var groupingParameter = Expression.Parameter(groupByCall.Type.GetSequenceType(), GetParameterName("g"));
         var originalElementType = selector.Parameters[0].Type.GetGenericArguments()[1];
 
+        // The aggregates are swapped into the result selector whole, so a g.Key read inside one of their lambdas
+        // (g.Where(o => o.Value == g.Key)) is bound to the new grouping here.
+        var keyRebinder = new LiftedResultSelectorRebinder(selector.Parameters[0], groupingParameter, []);
         var aggregateReplacements = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
         for (var i = 0; i < scanner.Aggregates.Count; i++)
         {
             var aggregate = scanner.Aggregates[i];
-            var newSelector = aggregateBodies[i] == null
-                ? null
-                : GenerateLambda(aggregateBodies[i]!, parent.CurrentParameter);
+            var newLambdas = aggregateBodies[i]
+                .Select(body => body == null
+                    ? null
+                    : (LambdaExpression)keyRebinder.Visit(GenerateLambda(body, parent.CurrentParameter)))
+                .ToList();
             var guard = aggregateGuardBodies[i] == null
                 ? null
                 : GenerateLambda(aggregateGuardBodies[i]!, parent.CurrentParameter);
             aggregateReplacements[aggregate.Call] = RebuildLiftedAggregate(
-                aggregate, groupingParameter, originalElementType, elementType, newSelector, guard);
+                aggregate, groupingParameter, originalElementType, elementType, newLambdas, guard);
         }
 
         var resultBody = new LiftedResultSelectorRebinder(selector.Parameters[0], groupingParameter, aggregateReplacements)
@@ -1908,17 +1934,48 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     /// <summary>
     ///     Detects member chains rooted at an entity navigation tree node whose first member is a
     ///     non-collection navigation — accesses that would otherwise translate as a correlated subquery.
+    ///     With <paramref name="includeNavigationValues" />, the navigation on its own (e.Navigation or
+    ///     EF.Property(e, "Navigation")) counts too, not only a member read through it, and so does a cast entity.
     /// </summary>
-    private static bool ContainsReferenceNavigationAccess(Expression body)
+    private static bool ContainsReferenceNavigationAccess(Expression body, bool includeNavigationValues = false)
     {
-        var detector = new ReferenceNavigationAccessDetector();
+        var detector = new ReferenceNavigationAccessDetector(includeNavigationValues);
         detector.Visit(body);
         return detector.Found;
     }
 
-    private sealed class ReferenceNavigationAccessDetector : ExpressionVisitor
+    private sealed class ReferenceNavigationAccessDetector(bool includeNavigationValues) : ExpressionVisitor
     {
         public bool Found { get; private set; }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (includeNavigationValues
+                && methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
+                && source.UnwrapTypeConversion(out _) is NavigationTreeExpression { Value: EntityReference entityReference }
+                && entityReference.EntityType.FindNavigation(propertyName) is { IsCollection: false })
+            {
+                Found = true;
+                return methodCallExpression;
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            // A navigation reached through a cast (((Derived)e).Navigation) may be declared on a derived type, which
+            // isn't resolved here, so an entity cast conservatively counts as a navigation too.
+            if (includeNavigationValues
+                && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                && unaryExpression.Operand is NavigationTreeExpression { Value: EntityReference })
+            {
+                Found = true;
+                return unaryExpression;
+            }
+
+            return base.VisitUnary(unaryExpression);
+        }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -1931,7 +1988,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             if (current is NavigationTreeExpression { Value: EntityReference entityReference }
-                && chain.Count > 1)
+                && (chain.Count > 1 || includeNavigationValues))
             {
                 var entityType = entityReference.EntityType;
 
@@ -1956,23 +2013,44 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
     }
 
+    /// <summary>
+    ///     An aggregate over the grouping, optionally applied after a chain of Where, Select and Distinct
+    ///     operators (e.g. g.Select(x => x.Value).Distinct().Count()).
+    /// </summary>
     private sealed record GroupingAggregateCall(
         MethodCallExpression Call,
+        IReadOnlyList<MethodCallExpression> Chain,
         LambdaExpression? Selector,
         bool SourceAsQueryable,
-        bool IsAll);
+        bool IsAll)
+    {
+        /// <summary>
+        ///     The lambdas over the grouping element: one per chain operator (null for Distinct), followed by
+        ///     the aggregate's own selector or predicate.
+        /// </summary>
+        public IReadOnlyList<LambdaExpression?> ElementLambdas { get; } = [.. Chain.Select(GetLambdaArgument), Selector];
+    }
+
+    private static LambdaExpression? GetLambdaArgument(MethodCallExpression methodCallExpression)
+        => methodCallExpression.Arguments.Count == 2
+            ? methodCallExpression.Arguments[1] switch
+            {
+                UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression quoted } => quoted,
+                LambdaExpression lambda => lambda,
+                _ => null
+            }
+            : null;
 
     private static MethodCallExpression RebuildLiftedAggregate(
         GroupingAggregateCall aggregate,
         ParameterExpression groupingParameter,
         Type originalElementType,
         Type newElementType,
-        LambdaExpression? newSelector,
+        IReadOnlyList<LambdaExpression?> newLambdas,
         LambdaExpression? guard)
     {
         var method = aggregate.Call.Method;
-        var newMethod = method.GetGenericMethodDefinition().MakeGenericMethod(
-            method.GetGenericArguments().Select(t => t == originalElementType ? newElementType : t).ToArray());
+        var sourceMethod = aggregate.Chain.Count > 0 ? aggregate.Chain[0].Method : method;
 
         Expression newSource = aggregate.SourceAsQueryable
             ? Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(newElementType), groupingParameter)
@@ -1984,18 +2062,52 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             // Filtering it out of this aggregate keeps selectors and predicates which turn null into a value
             // ("?? 0", "== null") from observing a row that should not exist, and leaves All() vacuously true
             // over a group whose principals were all filtered out.
-            newSource = method.DeclaringType == typeof(Queryable)
+            newSource = sourceMethod.DeclaringType == typeof(Queryable)
                 ? Expression.Call(
                     QueryableMethods.Where.MakeGenericMethod(newElementType), newSource, Expression.Quote(guard))
                 : Expression.Call(EnumerableMethods.Where.MakeGenericMethod(newElementType), newSource, guard);
         }
 
-        return newSelector == null
-            ? Expression.Call(newMethod, newSource)
-            : Expression.Call(
+        var sourceType = newElementType;
+        for (var i = 0; i < aggregate.Chain.Count; i++)
+        {
+            var chainMethod = aggregate.Chain[i].Method;
+            var definition = chainMethod.GetGenericMethodDefinition();
+            if (newLambdas[i] is not { } lambda)
+            {
+                newSource = Expression.Call(definition.MakeGenericMethod(sourceType), newSource);
+                continue;
+            }
+
+            var isSelect = chainMethod.Name == nameof(Enumerable.Select);
+            newSource = Expression.Call(
+                isSelect
+                    ? definition.MakeGenericMethod(sourceType, lambda.ReturnType)
+                    : definition.MakeGenericMethod(sourceType),
+                newSource,
+                chainMethod.DeclaringType == typeof(Queryable) ? Expression.Quote(lambda) : lambda);
+
+            if (isSelect)
+            {
+                sourceType = lambda.ReturnType;
+            }
+        }
+
+        // The numeric overloads without a selector (e.g. Sum(IEnumerable<int>)) are not generic; they are
+        // only matched after a Select, which keeps the element type.
+        var newMethod = method.IsGenericMethod
+            ? method.GetGenericMethodDefinition().MakeGenericMethod(
+                method.GetGenericArguments()
+                    .Select((t, i) => i == 0 ? sourceType : t == originalElementType ? newElementType : t)
+                    .ToArray())
+            : method;
+
+        return newLambdas[^1] is { } newSelector
+            ? Expression.Call(
                 newMethod,
                 newSource,
-                method.DeclaringType == typeof(Queryable) ? Expression.Quote(newSelector) : newSelector);
+                method.DeclaringType == typeof(Queryable) ? Expression.Quote(newSelector) : newSelector)
+            : Expression.Call(newMethod, newSource);
     }
 
     /// <summary>
@@ -2009,6 +2121,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
         private static readonly string[] PredicateAggregateMethodNames =
             [nameof(Enumerable.Any), nameof(Enumerable.All), nameof(Enumerable.Count), nameof(Enumerable.LongCount)];
+
+        private int _elementLambdaDepth;
 
         public List<GroupingAggregateCall> Aggregates { get; } = [];
         public bool HasUnsupportedUsage { get; private set; }
@@ -2034,11 +2148,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         {
             if (TryMatchAggregate(methodCallExpression, out var aggregate))
             {
-                Aggregates.Add(aggregate);
-                if (aggregate.Selector != null)
+                // An aggregate over the grouping nested in another one's lambda (g.Where(o => o.Id == g.Max(x => x.Id)))
+                // would be swapped out of the result selector together with the outer aggregate and keep the old
+                // grouping parameter, so such a projection stays on the correlated translation.
+                if (_elementLambdaDepth > 0)
                 {
-                    base.Visit(aggregate.Selector.Body);
+                    HasUnsupportedUsage = true;
+                    return methodCallExpression;
                 }
+
+                Aggregates.Add(aggregate);
+                _elementLambdaDepth++;
+                foreach (var lambda in aggregate.ElementLambdas)
+                {
+                    if (lambda != null)
+                    {
+                        base.Visit(lambda.Body);
+                    }
+                }
+
+                _elementLambdaDepth--;
 
                 return methodCallExpression;
             }
@@ -2054,14 +2183,46 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             var method = methodCallExpression.Method;
             if (!method.IsStatic
                 || (method.DeclaringType != typeof(Enumerable) && method.DeclaringType != typeof(Queryable))
-                || !method.IsGenericMethod
                 || methodCallExpression.Arguments.Count is < 1 or > 2)
             {
                 return false;
             }
 
-            var sourceAsQueryable = false;
+            // Operators between the grouping and the aggregate: Where over the element, then at most one
+            // Select, then Distinct over the projected values. Anything else keeps the whole projection on
+            // the correlated translation.
+            var chain = new List<MethodCallExpression>();
             var sourceArgument = methodCallExpression.Arguments[0];
+            while (sourceArgument is MethodCallExpression chainCall && IsChainOperator(chainCall))
+            {
+                chain.Insert(0, chainCall);
+                sourceArgument = chainCall.Arguments[0];
+            }
+
+            var projected = false;
+            foreach (var chainCall in chain)
+            {
+                switch (chainCall.Method.Name)
+                {
+                    case nameof(Enumerable.Where) when !projected:
+                        break;
+                    case nameof(Enumerable.Select) when !projected:
+                        projected = true;
+                        break;
+                    case nameof(Enumerable.Distinct) when projected:
+                        break;
+                    default:
+                        return false;
+                }
+            }
+
+            // The numeric overloads without a selector (e.g. Average(IEnumerable<int>)) are not generic.
+            if (!method.IsGenericMethod && !projected)
+            {
+                return false;
+            }
+
+            var sourceAsQueryable = false;
             if (sourceArgument is MethodCallExpression asQueryableCall
                 && asQueryableCall.Method.IsGenericMethod
                 && asQueryableCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
@@ -2084,25 +2245,53 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             LambdaExpression? selector = null;
             if (methodCallExpression.Arguments.Count == 2)
             {
-                selector = methodCallExpression.Arguments[1] switch
-                {
-                    UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression quoted } => quoted,
-                    LambdaExpression lambda => lambda,
-                    _ => null
-                };
-                if (selector == null)
+                // After a Select, a selector or predicate would run over the projected values rather than the
+                // element, where navigations are not expanded.
+                selector = GetLambdaArgument(methodCallExpression);
+                if (selector == null || projected)
                 {
                     return false;
                 }
             }
-            else if (isSelectorAggregate)
+            else if (isSelectorAggregate && !projected)
             {
                 return false;
             }
 
+            // Count, LongCount and a parameterless Any observe elements, not values, so a trailing Select is
+            // dropped without expanding its navigations, as navigation expansion drops such a pending selector.
+            // Expanded, it would join a filtered-out principal and guard the element away from the count
+            // (g.Select(d => d.Principal.Value).Count()), or count values instead of elements.
+            if (chain.Count > 0
+                && chain[^1].Method.Name == nameof(Enumerable.Select)
+                && methodCallExpression.Arguments.Count == 1
+                && method.Name is nameof(Enumerable.Count) or nameof(Enumerable.LongCount) or nameof(Enumerable.Any))
+            {
+                chain.RemoveAt(chain.Count - 1);
+            }
+
             aggregate = new GroupingAggregateCall(
-                methodCallExpression, selector, sourceAsQueryable, method.Name == nameof(Enumerable.All));
+                methodCallExpression, chain, selector, sourceAsQueryable, method.Name == nameof(Enumerable.All));
             return true;
+        }
+
+        private static bool IsChainOperator(MethodCallExpression methodCallExpression)
+        {
+            var method = methodCallExpression.Method;
+            if (!method.IsStatic
+                || !method.IsGenericMethod
+                || (method.DeclaringType != typeof(Enumerable) && method.DeclaringType != typeof(Queryable)))
+            {
+                return false;
+            }
+
+            return method.Name switch
+            {
+                nameof(Enumerable.Where) or nameof(Enumerable.Select)
+                    => GetLambdaArgument(methodCallExpression) is { Parameters.Count: 1 },
+                nameof(Enumerable.Distinct) => methodCallExpression.Arguments.Count == 1,
+                _ => false
+            };
         }
     }
 

@@ -60,6 +60,60 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
 
+        var shaperSelect = selectExpression;
+
+        // Cosmos can order by the indexed path, but cannot order by the computed null discriminator.
+        string? extremumKeyProjection = null;
+        string? valueProjection = null;
+        (string Alias, bool Ascending)[]? tieBreakers = null;
+        if (cosmosQueryCompilationContext.IsMinMaxBy
+            && shapedQueryExpression.ResultCardinality != ResultCardinality.Enumerable
+            && selectExpression is
+            {
+                ReadItemInfo: null,
+                Limit: SqlConstantExpression { Value: 1 },
+                Offset: null or SqlConstantExpression { Value: 0 },
+                Orderings.Count: >= 2
+            })
+        {
+            var orderings = selectExpression.Orderings;
+            var hasNullDiscriminator = orderings[0] is
+                { IsAscending: true, Expression: SqlBinaryExpression
+                    { OperatorType: ExpressionType.Equal, Left: ScalarAccessExpression discriminatorKey, Right: SqlConstantExpression { Value: null } } }
+                && discriminatorKey.Equals(orderings[1].Expression);
+            var keyIndex = hasNullDiscriminator ? 1 : 0;
+            var keyOrdering = orderings[keyIndex];
+            if (keyOrdering.Expression is ScalarAccessExpression key)
+            {
+                var sourceOrderings = orderings.Skip(keyIndex + 1).Where(o => !o.Expression.Equals(key)).ToArray();
+                var compareTies = sourceOrderings.Length > 0 && sourceOrderings.All(o => IsScalarSortKey(o.Expression));
+                var readCandidates = (hasNullDiscriminator && keyOrdering.IsAscending) || compareTies;
+                selectExpression = selectExpression.Update(
+                    [.. selectExpression.Sources], selectExpression.Predicate, [.. selectExpression.Projection],
+                    compareTies ? [keyOrdering] : [keyOrdering, .. sourceOrderings], offset: null,
+                    readCandidates ? null : selectExpression.Limit);
+                if (readCandidates)
+                {
+                    var index = selectExpression.AddToProjection(key);
+                    if (compareTies)
+                    {
+                        tieBreakers = sourceOrderings.Select(o =>
+                        {
+                            var projectionIndex = selectExpression.AddToProjection(o.Expression);
+                            return (selectExpression.Projection[projectionIndex].Alias, o.IsAscending);
+                        }).ToArray();
+                    }
+
+                    var projection = selectExpression.Projection[index];
+                    extremumKeyProjection = projection.IsValueProjection ? string.Empty : projection.Alias;
+                    if (!projection.IsValueProjection && shaperSelect.Projection is [{ IsValueProjection: true } original])
+                    {
+                        valueProjection = original.Alias;
+                    }
+                }
+            }
+        }
+
         VerifyNoClientConstant(shaperBody);
 
         // Because the shaper might process the data twice (duplicated shaper),
@@ -68,7 +122,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         // The shaper will always read the whole next json token/object, and will know how many bytes that was
         // we get the amount of bytes read from the shaper, so that we can advance the data in the QueryingEnumerable as needed, without having to scan the data twice (once for shaper, once for advancing the data).
         var bytesConsumedParameter = Parameter(typeof(int).MakeByRefType(), "bytesConsumed");
-        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, dataParameter, bytesConsumedParameter)
+        var shaperLambda = new ShaperProcessingExpressionVisitor(this, shaperSelect, dataParameter, bytesConsumedParameter)
             .ProcessShaper(shaperBody);
 
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
@@ -120,8 +174,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 rootEntityTypeConstant,
                 Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
-                threadSafetyConstant)
+                threadSafetyConstant,
+                Constant(extremumKeyProjection, typeof(string)),
+                Constant(valueProjection, typeof(string)),
+                Constant(tieBreakers, typeof((string, bool)[])))
         };
+    }
+
+    private static bool IsScalarSortKey(SqlExpression expression)
+    {
+        var type = (expression.TypeMapping?.Converter?.ProviderClrType ?? expression.Type).UnwrapNullableType();
+        return type.IsNumeric() || type.IsEnum || type == typeof(bool) || type == typeof(string)
+            || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(DateTimeOffset)
+            || type == typeof(DateOnly) || type == typeof(TimeOnly) || type == typeof(TimeSpan);
     }
 
     private static PartitionKey GeneratePartitionKey(

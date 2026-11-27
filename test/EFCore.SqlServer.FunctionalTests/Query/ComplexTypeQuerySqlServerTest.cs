@@ -380,6 +380,26 @@ FROM [Customer] AS [c0]
         AssertSql();
     }
 
+    public override async Task Union_complex_type_with_different_identifiers_in_collection_projection(bool async)
+    {
+        await base.Union_complex_type_with_different_identifiers_in_collection_projection(async);
+
+        AssertSql(
+            """
+SELECT [c].[Id], [u].[ShippingAddress_AddressLine1], [u].[ShippingAddress_AddressLine2], [u].[ShippingAddress_Tags], [u].[ShippingAddress_ZipCode], [u].[ShippingAddress_Country_Code], [u].[ShippingAddress_Country_FullName]
+FROM [CustomerGroup] AS [c]
+OUTER APPLY (
+    SELECT [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_Tags], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
+    FROM [Customer] AS [c0]
+    UNION
+    SELECT [c1].[ShippingAddress_AddressLine1], [c1].[ShippingAddress_AddressLine2], [c1].[ShippingAddress_Tags], [c1].[ShippingAddress_ZipCode], [c1].[ShippingAddress_Country_Code], [c1].[ShippingAddress_Country_FullName]
+    FROM [Customer] AS [c1]
+    WHERE [c1].[Id] > 1
+) AS [u]
+ORDER BY [c].[Id], [u].[ShippingAddress_AddressLine1], [u].[ShippingAddress_AddressLine2], [u].[ShippingAddress_Tags], [u].[ShippingAddress_ZipCode], [u].[ShippingAddress_Country_Code]
+""");
+    }
+
     public override async Task Union_two_different_complex_type(bool async)
     {
         await base.Union_two_different_complex_type(async);
@@ -1719,6 +1739,69 @@ INNER JOIN [Dog] AS [d] ON [a].[Id] = [d].[Id]
     }
 
     #endregion Non-shared test resources
+
+    public override async Task Distinct_over_entity_with_key_on_complex_property()
+    {
+        await base.Distinct_over_entity_with_key_on_complex_property();
+
+        AssertSql(
+            """
+SELECT [p0].[Id_Id], [p0].[Address_City], [p0].[Address_PostalCode]
+FROM (
+    SELECT DISTINCT [p].[Id_Id], [p].[Address_City], [p].[Address_PostalCode]
+    FROM [Person] AS [p]
+) AS [p0]
+ORDER BY [p0].[Id_Id]
+""");
+    }
+
+    public override async Task Union_over_entity_with_key_on_complex_property()
+    {
+        await base.Union_over_entity_with_key_on_complex_property();
+
+        AssertSql(
+            """
+SELECT [u].[Id_Id], [u].[Address_City], [u].[Address_PostalCode]
+FROM (
+    SELECT [p].[Id_Id], [p].[Address_City], [p].[Address_PostalCode]
+    FROM [Person] AS [p]
+    WHERE [p].[Address_City] = N'Seattle'
+    UNION
+    SELECT [p0].[Id_Id], [p0].[Address_City], [p0].[Address_PostalCode]
+    FROM [Person] AS [p0]
+    WHERE [p0].[Address_City] = N'Redmond'
+) AS [u]
+ORDER BY [u].[Id_Id]
+""");
+    }
+
+    public override async Task Entity_with_key_on_complex_property_equals_parameter()
+    {
+        await base.Entity_with_key_on_complex_property_equals_parameter();
+
+        AssertSql(
+            """
+@entity_equality_person_Id_Id='2' (Nullable = true)
+
+SELECT TOP(2) [p].[Id_Id], [p].[Address_City], [p].[Address_PostalCode]
+FROM [Person] AS [p]
+WHERE [p].[Id_Id] = @entity_equality_person_Id_Id
+""");
+    }
+
+    public override async Task Entity_with_key_on_complex_property_in_local_collection()
+    {
+        await base.Entity_with_key_on_complex_property_in_local_collection();
+
+        AssertSql(
+            """
+@entity_equality_people_Id1='2'
+
+SELECT TOP(2) [p].[Id_Id], [p].[Address_City], [p].[Address_PostalCode]
+FROM [Person] AS [p]
+WHERE [p].[Id_Id] = @entity_equality_people_Id1
+""");
+    }
 
     [Fact]
     public virtual void Check_all_tests_overridden()

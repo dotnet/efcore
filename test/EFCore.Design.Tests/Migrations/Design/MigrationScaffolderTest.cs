@@ -63,7 +63,84 @@ public class MigrationsScaffolderTest
         Assert.Contains($"[Migration(\"{migration.MigrationId}\")]", migration.MetadataCode);
     }
 
+    [Fact]
+    public void ScaffoldMigration_diffs_against_snapshot_finalized_by_migrator()
+    {
+        var scaffolder = CreateMigrationScaffolder<ContextWithTableSnapshot>(out var migrationsAssembly);
+
+        // Migrator.HasPendingModelChanges() and Migrate() finalize the model of the snapshot instance that the context's
+        // IMigrationsAssembly caches, which is the instance the scaffolder reads.
+        ((IMutableModel)migrationsAssembly.ModelSnapshot!.Model).FinalizeModel();
+
+        var migration = scaffolder.ScaffoldMigration("DropBlogs", "WebApplication1");
+
+        Assert.Contains("migrationBuilder.DropTable(", migration.MigrationCode);
+        Assert.Contains("name: \"Blogs\"", migration.MigrationCode);
+    }
+
+    [Fact]
+    public void RemoveMigration_works_with_snapshot_finalized_by_migrator()
+    {
+        var scaffolder = CreateMigrationScaffolder<ContextWithMigration>(out var migrationsAssembly);
+
+        ((IMutableModel)migrationsAssembly.ModelSnapshot!.Model).FinalizeModel();
+
+        var projectDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        var files = scaffolder.RemoveMigration(projectDir, rootNamespace: null, force: false, language: null, dryRun: true, offline: true);
+
+        Assert.Null(files.MigrationFile);
+        Assert.Null(files.SnapshotFile);
+    }
+
+    [Fact]
+    public void ScaffoldMigration_uses_snapshot_without_parameterless_constructor_when_finalized()
+    {
+        var scaffolder = CreateMigrationScaffolder<ContextWithTableSnapshot>(
+            out var migrationsAssembly,
+            _ => new FakeMigrationsAssembly(
+                new ConstructorStateModelSnapshot(
+                    modelBuilder => modelBuilder.Entity(
+                        "Blog", b =>
+                        {
+                            b.Property<int>("Id");
+                            b.HasKey("Id");
+                            b.ToTable("Blogs");
+                        }))));
+
+        ((IMutableModel)migrationsAssembly.ModelSnapshot!.Model).FinalizeModel();
+
+        var migration = scaffolder.ScaffoldMigration("EmptyMigration", "WebApplication1");
+
+        Assert.Equal(nameof(ConstructorStateModelSnapshot), migration.SnapshotName);
+    }
+
+    [Fact]
+    public void ScaffoldMigration_diffs_against_snapshot_with_constructor_state()
+    {
+        var scaffolder = CreateMigrationScaffolder<ContextWithTableSnapshot>(
+            out _,
+            _ => new FakeMigrationsAssembly(
+                new ConstructorStateModelSnapshot(
+                    modelBuilder => modelBuilder.Entity(
+                        "Blog", b =>
+                        {
+                            b.Property<int>("Id");
+                            b.HasKey("Id");
+                            b.ToTable("Blogs");
+                        }))));
+
+        var migration = scaffolder.ScaffoldMigration("DropBlogs", "WebApplication1");
+
+        Assert.Contains("migrationBuilder.DropTable(", migration.MigrationCode);
+    }
+
     private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
+        where TContext : DbContext, new()
+        =>CreateMigrationScaffolder<TContext>(out _);
+
+    private IMigrationsScaffolder CreateMigrationScaffolder<TContext>(
+        out IMigrationsAssembly migrationsAssembly,
+        Func<IMigrationsAssembly, IMigrationsAssembly>? decorateMigrationsAssembly = null)
         where TContext : DbContext, new()
     {
         var currentContext = new CurrentDbContext(new TContext());
@@ -82,6 +159,8 @@ public class MigrationsScaffolderTest
                 new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
                 idGenerator,
                 new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
+        migrationsAssembly = decorateMigrationsAssembly?.Invoke(migrationAssembly) ?? migrationAssembly;
+        var scaffolderMigrationsAssembly = migrationsAssembly;
         var historyRepository = new MockHistoryRepository();
 
         var services = FakeRelationalTestHelpers.Instance.CreateContextServices();
@@ -92,7 +171,7 @@ public class MigrationsScaffolderTest
             new MigrationsScaffolderDependencies(
                 currentContext,
                 model,
-                migrationAssembly,
+                scaffolderMigrationsAssembly,
                 new MigrationsModelDiffer(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
@@ -154,6 +233,75 @@ public class MigrationsScaffolderTest
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
         }
+    }
+
+    private class ContextWithTableSnapshot : DbContext;
+
+    [DbContext(typeof(ContextWithTableSnapshot))]
+    private class ContextWithTableSnapshotModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity(
+                "Blog", b =>
+                {
+                    b.Property<int>("Id");
+                    b.HasKey("Id");
+                    b.ToTable("Blogs");
+                });
+    }
+
+    private class ContextWithMigration : DbContext;
+
+    [DbContext(typeof(ContextWithMigration))]
+    private class ContextWithMigrationModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+            => ContextWithMigrationInitial.BuildBlogs(modelBuilder);
+    }
+
+    [DbContext(typeof(ContextWithMigration))]
+    [Migration("20200101000000_Initial")]
+    private class ContextWithMigrationInitial : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+            => BuildBlogs(modelBuilder);
+
+        public static void BuildBlogs(ModelBuilder modelBuilder)
+            => modelBuilder.Entity(
+                "Blog", b =>
+                {
+                    b.Property<int>("Id");
+                    b.HasKey("Id");
+                    b.ToTable("Blogs");
+                });
+    }
+
+    private class ConstructorStateModelSnapshot(Action<ModelBuilder> buildModel) : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+            => buildModel(modelBuilder);
+    }
+
+    private class FakeMigrationsAssembly(ModelSnapshot modelSnapshot) : IMigrationsAssembly
+    {
+        public IReadOnlyDictionary<string, TypeInfo> Migrations { get; } = new Dictionary<string, TypeInfo>();
+
+        public ModelSnapshot? ModelSnapshot { get; } = modelSnapshot;
+
+        public Assembly Assembly => typeof(FakeMigrationsAssembly).Assembly;
+
+        public string? FindMigrationId(string nameOrId)
+            => null;
+
+        public Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
+            => throw new NotSupportedException();
+
+        public void AddMigrations(Assembly additionalMigrationsAssembly)
+            => throw new NotSupportedException();
     }
 
     private class MockHistoryRepository : IHistoryRepository

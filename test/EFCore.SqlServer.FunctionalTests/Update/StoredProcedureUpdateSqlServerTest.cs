@@ -243,6 +243,62 @@ EXEC [Entity_Insert] @p1, @p2 OUTPUT;
 """);
     }
 
+    public override async Task Delete_and_insert_with_same_key(bool async)
+    {
+        await Delete_and_insert_with_same_key_implementation(
+            async,
+            """
+CREATE PROCEDURE Entity_Insert(@Id int, @Name varchar(max))
+AS INSERT INTO [Entity] ([Id], [Name]) VALUES (@Id, @Name);
+
+GO;
+
+CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
+AS UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @Id;
+
+GO;
+
+CREATE PROCEDURE Entity_Delete(@Id int)
+AS DELETE FROM [Entity] WHERE [Id] = @Id;
+""");
+
+        AssertSql(
+            """
+@p0='1'
+@p1='Entity2' (Size = 4000)
+
+SET NOCOUNT ON;
+EXEC [Entity_Update] @p0, @p1;
+""");
+    }
+
+    public override async Task Delete_and_insert_with_same_key_without_update_sproc(bool async)
+    {
+        await Delete_and_insert_with_same_key_without_update_sproc_implementation(
+            async,
+            """
+CREATE PROCEDURE Entity_Insert(@Id int, @Name varchar(max))
+AS INSERT INTO [Entity] ([Id], [Name]) VALUES (@Id, @Name);
+
+GO;
+
+CREATE PROCEDURE Entity_Delete(@Id int)
+AS DELETE FROM [Entity] WHERE [Id] = @Id;
+""");
+
+        AssertSql(
+            """
+@p1='1'
+@p0='Entity2' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Entity] SET [Name] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
     public override async Task Rows_affected_parameter(bool async)
     {
         await Rows_affected_parameter_implementation(

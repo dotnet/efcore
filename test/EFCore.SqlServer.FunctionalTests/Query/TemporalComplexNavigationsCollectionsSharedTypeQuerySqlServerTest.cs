@@ -1851,7 +1851,7 @@ SELECT CASE
     END IS NULL OR CASE
         WHEN [s].[PeriodEnd0] IS NOT NULL THEN [s].[PeriodStart0]
     END IS NULL THEN 0
-    WHEN [s].[OneToOne_Required_PK_Date] IS NOT NULL AND [s].[Level1_Required_Id] IS NOT NULL AND [s].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[Id0]
+    WHEN [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[Id0]
 END, [l].[Id], [s].[Id], [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id], [l4].[PeriodEnd], [l4].[PeriodStart]
 FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (

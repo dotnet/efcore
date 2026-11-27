@@ -3,6 +3,7 @@
 
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -142,7 +143,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             }
         }
 
-        var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
+        var modelSnapshot = GetModelSnapshot();
         var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model)?.GetRelationalModel();
         var upOperations = Dependencies.MigrationsModelDiffer
             .GetDifferences(lastModel, Dependencies.Model.GetRelationalModel());
@@ -250,7 +251,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     {
         var files = new MigrationFiles();
 
-        var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
+        var modelSnapshot = GetModelSnapshot();
         if (modelSnapshot == null)
         {
             throw new OperationException(DesignStrings.NoSnapshot);
@@ -505,6 +506,20 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         => Directory.Exists(projectDir)
             ? Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault()
             : null;
+
+    // The snapshot instance is cached on the context's IMigrationsAssembly and shared with its IMigrator, whose
+    // HasPendingModelChanges() and Migrate() finalize its model. ISnapshotModelProcessor returns null for a finalized
+    // model, which made the scaffolder diff against no model at all (#36016), so process a new instance instead.
+    // IMigrationsAssembly is a public contract, so a snapshot that can't be re-created without arguments (its model may
+    // depend on constructor state) is used as supplied.
+    private ModelSnapshot? GetModelSnapshot()
+    {
+        var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
+        return modelSnapshot?.Model is Model { IsReadOnly: true }
+            && modelSnapshot.GetType().GetConstructor(Type.EmptyTypes) != null
+                ? (ModelSnapshot)Activator.CreateInstance(modelSnapshot.GetType())!
+                : modelSnapshot;
+    }
 
     private bool ContainsForeignMigrations(string migrationsNamespace)
         => (from t in Dependencies.MigrationsAssembly.Assembly.GetConstructibleTypes()

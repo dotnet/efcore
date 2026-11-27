@@ -475,7 +475,7 @@ stages:
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
           - job: Helix_Ubuntu
-            displayName: 'Helix Ubuntu'
+            displayName: 'Helix Azure Linux'
             condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu"')) }}
             timeoutInMinutes: 180
             pool:
@@ -487,7 +487,7 @@ stages:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: Ubuntu.2204.Amd64.Open
+                value: azurelinux.4.amd64.open
               - name: _HelixAccessToken
                 value: ''
             steps:

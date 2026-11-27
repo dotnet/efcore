@@ -412,6 +412,25 @@ async Task AssertPage()
     public virtual Task GroupBy_Select_first_grouping_element()
         => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.OrderBy(b => b.Id).First()).ToListAsync();""");
 
+    // An aggregate over a grouping translated in a nested query falls back to a subquery over the grouping element (#27130).
+    [Fact]
+    public virtual Task GroupBy_aggregate_over_outer_grouping_in_subquery()
+        => Test(
+            """
+var blogs = await context.Blogs.GroupBy(b => b.Name)
+    .Select(g => new { g.Key, Count = context.Blogs.GroupBy(b => b.Id).OrderBy(g2 => g2.Key).Select(g2 => g.Count()).FirstOrDefault() })
+    .ToListAsync();
+""");
+
+    // An aggregate over a grouping translated for an inline collection is folded back into the grouped query once the
+    // collection becomes an IN list (#27130).
+    [Fact]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains()
+        => Test(
+            """
+var blogs = await context.Blogs.GroupBy(b => b.Name).Where(g => new List<int> { g.Count(), -1 }.Contains(1)).Select(g => g.Key).ToListAsync();
+""");
+
     #endregion Regular operators
 
     #region Terminating operators
@@ -1062,6 +1081,23 @@ Assert.Collection(posts,
     b => Assert.Equal(21, b.Id),
     b => Assert.Equal(22, b.Id),
     b => Assert.Equal(23, b.Id));
+""");
+
+    [Fact]
+    public virtual Task MinMaxBy_nullable_keys()
+        => Test(
+            """
+var minimumBlog = context.Blogs.OrderBy(b => b.Id).MinBy(b => b.Name);
+Assert.Equal(8, minimumBlog!.Id);
+var maximumBlog = context.Blogs.OrderBy(b => b.Id).MaxBy(b => b.Name);
+Assert.Equal(9, maximumBlog!.Id);
+Assert.Equal(2, maximumBlog.Json.Count);
+var minimumPost = context.Posts.OrderBy(p => p.Id).MinBy(p => p.Title);
+Assert.Equal(11, minimumPost!.Id);
+var maximumPost = context.Posts.OrderBy(p => p.Id).MaxBy(p => p.Title);
+Assert.Equal(23, maximumPost!.Id);
+var title = context.Posts.Select(p => p.Title).MinBy(t => t);
+Assert.Equal("Post11", title);
 """);
 
     [Fact(Skip = "issue 33378")]

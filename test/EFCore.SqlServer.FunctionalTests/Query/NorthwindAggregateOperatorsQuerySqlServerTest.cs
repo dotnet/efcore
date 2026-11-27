@@ -444,6 +444,7 @@ ORDER BY COALESCE([p].[UnitPrice], 0.0)
             """
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'FISSA', N'CENTC')
 ORDER BY (
     SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
@@ -473,7 +474,7 @@ ORDER BY (
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]
-        ORDER BY [o0].[ProductID]))
+        ORDER BY [o0].[ProductID])), [c0].[CustomerID]
 """);
     }
 
@@ -498,7 +499,7 @@ ORDER BY (
     ORDER BY 5 + (
         SELECT MAX([o0].[ProductID])
         FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]))
+        WHERE [o].[OrderID] = [o0].[OrderID])), [c0].[CustomerID]
 """);
     }
 
@@ -701,7 +702,7 @@ ORDER BY (
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]
-        ORDER BY [o0].[ProductID] DESC) DESC) DESC
+        ORDER BY [o0].[ProductID] DESC) DESC) DESC, [c0].[CustomerID]
 """);
     }
 
@@ -726,7 +727,7 @@ ORDER BY (
     ORDER BY 5 + (
         SELECT ISNULL(SUM([o0].[ProductID]), 0)
         FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]) DESC) DESC
+        WHERE [o].[OrderID] = [o0].[OrderID]) DESC) DESC, [c0].[CustomerID]
 """);
     }
 
@@ -1479,6 +1480,17 @@ WHERE [p].[ProductID] < 40
 """);
     }
 
+    public override async Task Min_over_constant_DateTime(bool async)
+    {
+        await base.Min_over_constant_DateTime(async);
+
+        AssertSql(
+            """
+SELECT MIN(CAST('0001-01-01T00:00:00.0000000' AS datetime2))
+FROM [Orders] AS [o]
+""");
+    }
+
     public override async Task Min_over_subquery(bool async)
     {
         await base.Min_over_subquery(async);
@@ -1585,6 +1597,17 @@ FROM [Orders] AS [o]
 SELECT MAX(COALESCE([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
+""");
+    }
+
+    public override async Task Max_over_constant_DateTime(bool async)
+    {
+        await base.Max_over_constant_DateTime(async);
+
+        AssertSql(
+            """
+SELECT MAX(CAST('9999-12-31T23:59:59.9999999' AS datetime2))
+FROM [Orders] AS [o]
 """);
     }
 
@@ -3600,6 +3623,40 @@ SELECT [c].[CustomerID], (
         SELECT [o6].[OrderID] * CAST(LEN([c].[CustomerID]) AS int) AS [value]
     ) AS [s0]
     WHERE [c].[CustomerID] = [o3].[CustomerID]) AS [TotalOrders]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Sum_over_correlated_collection_with_selector_on_outer_entity_only(bool async)
+    {
+        await base.Sum_over_correlated_collection_with_selector_on_outer_entity_only(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT ISNULL(SUM([o0].[c]), 0)
+    FROM (
+        SELECT CAST(LEN([c].[CustomerID]) AS int) AS [c]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+    ) AS [o0]) AS [Total]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Max_over_correlated_collection_with_selector_on_outer_entity_only(bool async)
+    {
+        await base.Max_over_correlated_collection_with_selector_on_outer_entity_only(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT MAX([o0].[c])
+    FROM (
+        SELECT CAST(LEN([c].[CustomerID]) AS int) AS [c]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+    ) AS [o0]) AS [Max]
 FROM [Customers] AS [c]
 """);
     }

@@ -139,7 +139,7 @@ public partial class PrincipalDerivedEntityType
             id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            complexType.AddAnnotation("Relational:ContainerColumnName", "Dependent");
+            complexType.AddAnnotation("Relational:ContainerColumnName", "");
             complexType.AddAnnotation("Relational:ContainerColumnType", "json");
             complexType.AddAnnotation("Relational:FunctionName", null);
             complexType.AddAnnotation("Relational:Schema", null);
@@ -975,7 +975,7 @@ public partial class PrincipalDerivedEntityType
                 relationshipCount: 0,
                 storeGeneratedCount: 0));
             complexType.AddAnnotation("go", "brr");
-            complexType.AddAnnotation("Relational:ContainerColumnName", "ManyOwned");
+            complexType.AddAnnotation("Relational:ContainerColumnName", "");
             complexType.AddAnnotation("Relational:ContainerColumnType", "json");
             complexType.AddAnnotation("Relational:FunctionName", null);
             complexType.AddAnnotation("Relational:Schema", null);

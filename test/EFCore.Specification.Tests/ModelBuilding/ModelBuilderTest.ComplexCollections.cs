@@ -1409,5 +1409,58 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(someOrdersComplex);
             Assert.True(someOrdersComplex!.IsCollection);
         }
+
+        [Fact]
+        public virtual void Can_configure_complex_collection_on_owned_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Ignore(o => o.Complex);
+                        ConfigureComplexCollection(ob.ComplexCollection(o => o.ComplexCollection))
+                            .Property(c => c.Value).HasAnnotation("foo", "bar");
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var complexCollection = owned.GetComplexProperties().Single();
+            Assert.Equal(nameof(OwnedWithComplex.ComplexCollection), complexCollection.Name);
+            Assert.True(complexCollection.IsCollection);
+            Assert.Equal("bar", complexCollection.ComplexType.FindProperty(nameof(ComplexInOwned.Value))!["foo"]);
+        }
+
+        [Fact]
+        public virtual void Can_configure_complex_collection_on_owned_type_collection_by_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.Owned);
+                b.OwnsMany(
+                    e => e.OwnedCollection, ob =>
+                    {
+                        ob.Ignore(o => o.Complex);
+                        ob.ComplexCollection<List<ComplexInOwned>, ComplexInOwned>(
+                            nameof(OwnedWithComplex.ComplexCollection), cb => ConfigureComplexCollection(cb));
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.OwnedCollection))!.TargetEntityType;
+            var complexCollection = owned.GetComplexProperties().Single();
+            Assert.Equal(nameof(OwnedWithComplex.ComplexCollection), complexCollection.Name);
+            Assert.True(complexCollection.IsCollection);
+        }
     }
 }

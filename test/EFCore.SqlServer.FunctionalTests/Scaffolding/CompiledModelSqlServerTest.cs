@@ -241,6 +241,35 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             useContext: null,
             additionalSourceFiles: []);
 
+    [Fact]
+    public virtual Task Temporal_table()
+        => Test(
+            modelBuilder => modelBuilder.Entity<TemporalEntity>(eb => eb.ToTable(tb => tb.IsTemporal())),
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(TemporalEntity))!;
+                Assert.True(entityType.IsTemporal());
+                Assert.Equal("PeriodStart", entityType.GetPeriodStartPropertyName());
+                Assert.Equal("PeriodEnd", entityType.GetPeriodEndPropertyName());
+                Assert.Equal(
+                    CoreStrings.RuntimeModelMissingData,
+                    Assert.Throws<InvalidOperationException>(() => entityType.GetHistoryTableName()).Message);
+            },
+            async context =>
+            {
+                var entity = new TemporalEntity { Name = "Initial" };
+                context.Add(entity);
+                await context.SaveChangesAsync();
+
+                // Versions saved within the same clock tick get a zero-length period, which FOR SYSTEM_TIME filters out.
+                await Task.Delay(100);
+                entity.Name = "Updated";
+                await context.SaveChangesAsync();
+
+                var versions = await context.Set<TemporalEntity>().TemporalAll().AsNoTracking().ToListAsync();
+                Assert.Equal(["Initial", "Updated"], versions.Select(v => v.Name).Order());
+            });
+
     protected override bool UseSprocReturnValue
         => true;
 
@@ -514,5 +543,11 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
     {
         public int Id { get; set; }
         public string? Title { get; set; }
+    }
+
+    public class TemporalEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
     }
 }

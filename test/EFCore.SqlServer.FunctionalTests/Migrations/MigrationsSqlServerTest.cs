@@ -4271,6 +4271,15 @@ CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);
 """);
     }
 
+    public override async Task Add_deferrable_foreign_key()
+    {
+        var exception = await Assert.ThrowsAsync<NotSupportedException>(base.Add_deferrable_foreign_key);
+
+        Assert.Equal(
+            SqlServerStrings.DeferrableConstraintsNotSupported("FK_Orders_Customers_CustomerId", "Orders"),
+            exception.Message);
+    }
+
     public override async Task Add_unique_constraint()
     {
         await base.Add_unique_constraint();
@@ -4982,6 +4991,36 @@ CREATE TABLE [Contacts] (
     [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
     [NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
+);
+""");
+    }
+
+    public override async Task Create_tables_with_complex_properties_on_owned_types()
+    {
+        await base.Create_tables_with_complex_properties_on_owned_types();
+
+        AssertSql(
+            """
+CREATE TABLE [Owner] (
+    [Id] int NOT NULL IDENTITY,
+    [Owned_Name] nvarchar(max) NULL,
+    [Owned_Complex_Value] nvarchar(max) NULL,
+    [Owned_Complex_Date] datetime2 NULL,
+    [Owned_Complex_Nested_Foo] int NULL,
+    [Owned_Complex_Nested_Bar] datetime2 NULL,
+    [NestedCollection] nvarchar(max) NULL,
+    CONSTRAINT [PK_Owner] PRIMARY KEY ([Id])
+);
+""",
+            //
+            """
+CREATE TABLE [OwnedItems] (
+    [OwnerId] int NOT NULL,
+    [Id] int NOT NULL,
+    [Complex_Foo] int NULL,
+    [Complex_Bar] datetime2 NULL,
+    CONSTRAINT [PK_OwnedItems] PRIMARY KEY ([OwnerId], [Id]),
+    CONSTRAINT [FK_OwnedItems_Owner_OwnerId] FOREIGN KEY ([OwnerId]) REFERENCES [Owner] ([Id]) ON DELETE CASCADE
 );
 """);
     }

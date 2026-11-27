@@ -1184,6 +1184,20 @@ WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
 """);
             });
 
+    public override Task Min_over_constant_DateTime(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_over_constant_DateTime(a);
+
+                AssertSql(
+                    """
+SELECT VALUE MIN("0001-01-01T00:00:00.0000000")
+FROM root c
+WHERE (c["$type"] = "Order")
+""");
+            });
+
     public override async Task Min_over_subquery(bool async)
     {
         // Aggregates. Issue #16146.
@@ -1247,6 +1261,20 @@ WHERE (c["$type"] = "Order")
 SELECT VALUE MAX(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0))
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
+""");
+            });
+
+    public override Task Max_over_constant_DateTime(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_over_constant_DateTime(a);
+
+                AssertSql(
+                    """
+SELECT VALUE MAX("9999-12-31T23:59:59.9999999")
+FROM root c
+WHERE (c["$type"] = "Order")
 """);
             });
 

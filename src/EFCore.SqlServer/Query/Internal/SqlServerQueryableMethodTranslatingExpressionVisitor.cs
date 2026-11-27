@@ -61,6 +61,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         _sqlServerSingletonOptions = parentVisitor._sqlServerSingletonOptions;
     }
 
+    /// <inheritdoc />
+    protected override bool SupportsExtremalKeyLookup
+        => true;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -391,14 +395,34 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             selectExpression = (SelectExpression)new TemporalAnnotationApplyingExpressionVisitor(annotationApplyingFunc)
                 .Visit(selectExpression);
 
+            var projectionBindingExpression = new ProjectionBindingExpression(
+                selectExpression,
+                new ProjectionMember(),
+                typeof(ValueBuffer));
+
+            // A range operation returns every version of a row, so the key alone no longer identifies a row; the period does.
+            if (queryRootExpression is not TemporalAsOfQueryRootExpression)
+            {
+                var temporalEntityType = queryRootExpression.EntityType.GetRootType();
+                var projection = (StructuralTypeProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
+                foreach (var periodPropertyName in new[]
+                         {
+                             temporalEntityType.GetPeriodStartPropertyName()!, temporalEntityType.GetPeriodEndPropertyName()!
+                         })
+                {
+                    var periodProperty = temporalEntityType.GetProperty(periodPropertyName);
+#pragma warning disable EF1001 // AddToIdentifier() is pubternal
+                    selectExpression.AddToIdentifier(
+                        (ColumnExpression)projection.BindProperty(periodProperty), periodProperty.GetKeyValueComparer());
+#pragma warning restore EF1001
+                }
+            }
+
             return new ShapedQueryExpression(
                 selectExpression,
                 new RelationalStructuralTypeShaperExpression(
                     queryRootExpression.EntityType,
-                    new ProjectionBindingExpression(
-                        selectExpression,
-                        new ProjectionMember(),
-                        typeof(ValueBuffer)),
+                    projectionBindingExpression,
                     false));
         }
 
@@ -670,7 +694,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     // JSON_CONTAINS() is only supported over json, not nvarchar
                     Json: { TypeMapping: SqlServerJsonTypeMapping } json,
                     Path: null,
-                    ColumnInfos: [{ Name: "value" }]
+                    ColumnInfos: [{ Name: "value", TypeMapping: { Converter: null } elementTypeMapping }]
                 }
                 ],
                 Predicate: null,
@@ -681,6 +705,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 Offset: null
             }
             && TranslateExpression(item, applyDefaultTypeMapping: false) is { } translatedItem
+            // JSON_CONTAINS only accepts numeric, character and bit SQL values, and the item must use the same
+            // representation as the collection elements.
+            && _sqlExpressionFactory.ApplyDefaultTypeMapping(translatedItem) is
+            {
+                TypeMapping.StoreTypeNameBase: "bigint" or "int" or "smallint" or "tinyint" or "decimal" or "numeric"
+                    or "float" or "real" or "money" or "smallmoney" or "bit" or "char" or "varchar" or "nchar" or "nvarchar"
+            } mappedItem
+            && string.Equals(
+                mappedItem.TypeMapping!.StoreTypeNameBase, elementTypeMapping.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
             // Literal untyped NULL not supported as item by JSON_CONTAINS().
             // For any other nullable item, SqlServerNullabilityProcessor will add a null check around the JSON_CONTAINS call.
             // TODO: reverify this once JSON_CONTAINS comes out of preview, #37715
@@ -697,7 +730,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             var jsonContains = _sqlExpressionFactory.Equal(
                 _sqlExpressionFactory.Function(
                     "JSON_CONTAINS",
-                    [json, translatedItem],
+                    [json, mappedItem],
                     nullable: true,
                     argumentsPropagateNullability: [true, false],
                     typeof(int)),

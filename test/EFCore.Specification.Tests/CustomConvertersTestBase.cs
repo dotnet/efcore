@@ -807,6 +807,227 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal(1, results.Count);
     }
 
+    [Fact]
+    public virtual async Task Value_converter_in_complex_type_on_owned_reference()
+    {
+        using (var context = CreateContext())
+        {
+            context.AddRange(
+                new OwnerWithConvertedTag { Id = 1, Owned = CreateTaggedOwned(1) },
+                new OwnerWithConvertedTag { Id = 2, Owned = CreateTaggedOwned(2) });
+
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext())
+        {
+            var owners = await context.Set<OwnerWithConvertedTag>().OrderBy(e => e.Id).ToListAsync();
+            Assert.Equal([new TagId(1), new TagId(2)], owners.Select(o => o.Owned.Tag.Id));
+            Assert.Equal([new TagCode("A"), new TagCode("B")], owners.Select(o => o.Owned.Tag.Code));
+            Assert.Equal([new TagId(5), new TagId(6)], owners[0].Owned.Tag.RelatedIds);
+            Assert.Equal([new TagId(10), new TagId(20)], owners.Select(o => o.Owned.Tags.Single().Id));
+
+            var owner = await context.Set<OwnerWithConvertedTag>().SingleAsync(e => e.Owned.Tag.Id == new TagId(2));
+            Assert.Equal(2, owner.Id);
+
+            owner = await context.Set<OwnerWithConvertedTag>().SingleAsync(e => e.Owned.Tag.Code == new TagCode("A"));
+            Assert.Equal(1, owner.Id);
+
+            var ids = await context.Set<OwnerWithConvertedTag>().OrderBy(e => e.Id).Select(e => e.Owned.Tag.Id).ToListAsync();
+            Assert.Equal([new TagId(1), new TagId(2)], ids);
+
+            owners[0].Owned.Tag.Id = new TagId(3);
+            owners[0].Owned.Tag.RelatedIds.Add(new TagId(7));
+            owners[0].Owned.Tags[0].Id = new TagId(30);
+
+            Fixture.ListLoggerFactory.Clear();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext())
+        {
+            var owner = await context.Set<OwnerWithConvertedTag>().SingleAsync(e => e.Owned.Tag.Id == new TagId(3));
+            Assert.Equal(1, owner.Id);
+            Assert.Equal([new TagId(5), new TagId(6), new TagId(7)], owner.Owned.Tag.RelatedIds);
+            Assert.Equal(new TagId(30), owner.Owned.Tags.Single().Id);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Value_comparer_in_complex_type_on_owned_reference()
+    {
+        using (var context = CreateContext())
+        {
+            context.AddRange(
+                new OwnerWithComparedTag { Id = 1, Owned = CreateTaggedOwned(1) },
+                new OwnerWithComparedTag { Id = 2, Owned = CreateTaggedOwned(2) });
+
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext())
+        {
+            var owner = await context.Set<OwnerWithComparedTag>().SingleAsync(e => e.Id == 1);
+
+            // Only differs in case, so the comparer treats it as unchanged
+            owner.Owned.Tag.Code = new TagCode("a");
+            owner.Owned.Tags[0].Code = new TagCode("a");
+            context.ChangeTracker.DetectChanges();
+            Assert.False(context.Entry(owner.Owned).ComplexProperty(o => o.Tag).Property(t => t.Code).IsModified);
+            Assert.Equal(EntityState.Unchanged, context.Entry(owner.Owned).State);
+
+            Fixture.ListLoggerFactory.Clear();
+            Assert.Equal(0, await context.SaveChangesAsync());
+        }
+
+        using (var context = CreateContext())
+        {
+            var owner = await context.Set<OwnerWithComparedTag>().SingleAsync(e => e.Id == 1);
+
+            // Mutated in place, so only detected by comparing with the comparer's snapshot
+            owner.Owned.Tag.RelatedIds.Add(new TagId(7));
+            context.ChangeTracker.DetectChanges();
+            Assert.True(context.Entry(owner.Owned).ComplexProperty(o => o.Tag).Property(t => t.RelatedIds).IsModified);
+
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = CreateContext())
+        {
+            var owner = await context.Set<OwnerWithComparedTag>().SingleAsync(e => e.Id == 1);
+            Assert.Equal(new TagCode("A"), owner.Owned.Tag.Code);
+            Assert.Equal([new TagId(5), new TagId(6), new TagId(7)], owner.Owned.Tag.RelatedIds);
+        }
+    }
+
+    private static TaggedOwned CreateTaggedOwned(int id)
+        => id == 1
+            ? new TaggedOwned
+            {
+                Tag = new Tag
+                {
+                    Id = new TagId(1),
+                    Label = "One",
+                    Code = new TagCode("A"),
+                    RelatedIds = [new TagId(5), new TagId(6)]
+                },
+                Tags = [new Tag { Id = new TagId(10), Label = "Ten", Code = new TagCode("A") }]
+            }
+            : new TaggedOwned
+            {
+                Tag = new Tag
+                {
+                    Id = new TagId(2),
+                    Label = "Two",
+                    Code = new TagCode("B")
+                },
+                Tags = [new Tag { Id = new TagId(20), Label = "Twenty", Code = new TagCode("B") }]
+            };
+
+    // The complex types are on an owned type and use value converters for their properties, including the elements of a
+    // primitive collection
+    protected static void ConfigureOwnerWithConvertedTag(
+        ModelBuilder modelBuilder,
+        Action<ComplexCollectionBuilder<Tag>> configureTagCollection)
+        => modelBuilder.Entity<OwnerWithConvertedTag>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                e => e.Owned, ob =>
+                {
+                    ob.ComplexProperty(
+                        o => o.Tag, tb =>
+                        {
+                            tb.Property(t => t.Id).HasConversion<TagIdConverter>();
+                            tb.Property(t => t.Code).HasConversion<TagCodeConverter>();
+                            tb.PrimitiveCollection(t => t.RelatedIds).ElementType().HasConversion<TagIdConverter>();
+                        });
+                    ob.ComplexCollection(
+                        o => o.Tags, tb =>
+                        {
+                            tb.Property(t => t.Id).HasConversion<TagIdConverter>();
+                            tb.Property(t => t.Code).HasConversion<TagCodeConverter>();
+                            tb.PrimitiveCollection(t => t.RelatedIds).ElementType().HasConversion<TagIdConverter>();
+                            configureTagCollection(tb);
+                        });
+                });
+        });
+
+    // The complex types are on an owned type and use value comparers, including one for a collection mapped as a scalar
+    protected static void ConfigureOwnerWithComparedTag(
+        ModelBuilder modelBuilder,
+        Action<ComplexCollectionBuilder<Tag>> configureTagCollection)
+        => modelBuilder.Entity<OwnerWithComparedTag>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                e => e.Owned, ob =>
+                {
+                    ob.ComplexProperty(
+                        o => o.Tag, tb =>
+                        {
+                            tb.Property(t => t.Id).HasConversion<TagIdConverter>();
+                            tb.Property(t => t.Code).HasConversion<TagCodeConverter, TagCodeComparer>();
+                            tb.Property(t => t.RelatedIds).HasConversion<TagIdListConverter, TagIdListComparer>();
+                        });
+                    ob.ComplexCollection(
+                        o => o.Tags, tb =>
+                        {
+                            tb.Property(t => t.Id).HasConversion<TagIdConverter>();
+                            tb.Property(t => t.Code).HasConversion<TagCodeConverter, TagCodeComparer>();
+                            tb.Property(t => t.RelatedIds).HasConversion<TagIdListConverter, TagIdListComparer>();
+                            configureTagCollection(tb);
+                        });
+                });
+        });
+
+    protected class OwnerWithConvertedTag
+    {
+        public int Id { get; set; }
+        public TaggedOwned Owned { get; set; } = null!;
+    }
+
+    protected class OwnerWithComparedTag
+    {
+        public int Id { get; set; }
+        public TaggedOwned Owned { get; set; } = null!;
+    }
+
+    protected class TaggedOwned
+    {
+        public Tag Tag { get; set; } = null!;
+        public List<Tag> Tags { get; set; } = [];
+    }
+
+    public class Tag
+    {
+        public TagId Id { get; set; }
+        public string Label { get; set; } = null!;
+        public TagCode Code { get; set; }
+        public List<TagId> RelatedIds { get; set; } = [];
+    }
+
+    public readonly record struct TagId(int Value);
+
+    public readonly record struct TagCode(string Value);
+
+    protected class TagIdConverter() : ValueConverter<TagId, int>(v => v.Value, v => new TagId(v));
+
+    protected class TagCodeConverter() : ValueConverter<TagCode, string>(v => v.Value, v => new TagCode(v));
+
+    protected class TagCodeComparer() : ValueComparer<TagCode>(
+        (c1, c2) => string.Equals(c1.Value, c2.Value, StringComparison.OrdinalIgnoreCase),
+        c => StringComparer.OrdinalIgnoreCase.GetHashCode(c.Value));
+
+    protected class TagIdListConverter() : ValueConverter<List<TagId>, string>(
+        v => string.Join(",", v.Select(i => i.Value)),
+        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(i => new TagId(int.Parse(i))).ToList());
+
+    protected class TagIdListComparer() : ValueComparer<List<TagId>>(
+        (c1, c2) => c1!.SequenceEqual(c2!),
+        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v)),
+        c => c.ToList());
+
     public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
     {
         protected override string StoreName
@@ -1125,6 +1346,13 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                 new Entity { Id = 1, SomeEnum = SomeEnum.Yes },
                 new Entity { Id = 2, SomeEnum = SomeEnum.No },
                 new Entity { Id = 3, SomeEnum = SomeEnum.Yes });
+
+            ConfigureOwnerWithConvertedTag(modelBuilder, ConfigureTagCollection);
+            ConfigureOwnerWithComparedTag(modelBuilder, ConfigureTagCollection);
+        }
+
+        protected virtual void ConfigureTagCollection(ComplexCollectionBuilder<Tag> builder)
+        {
         }
 
         private static class StringToDictionarySerializer

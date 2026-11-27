@@ -811,7 +811,8 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Equal(removedSessionToken, afterRemoveExceptionSessionToken);
         }
 
-        [Theory, InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
+        [ConditionalTheory(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator)),
+         InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
         public virtual async Task Add_conflict_updates_session_token(AutoTransactionBehavior autoTransactionBehavior)
         {
             var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();

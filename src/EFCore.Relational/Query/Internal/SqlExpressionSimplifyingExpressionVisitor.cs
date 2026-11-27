@@ -57,6 +57,11 @@ public class SqlExpressionSimplifyingExpressionVisitor(
                         : new ClrTypeChangeExpression(visitedOperand, convertExpression.Type, convertExpression.TypeMapping);
             }
 
+            // Some providers render literals of these types as plain strings (e.g. '0001-01-01T00:00:00.0000000'), which the
+            // database returns as text when projected; an explicit CAST makes it return the mapped store type instead.
+            case ProjectionExpression projectionExpression:
+                return projectionExpression.Update(ConvertProjectedConstant((SqlExpression)Visit(projectionExpression.Expression)));
+
             case SqlBinaryExpression sqlBinaryExpression:
                 return SimplifySqlBinary(sqlBinaryExpression);
 
@@ -92,6 +97,37 @@ public class SqlExpressionSimplifyingExpressionVisitor(
             default:
                 return base.VisitExtension(extensionExpression);
         }
+
+        static SqlExpression ConvertProjectedConstant(SqlExpression expression)
+            => expression switch
+            {
+                SqlConstantExpression { Value: not null } constant when RequiresExplicitConvert(constant.Type)
+                    => new SqlUnaryExpression(ExpressionType.Convert, constant, constant.Type, constant.TypeMapping),
+
+                // The type of a CASE or of MIN/MAX is derived from their operands, so those must carry the type too.
+                CaseExpression caseExpression
+                    => caseExpression.Update(
+                        caseExpression.Operand,
+                        caseExpression.WhenClauses
+                            .Select(c => new CaseWhenClause(c.Test, ConvertProjectedConstant(c.Result)))
+                            .ToList(),
+                        caseExpression.ElseResult is null ? null : ConvertProjectedConstant(caseExpression.ElseResult)),
+
+                SqlFunctionExpression { IsBuiltIn: true, Instance: null, Arguments: [var argument] } function
+                    when string.Equals(function.Name, "MIN", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(function.Name, "MAX", StringComparison.OrdinalIgnoreCase)
+                    => function.Update(instance: null, [ConvertProjectedConstant(argument)]),
+
+                _ => expression
+            };
+
+        static bool RequiresExplicitConvert(Type type)
+            => type == typeof(Guid)
+                || type == typeof(DateTime)
+                || type == typeof(DateOnly)
+                || type == typeof(TimeOnly)
+                || type == typeof(TimeSpan)
+                || type == typeof(DateTimeOffset);
 
         static bool IsCoalesce(SqlExpression sqlExpression)
             => sqlExpression is SqlFunctionExpression { IsBuiltIn: true, Instance: null } sqlFunctionExpression

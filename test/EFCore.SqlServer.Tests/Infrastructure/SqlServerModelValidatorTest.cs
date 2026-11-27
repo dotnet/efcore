@@ -14,6 +14,48 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
+    [Fact] // Issue #39600
+    public void Scalar_collection_warning_identifies_the_configuration_before_contains_translation_fails()
+    {
+        var options = new DbContextOptionsBuilder()
+            .UseSqlServer()
+            .UseLoggerFactory(LoggerFactory)
+            .Options;
+        var id = Guid.NewGuid();
+
+        using (var context = new ScalarCollectionQueryContext(options))
+        {
+            Assert.Throws<InvalidOperationException>(
+                () => context.Set<CollectionQueryRoom>().Where(r => r.Required.Contains(id)).ToQueryString());
+            var warning = Assert.Single(LoggerFactory.Log, e => e.Id == CoreEventId.AccidentalScalarCollection);
+            Assert.Contains("PrimitiveCollection()", warning.Message);
+        }
+
+        LoggerFactory.Clear();
+        using var collectionContext = new PrimitiveCollectionQueryContext(options);
+        var sql = collectionContext.Set<CollectionQueryRoom>().Where(r => r.Required.Contains(id)).ToQueryString();
+        Assert.Contains("OPENJSON", sql);
+        Assert.DoesNotContain(LoggerFactory.Log, e => e.Id == CoreEventId.AccidentalScalarCollection);
+    }
+
+    private class CollectionQueryRoom
+    {
+        public int Id { get; set; }
+        public Guid[] Required { get; set; } = [];
+    }
+
+    private class ScalarCollectionQueryContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CollectionQueryRoom>().Property(r => r.Required).IsRequired();
+    }
+
+    private class PrimitiveCollectionQueryContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CollectionQueryRoom>().PrimitiveCollection(r => r.Required).IsRequired();
+    }
+
     [Fact] // Issue #34324
     public virtual void Throws_for_nested_primitive_collections()
     {
@@ -95,6 +137,47 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         var keyProperty = modelBuilder.Model.FindEntityType(typeof(Animal))!.FindProperty(nameof(Animal.Id))!;
         Assert.Equal(ValueGenerated.OnAdd, keyProperty.ValueGenerated);
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, keyProperty.GetValueGenerationStrategy());
+    }
+
+    [Theory]
+    [InlineData(ConstraintDeferrability.DeferrableInitiallyImmediate)]
+    [InlineData(ConstraintDeferrability.DeferrableInitiallyDeferred)]
+    public virtual void Throws_for_deferrable_foreign_key(ConstraintDeferrability deferrability)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasDeferrability(deferrability);
+
+        VerifyError(
+            SqlServerStrings.DeferrableForeignKeysNotSupported("{'" + nameof(Cat.Name) + "'}", nameof(Cat)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_for_foreign_key_not_deferrable()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasDeferrability(ConstraintDeferrability.NotDeferrable);
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name);
+
+        Validate(modelBuilder);
+    }
+
+    public override void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_deferrability()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name").HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name");
+
+        VerifyError(
+            SqlServerStrings.DeferrableForeignKeysNotSupported("{'" + nameof(Cat.Name) + "'}", nameof(Cat)),
+            modelBuilder);
     }
 
     [Fact]

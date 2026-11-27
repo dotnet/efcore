@@ -167,6 +167,91 @@ WHERE (
 """);
     }
 
+    public override async Task Owned_reference_with_complex_type_on_base_and_derived_types(bool async)
+    {
+        await base.Owned_reference_with_complex_type_on_base_and_derived_types(async);
+
+        AssertSql(
+            """
+SELECT [u].[Id], [u].[Name], [u].[Discriminator], [m0].[ManufacturerId], [m0].[Name], [m0].[Address_City], [m0].[Address_Street], [m0].[Address_Country_Code], [m0].[Address_Country_Name], [b0].[Id], [b0].[Brewhouse_Name], [b0].[Brewhouse_Address_City], [b0].[Brewhouse_Address_Street], [b0].[Brewhouse_Address_Country_Code], [b0].[Brewhouse_Address_Country_Name]
+FROM (
+    SELECT [m].[Id], [m].[Name], N'Manufacturer' AS [Discriminator]
+    FROM [Manufacturer] AS [m]
+    UNION ALL
+    SELECT [b].[Id], [b].[Name], N'Brewery' AS [Discriminator]
+    FROM [Brewery] AS [b]
+) AS [u]
+LEFT JOIN [ManufacturerHeadquarters] AS [m0] ON [u].[Id] = [m0].[ManufacturerId]
+LEFT JOIN [Brewery] AS [b0] ON [u].[Id] = [b0].[Id]
+""");
+    }
+
+    public override async Task Filter_on_complex_type_property_of_owned_reference_on_base_type(bool async)
+    {
+        await base.Filter_on_complex_type_property_of_owned_reference_on_base_type(async);
+
+        AssertSql(
+            """
+SELECT [u].[Id], [u].[Name], [u].[Discriminator], [m0].[ManufacturerId], [m0].[Name], [m0].[Address_City], [m0].[Address_Street], [m0].[Address_Country_Code], [m0].[Address_Country_Name], [b0].[Id], [b0].[Brewhouse_Name], [b0].[Brewhouse_Address_City], [b0].[Brewhouse_Address_Street], [b0].[Brewhouse_Address_Country_Code], [b0].[Brewhouse_Address_Country_Name]
+FROM (
+    SELECT [m].[Id], [m].[Name], N'Manufacturer' AS [Discriminator]
+    FROM [Manufacturer] AS [m]
+    UNION ALL
+    SELECT [b].[Id], [b].[Name], N'Brewery' AS [Discriminator]
+    FROM [Brewery] AS [b]
+) AS [u]
+LEFT JOIN [ManufacturerHeadquarters] AS [m0] ON [u].[Id] = [m0].[ManufacturerId]
+LEFT JOIN [Brewery] AS [b0] ON [u].[Id] = [b0].[Id]
+WHERE [m0].[Address_Country_Code] = N'DE'
+""");
+    }
+
+    public override async Task Filter_on_complex_type_property_of_owned_reference_on_derived_type(bool async)
+    {
+        await base.Filter_on_complex_type_property_of_owned_reference_on_derived_type(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [m].[ManufacturerId], [m].[Name], [m].[Address_City], [m].[Address_Street], [m].[Address_Country_Code], [m].[Address_Country_Name], [b].[Id], [b].[Brewhouse_Name], [b].[Brewhouse_Address_City], [b].[Brewhouse_Address_Street], [b].[Brewhouse_Address_Country_Code], [b].[Brewhouse_Address_Country_Name]
+FROM [Brewery] AS [b]
+LEFT JOIN [ManufacturerHeadquarters] AS [m] ON [b].[Id] = [m].[ManufacturerId]
+WHERE [b].[Brewhouse_Address_Country_Code] = N'DE'
+""");
+    }
+
+    public override async Task Project_complex_type_of_owned_reference_on_base_type(bool async)
+    {
+        await base.Project_complex_type_of_owned_reference_on_base_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[Address_City], [m0].[Address_Street], [m0].[Address_Country_Code], [m0].[Address_Country_Name]
+FROM (
+    SELECT [m].[Id]
+    FROM [Manufacturer] AS [m]
+    UNION ALL
+    SELECT [b].[Id]
+    FROM [Brewery] AS [b]
+) AS [u]
+LEFT JOIN [ManufacturerHeadquarters] AS [m0] ON [u].[Id] = [m0].[ManufacturerId]
+""");
+    }
+
+    public override async Task Project_complex_type_of_owned_reference_on_derived_type(bool async)
+    {
+        await base.Project_complex_type_of_owned_reference_on_derived_type(async);
+
+        AssertSql(
+            """
+SELECT [b0].[Brewhouse_Address_City], [b0].[Brewhouse_Address_Street], [b0].[Brewhouse_Address_Country_Code], [b0].[Brewhouse_Address_Country_Name]
+FROM (
+    SELECT [b].[Id]
+    FROM [Brewery] AS [b]
+) AS [u]
+LEFT JOIN [Brewery] AS [b0] ON [u].[Id] = [b0].[Id]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

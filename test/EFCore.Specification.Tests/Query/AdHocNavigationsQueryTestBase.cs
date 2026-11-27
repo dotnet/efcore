@@ -1727,4 +1727,77 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 39648
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_distinct_count_over_navigation_through_cast_beside_navigation_aggregate(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39648>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Items
+            .GroupBy(i => i.GroupId)
+            .Select(g => new
+            {
+                g.Key,
+                Owner = g.Max(i => i.Owner.Name),
+                Labels = g.Select(i => ((SpecialItem39648)i).Tag!.Label).Distinct().Count()
+            });
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        // Distinct keeps the null label as a value of its own.
+        var result = Assert.Single(results);
+        Assert.Equal("Owner", result.Owner);
+        Assert.Equal(2, result.Labels);
+    }
+
+    protected class Context39648(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item39648> Items { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<SpecialItem39648>();
+
+        public Task SeedAsync()
+        {
+            var owner = new Owner39648 { Name = "Owner" };
+            AddRange(
+                new SpecialItem39648 { GroupId = 1, Owner = owner, Tag = new Tag39648 { Label = "A" } },
+                new SpecialItem39648 { GroupId = 1, Owner = owner, Tag = new Tag39648() });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class Item39648
+    {
+        public int Id { get; set; }
+        public int GroupId { get; set; }
+        public int OwnerId { get; set; }
+        public Owner39648 Owner { get; set; } = null!;
+    }
+
+    protected class SpecialItem39648 : Item39648
+    {
+        public int? TagId { get; set; }
+        public Tag39648? Tag { get; set; }
+    }
+
+    protected class Owner39648
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    protected class Tag39648
+    {
+        public int Id { get; set; }
+        public string? Label { get; set; }
+    }
+
+    #endregion
 }
