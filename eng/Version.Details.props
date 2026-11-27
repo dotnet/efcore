@@ -6,19 +6,19 @@ This file should be imported by eng/Versions.props
 <Project>
   <PropertyGroup>
     <!-- dotnet-dotnet dependencies -->
-    <MicrosoftDotNetArcadeSdkPackageVersion>11.0.0-beta.26573.119</MicrosoftDotNetArcadeSdkPackageVersion>
-    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>11.0.0-beta.26573.119</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
-    <MicrosoftDotNetHelixSdkPackageVersion>11.0.0-beta.26573.119</MicrosoftDotNetHelixSdkPackageVersion>
+    <MicrosoftDotNetArcadeSdkPackageVersion>11.0.0-beta.26576.113</MicrosoftDotNetArcadeSdkPackageVersion>
+    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>11.0.0-beta.26576.113</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
+    <MicrosoftDotNetHelixSdkPackageVersion>11.0.0-beta.26576.113</MicrosoftDotNetHelixSdkPackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>11.0.2</MicrosoftExtensionsCachingMemoryPackageVersion>
     <MicrosoftExtensionsConfigurationPackageVersion>11.0.2</MicrosoftExtensionsConfigurationPackageVersion>
     <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>11.0.2</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
     <MicrosoftExtensionsConfigurationJsonPackageVersion>11.0.2</MicrosoftExtensionsConfigurationJsonPackageVersion>
     <MicrosoftExtensionsDependencyInjectionPackageVersion>11.0.2</MicrosoftExtensionsDependencyInjectionPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>11.0.2</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>11.0.2-servicing.26573.119</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>11.0.2-servicing.26576.113</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
     <MicrosoftExtensionsLoggingPackageVersion>11.0.2</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftNETCoreAppRefPackageVersion>11.0.2</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>11.0.2-servicing.26573.119</MicrosoftNETCorePlatformsPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>11.0.2-servicing.26576.113</MicrosoftNETCorePlatformsPackageVersion>
     <SystemFormatsAsn1PackageVersion>11.0.2</SystemFormatsAsn1PackageVersion>
     <SystemRuntimeCachingPackageVersion>11.0.2</SystemRuntimeCachingPackageVersion>
     <SystemSecurityCryptographyPkcsPackageVersion>11.0.2</SystemSecurityCryptographyPkcsPackageVersion>
