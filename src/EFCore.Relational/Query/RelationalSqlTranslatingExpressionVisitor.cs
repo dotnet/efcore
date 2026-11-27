@@ -242,8 +242,12 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     // Translates the selector, predicate or ordering of an aggregate over a grouping element: SQL that ends up in the aggregate's
     // argument, which isn't a query an aggregate over a grouping can be evaluated in. SQL doesn't allow an aggregate inside another
     // aggregate's argument, so with no known scope a nested aggregate over a grouping is refused and falls back to a subquery (#27130).
+    // A property that fails to bind doesn't throw either: an owned type in its own table is left unexpanded over a grouping element
+    // (see RemapLambda), and the subquery fallback can join it in.
     private Expression? TranslateAggregateArgument(Expression expression)
     {
+        var throwForNotTranslatedEfProperty = _throwForNotTranslatedEfProperty;
+        _throwForNotTranslatedEfProperty = false;
         PushTranslationScope(null);
         try
         {
@@ -252,6 +256,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         finally
         {
             PopTranslationScope();
+            _throwForNotTranslatedEfProperty = throwForNotTranslatedEfProperty;
         }
     }
 
@@ -1872,9 +1877,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         refusedGroupingAggregate = null;
 
-        _throwForNotTranslatedEfProperty = false;
         var selector = TranslateAggregateArgument(enumerableExpression.Selector);
-        _throwForNotTranslatedEfProperty = true;
         if (selector is SqlExpression)
         {
             enumerableExpression = enumerableExpression.ApplySelector(selector);
