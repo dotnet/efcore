@@ -991,6 +991,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Diff,
             (t, c) => Add(t, c),
             Remove,
+            // A JSON column can be renamed when another column takes its default name, so it's matched by its complex property first
+            (s, t, c) => GetJsonComplexProperties(s).Any(sp =>
+                GetJsonComplexProperties(t).Any(tp => ComplexPropertyPathEquals(sp, tp, c))),
             (s, t, _) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
             (s, t, c) => s.PropertyMappings.Any(sm =>
                 t.PropertyMappings.Any(tm =>
@@ -1007,6 +1010,47 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             (s, t, _) => ColumnStructureEquals(s, t) && ColumnAnnotationsEqual(s, t, matchValues: true),
             (s, t, _) => ColumnStructureEquals(s, t) && ColumnAnnotationsEqual(s, t, matchValues: false),
             (s, t, _) => ColumnStructureEquals(s, t));
+
+    // Compares the names of the complex properties from the entity type, e.g. Alpha.Document and Beta.Document are different
+    private static bool ComplexPropertyPathEquals(IComplexProperty source, IComplexProperty target, DiffContext diffContext)
+    {
+        while (string.Equals(source.Name, target.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            switch (source.DeclaringType, target.DeclaringType)
+            {
+                case (IComplexType sourceComplexType, IComplexType targetComplexType):
+                    source = sourceComplexType.ComplexProperty;
+                    target = targetComplexType.ComplexProperty;
+                    continue;
+                case (IComplexType, _) or (_, IComplexType):
+                    return false;
+                default:
+                    return EntityTypePathEquals(source.DeclaringType, target.DeclaringType, diffContext);
+            }
+        }
+
+        return false;
+    }
+
+    private static IEnumerable<IComplexProperty> GetJsonComplexProperties(IColumn column)
+    {
+        if (column is not JsonColumn)
+        {
+            yield break;
+        }
+
+        var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
+        foreach (var mapping in column.Table.ComplexTypeMappings)
+        {
+            if (mapping.TypeBase is IComplexType complexType
+                && complexType.IsMappedToJson()
+                && !complexType.ComplexProperty.DeclaringType.IsMappedToJson()
+                && complexType.GetContainerColumnName(table) == column.Name)
+            {
+                yield return complexType.ComplexProperty;
+            }
+        }
+    }
 
     private static bool ColumnAnnotationsEqual(IColumn source, IColumn target, bool matchValues)
     {

@@ -374,8 +374,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     entry.EntityState is EntityState.Modified or EntityState.Added
                     && tableMapping.Table.IsOptional(entry.EntityType)
                     && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any()
-                    && entry.EntityType.GetComplexProperties()
-                        .All(p => !p.ComplexType.IsMappedToJson() || entry.GetCurrentValue(p) == null);
+                    && !HasNonNullJsonComplexProperty(entry.EntityType, entry.GetCurrentValue);
 
                 HandleNonJson(entry, entry.EntityType, tableMapping, nonMainEntry, ref optionalDependentWithAllNull);
             }
@@ -858,7 +857,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     }
 
                     if (entry.EntityState == EntityState.Added
-                        || entry.IsModified(complexProperty))
+                        || entry.IsModified(complexProperty)
+                        || IsOptionalContainingComplexPropertyModified(entry, complexProperty))
                     {
                         var jsonPartialUpdateInfo = new List<JsonPartialUpdatePathEntry> { new("$", null, entry, complexProperty) };
                         jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
@@ -898,7 +898,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 var finalUpdatePathElement = updateInfo.Last();
                 var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
                 var jsonProperty = finalUpdatePathElement.Property;
-                var propertyValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(jsonProperty);
+                var propertyValue = IsInNullContainingComplexProperty(finalUpdatePathElement.ParentEntry, jsonProperty)
+                    ? null
+                    : finalUpdatePathElement.ParentEntry.GetCurrentValue(jsonProperty);
 
                 var ordinals = new List<int?>();
                 foreach (var entry in updateInfo)
@@ -1023,6 +1025,54 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         ? table.FindColumn(columnName)
                         : null;
             }
+
+            // The complex properties mapped to columns (table splitting) that contain the given JSON complex property
+            static IEnumerable<IComplexProperty> GetContainingComplexProperties(IPropertyBase property)
+            {
+                for (var declaringType = property.DeclaringType;
+                     declaringType is IComplexType { ComplexProperty: var containingProperty } complexType
+                     && !complexType.IsMappedToJson();
+                     declaringType = containingProperty.DeclaringType)
+                {
+                    yield return containingProperty;
+                }
+            }
+
+            // A JSON complex property nested in an optional complex property mapped to columns is null when that property is null,
+            // so its JSON column is written when that property becomes null or non-null, even when the value of the JSON complex
+            // property doesn't change, e.g. for a value type with default values. Without an original value, any change to the
+            // optional complex property is assumed to be such a change.
+            static bool IsOptionalContainingComplexPropertyModified(IUpdateEntry entry, IComplexProperty complexProperty)
+                => GetContainingComplexProperties(complexProperty).Any(p => p.IsNullable
+                    && (entry.CanHaveOriginalValue(p)
+                        ? (entry.GetOriginalValue(p) == null) != (entry.GetCurrentValue(p) == null)
+                        : entry.IsModified(p)));
+
+            // The getter of a value type nested in a complex property that is null returns the default value instead of null
+            static bool IsInNullContainingComplexProperty(IUpdateEntry entry, IPropertyBase property)
+                => GetContainingComplexProperties(property).Any(p => entry.GetCurrentValue(p) == null);
+        }
+
+        // JSON complex properties can be nested in complex properties mapped to columns (table splitting)
+        static bool HasNonNullJsonComplexProperty(ITypeBase structuralType, Func<IComplexProperty, object?> getValue)
+        {
+            foreach (var complexProperty in structuralType.GetComplexProperties())
+            {
+                var value = getValue(complexProperty);
+                if (value == null)
+                {
+                    continue;
+                }
+
+                if (complexProperty.ComplexType.IsMappedToJson()
+                    || (!complexProperty.IsCollection
+                        && HasNonNullJsonComplexProperty(complexProperty.ComplexType, p => p.GetGetter().GetClrValue(value))))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

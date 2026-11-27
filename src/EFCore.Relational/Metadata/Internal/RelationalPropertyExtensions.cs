@@ -40,7 +40,11 @@ public static class RelationalPropertyExtensions
         => property switch
         {
             IProperty p => p.IsNullable,
-            IComplexProperty complexProperty => complexProperty.IsNullable,
+            // The column of a JSON complex property nested in complex
+            // properties mapped to columns is also null when any of them is
+            IComplexProperty complexProperty => complexProperty.IsNullable
+                || complexProperty.DeclaringType is IComplexType { ComplexProperty: var containingProperty }
+                && containingProperty.IsNullable(),
             _ => true
         };
 }

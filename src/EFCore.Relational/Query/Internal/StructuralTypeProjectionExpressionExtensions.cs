@@ -23,7 +23,7 @@ public static class StructuralTypeProjectionExpressionExtensions
         => property switch
         {
             IProperty p => projection.BindProperty(p),
-            IComplexProperty complexProperty => projection.BindComplexProperty(complexProperty) switch
+            IComplexProperty complexProperty => BindComplexProperty(projection, complexProperty) switch
             {
                 StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery } => jsonQuery.JsonColumn,
                 CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery } => jsonQuery.JsonColumn,
@@ -31,4 +31,16 @@ public static class StructuralTypeProjectionExpressionExtensions
             },
             _ => throw new UnreachableException()
         };
+
+    // A JSON complex property can be nested in complex properties mapped to columns (table splitting)
+    private static Expression BindComplexProperty(StructuralTypeProjectionExpression projection, IComplexProperty complexProperty)
+        => complexProperty.DeclaringType is IComplexType { ComplexProperty: var containingProperty } declaringComplexType
+            && !declaringComplexType.IsMappedToJson()
+            && declaringComplexType != projection.StructuralType
+            && BindComplexProperty(projection, containingProperty) is StructuralTypeShaperExpression
+            {
+                ValueBufferExpression: StructuralTypeProjectionExpression containingProjection
+            }
+                ? containingProjection.BindComplexProperty(complexProperty)
+                : projection.BindComplexProperty(complexProperty);
 }

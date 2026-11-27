@@ -73,7 +73,7 @@ public partial class OwnedWithComplexEntityType
                 propertyInfo: typeof(CompiledModelRelationalTestBase.OwnedWithComplex).GetProperty("Location", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelRelationalTestBase.OwnedWithComplex).GetField("<Location>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyCount: 1,
-                complexPropertyCount: 1);
+                complexPropertyCount: 2);
 
             var complexType = complexProperty.ComplexType;
             complexProperty.SetGetter(
@@ -154,6 +154,7 @@ public partial class OwnedWithComplexEntityType
             city.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             CoordinatesComplexProperty.Create(complexType);
+            LandmarkComplexProperty.Create(complexType);
             complexType.AddAnnotation("Relational:FunctionName", null);
             complexType.AddAnnotation("Relational:Schema", null);
             complexType.AddAnnotation("Relational:SqlQuery", null);
@@ -321,6 +322,121 @@ public partial class OwnedWithComplexEntityType
                 return complexProperty;
             }
         }
+
+        public static class LandmarkComplexProperty
+        {
+            public static RuntimeComplexProperty Create(RuntimeComplexType declaringType)
+            {
+                var complexProperty = declaringType.AddComplexProperty("Landmark",
+                    typeof(CompiledModelRelationalTestBase.TagComplex),
+                    "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+OwnerWithComplex.JsonOwned#OwnedWithComplex.Location#LocationComplex.Landmark#TagComplex",
+                    typeof(CompiledModelRelationalTestBase.TagComplex),
+                    propertyInfo: typeof(CompiledModelRelationalTestBase.LocationComplex).GetProperty("Landmark", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    fieldInfo: typeof(CompiledModelRelationalTestBase.LocationComplex).GetField("<Landmark>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    nullable: true,
+                    propertyCount: 1);
+
+                var complexType = complexProperty.ComplexType;
+                complexProperty.SetGetter(
+                    CompiledModelRelationalTestBase.TagComplex (CompiledModelRelationalTestBase.OwnedWithComplex entity, IReadOnlyList<int> indices) => (OwnedWithComplexUnsafeAccessors.Location(entity) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(entity))),
+                    bool (CompiledModelRelationalTestBase.OwnedWithComplex entity, IReadOnlyList<int> indices) => (OwnedWithComplexUnsafeAccessors.Location(entity) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(entity))) == null,
+                    CompiledModelRelationalTestBase.TagComplex (CompiledModelRelationalTestBase.LocationComplex instance) => LocationComplexUnsafeAccessors.Landmark(instance),
+                    bool (CompiledModelRelationalTestBase.LocationComplex instance) => LocationComplexUnsafeAccessors.Landmark(instance) == null);
+                complexProperty.SetSetter(
+                    (CompiledModelRelationalTestBase.OwnedWithComplex entity, IReadOnlyList<int> indices, CompiledModelRelationalTestBase.TagComplex value) =>
+                    {
+                        var level1 = OwnedWithComplexUnsafeAccessors.Location(entity);
+                        LocationComplexUnsafeAccessors.Landmark(level1) = value;
+                    },
+                    CompiledModelRelationalTestBase.LocationComplex (CompiledModelRelationalTestBase.LocationComplex instance, CompiledModelRelationalTestBase.TagComplex value) =>
+                    {
+                        LocationComplexUnsafeAccessors.Landmark(instance) = value;
+                        return instance;
+                    });
+                complexProperty.SetMaterializationSetter(
+                    (CompiledModelRelationalTestBase.OwnedWithComplex entity, IReadOnlyList<int> indices, CompiledModelRelationalTestBase.TagComplex value) =>
+                    {
+                        var level1 = OwnedWithComplexUnsafeAccessors.Location(entity);
+                        LocationComplexUnsafeAccessors.Landmark(level1) = value;
+                    },
+                    CompiledModelRelationalTestBase.LocationComplex (CompiledModelRelationalTestBase.LocationComplex instance, CompiledModelRelationalTestBase.TagComplex value) =>
+                    {
+                        LocationComplexUnsafeAccessors.Landmark(instance) = value;
+                        return instance;
+                    });
+                complexProperty.SetAccessors(
+                    CompiledModelRelationalTestBase.TagComplex (IInternalEntry entry) => (OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))))),
+                    CompiledModelRelationalTestBase.TagComplex (IInternalEntry entry) => (OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))))),
+                    null,
+                    CompiledModelRelationalTestBase.TagComplex (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelRelationalTestBase.TagComplex>(complexProperty));
+                complexProperty.SetPropertyIndexes(
+                    index: 2,
+                    originalValueIndex: 4,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
+                var text = complexType.AddProperty(
+                    "Text",
+                    typeof(string),
+                    propertyInfo: typeof(CompiledModelRelationalTestBase.TagComplex).GetProperty("Text", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    fieldInfo: typeof(CompiledModelRelationalTestBase.TagComplex).GetField("<Text>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                text.SetGetter(
+                    string (CompiledModelRelationalTestBase.OwnedWithComplex entity, IReadOnlyList<int> indices) => ((OwnedWithComplexUnsafeAccessors.Location(entity) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(entity))) == null ? default(string) : TagComplexUnsafeAccessors.Text((OwnedWithComplexUnsafeAccessors.Location(entity) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(entity))))),
+                    bool (CompiledModelRelationalTestBase.OwnedWithComplex entity, IReadOnlyList<int> indices) => ((OwnedWithComplexUnsafeAccessors.Location(entity) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(entity))) == null ? default(string) : TagComplexUnsafeAccessors.Text((OwnedWithComplexUnsafeAccessors.Location(entity) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(entity))))) == null,
+                    string (CompiledModelRelationalTestBase.TagComplex instance) => TagComplexUnsafeAccessors.Text(instance),
+                    bool (CompiledModelRelationalTestBase.TagComplex instance) => TagComplexUnsafeAccessors.Text(instance) == null);
+                text.SetSetter(
+                    (CompiledModelRelationalTestBase.OwnedWithComplex entity, IReadOnlyList<int> indices, string value) =>
+                    {
+                        var level1 = OwnedWithComplexUnsafeAccessors.Location(entity);
+                        var level2 = LocationComplexUnsafeAccessors.Landmark(level1);
+                        TagComplexUnsafeAccessors.Text(level2) = value;
+                    },
+                    CompiledModelRelationalTestBase.TagComplex (CompiledModelRelationalTestBase.TagComplex instance, string value) =>
+                    {
+                        TagComplexUnsafeAccessors.Text(instance) = value;
+                        return instance;
+                    });
+                text.SetMaterializationSetter(
+                    (CompiledModelRelationalTestBase.OwnedWithComplex entity, IReadOnlyList<int> indices, string value) =>
+                    {
+                        var level1 = OwnedWithComplexUnsafeAccessors.Location(entity);
+                        var level2 = LocationComplexUnsafeAccessors.Landmark(level1);
+                        TagComplexUnsafeAccessors.Text(level2) = value;
+                    },
+                    CompiledModelRelationalTestBase.TagComplex (CompiledModelRelationalTestBase.TagComplex instance, string value) =>
+                    {
+                        TagComplexUnsafeAccessors.Text(instance) = value;
+                        return instance;
+                    });
+                text.SetAccessors(
+                    string (IInternalEntry entry) => ((OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))))) == null ? default(string) : TagComplexUnsafeAccessors.Text((OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))))))),
+                    string (IInternalEntry entry) => ((OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))))) == null ? default(string) : TagComplexUnsafeAccessors.Text((OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))) == null ? default(CompiledModelRelationalTestBase.TagComplex) : LocationComplexUnsafeAccessors.Landmark(OwnedWithComplexUnsafeAccessors.Location(((CompiledModelRelationalTestBase.OwnedWithComplex)(entry.Entity))))))),
+                    string (IInternalEntry entry) => entry.ReadOriginalValue<string>(text, 5),
+                    string (IInternalEntry entry) => entry.GetCurrentValue<string>(text));
+                text.SetPropertyIndexes(
+                    index: 4,
+                    originalValueIndex: 5,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
+                text.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
+                    mappingInfo: new RelationalTypeMappingInfo(
+                        storeTypeName: "nvarchar(max)",
+                        unicode: true,
+                        dbType: System.Data.DbType.String),
+                    storeTypePostfix: StoreTypePostfix.None);
+                text.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+                complexType.AddAnnotation("Relational:FunctionName", null);
+                complexType.AddAnnotation("Relational:Schema", null);
+                complexType.AddAnnotation("Relational:SqlQuery", null);
+                complexType.AddAnnotation("Relational:TableName", "OwnerWithComplex");
+                complexType.AddAnnotation("Relational:ViewName", null);
+                complexType.AddAnnotation("Relational:ViewSchema", null);
+                return complexProperty;
+            }
+        }
     }
 
     public static class TagsComplexProperty
@@ -364,7 +480,7 @@ public partial class OwnedWithComplexEntityType
                 List<CompiledModelRelationalTestBase.TagComplex> (IInternalEntry entry) => entry.GetCurrentValue<List<CompiledModelRelationalTestBase.TagComplex>>(complexProperty));
             complexProperty.SetPropertyIndexes(
                 index: 0,
-                originalValueIndex: 4,
+                originalValueIndex: 6,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -527,9 +643,12 @@ public partial class OwnedWithComplexEntityType
         var coordinatesComplex = coordinates.ComplexType;
         var latitude = coordinatesComplex.FindProperty("Latitude");
         var longitude = coordinatesComplex.FindProperty("Longitude");
-        var tags = runtimeEntityType.FindComplexProperty("Tags");
-        var tagComplex = tags.ComplexType;
+        var landmark = locationComplex.FindComplexProperty("Landmark");
+        var tagComplex = landmark.ComplexType;
         var text = tagComplex.FindProperty("Text");
+        var tags = runtimeEntityType.FindComplexProperty("Tags");
+        var tagComplex0 = tags.ComplexType;
+        var text0 = tagComplex0.FindProperty("Text");
         var key = runtimeEntityType.FindKey(new[] { ownerWithComplexId });
         key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
         key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
@@ -537,7 +656,7 @@ public partial class OwnedWithComplexEntityType
             ISnapshot (IInternalEntry source) =>
             {
                 var structuralType = ((CompiledModelRelationalTestBase.OwnedWithComplex)(source.Entity));
-                return ((ISnapshot)(new Snapshot<int, string, decimal, decimal, object>(((ValueComparer<int>)(((IProperty)ownerWithComplexId).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(ownerWithComplexId)), (source.GetCurrentValue<string>(city) == null ? null : ((ValueComparer<string>)(((IProperty)city).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(city))), ((ValueComparer<decimal>)(((IProperty)latitude).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(latitude)), ((ValueComparer<decimal>)(((IProperty)longitude).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(longitude)), SnapshotFactoryFactory.SnapshotComplexCollection(source.GetCurrentValue<List<CompiledModelRelationalTestBase.TagComplex>>(tags), tags))));
+                return ((ISnapshot)(new Snapshot<int, string, decimal, decimal, object, string, object>(((ValueComparer<int>)(((IProperty)ownerWithComplexId).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(ownerWithComplexId)), (source.GetCurrentValue<string>(city) == null ? null : ((ValueComparer<string>)(((IProperty)city).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(city))), ((ValueComparer<decimal>)(((IProperty)latitude).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(latitude)), ((ValueComparer<decimal>)(((IProperty)longitude).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(longitude)), ((object)(source.GetCurrentValue<CompiledModelRelationalTestBase.TagComplex>(landmark))), (source.GetCurrentValue<string>(text) == null ? null : ((ValueComparer<string>)(((IProperty)text).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(text))), SnapshotFactoryFactory.SnapshotComplexCollection(source.GetCurrentValue<List<CompiledModelRelationalTestBase.TagComplex>>(tags), tags))));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
             ISnapshot () => ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)ownerWithComplexId).GetValueComparer())).Snapshot(default(int))))));
@@ -554,11 +673,11 @@ public partial class OwnedWithComplexEntityType
                 return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)ownerWithComplexId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(ownerWithComplexId)))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 4,
+            propertyCount: 5,
             navigationCount: 0,
-            complexPropertyCount: 2,
+            complexPropertyCount: 3,
             complexCollectionCount: 1,
-            originalValueCount: 5,
+            originalValueCount: 7,
             shadowCount: 1,
             relationshipCount: 1,
             storeGeneratedCount: 1));

@@ -4989,7 +4989,7 @@ CREATE TABLE [Contacts] (
     [MyComplex_Nested_Bar] datetime2 NULL,
     [MyComplex_MyNestedComplex_Foo] int NULL,
     [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
-    [NestedCollection] nvarchar(max) NULL,
+    [MyComplex_NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
 );
 """);
@@ -5008,7 +5008,7 @@ CREATE TABLE [Owner] (
     [Owned_Complex_Date] datetime2 NULL,
     [Owned_Complex_Nested_Foo] int NULL,
     [Owned_Complex_Nested_Bar] datetime2 NULL,
-    [NestedCollection] nvarchar(max) NULL,
+    [Owned_Complex_NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Owner] PRIMARY KEY ([Id])
 );
 """,
@@ -5039,7 +5039,7 @@ CREATE TABLE [Suppliers] (
     [MyComplex_Nested_Bar] datetime2 NULL,
     [MyComplex_MyNestedComplex_Foo] int NULL,
     [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
-    [NestedCollection] nvarchar(max) NULL,
+    [MyComplex_NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Suppliers] PRIMARY KEY ([Id])
 );
 """);

@@ -151,6 +151,11 @@ public partial class DbContextModel
         var defaultTableMappings2 = new List<TableMappingBase<ColumnMappingBase>>();
         principalBase.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings2);
         var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase", null, relationalModel);
+        var deetsColumnBase = new ColumnBase<ColumnMappingBase>("Deets", "varchar(64)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
+        {
+            IsNullable = true
+        };
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Deets", deetsColumnBase);
         var dependentColumnBase = new JsonColumnBase("Dependent", "json", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
         {
             IsNullable = true
@@ -176,11 +181,6 @@ public partial class DbContextModel
             IsNullable = true
         };
         microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("ManyOwned", manyOwnedColumnBase);
-        var owned_DetailsColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Details", "varchar(64)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
-        {
-            IsNullable = true
-        };
-        microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Details", owned_DetailsColumnBase);
         var owned_NumberColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Number", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
         microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Owned_Number", owned_NumberColumnBase);
         var owned_Principal_AlternateIdColumnBase = new ColumnBase<ColumnMappingBase>("Owned_Principal_AlternateId", "uniqueidentifier", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
@@ -1667,7 +1667,7 @@ public partial class DbContextModel
         var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0 = new TableMappingBase<ColumnMappingBase>(ownedType, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase, null);
         microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0, false);
         defaultTableMappings3.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
-        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)owned_DetailsColumnBase, ownedType.FindProperty("Details")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
+        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)deetsColumnBase, ownedType.FindProperty("Details")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
         RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)owned_NumberColumnBase, ownedType.FindProperty("Number")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
         RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)owned_RefTypeArrayColumnBase, ownedType.FindProperty("RefTypeArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
         RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)owned_RefTypeEnumerableColumnBase, ownedType.FindProperty("RefTypeEnumerable")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);

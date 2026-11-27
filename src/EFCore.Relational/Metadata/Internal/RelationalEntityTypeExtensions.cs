@@ -122,7 +122,7 @@ public static class RelationalEntityTypeExtensions
     public static List<IPropertyBase> GetRequiredNonPkProperties(this IEntityType entityType)
         => [.. entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()),
             // The JSON column of a complex property is null exactly when the property is null, so it can identify an optional dependent
-            .. entityType.GetComplexProperties().Where(p => !p.IsNullable && p.ComplexType.IsMappedToJson())];
+            .. GetJsonComplexProperties(entityType).Where(p => !p.IsNullable())];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -159,9 +159,7 @@ public static class RelationalEntityTypeExtensions
         }
 
         // A JSON column can't be shared with a principal, as they share a row
-        properties.AddRange(entityType.GetComplexProperties().Where(p =>
-            p.ComplexType.IsMappedToJson()
-            && table.FindColumn(p) != null));
+        properties.AddRange(GetJsonComplexProperties(entityType).Where(p => table.FindColumn(p) != null));
 
         return properties;
 
@@ -174,5 +172,25 @@ public static class RelationalEntityTypeExtensions
             }
         }
 
+    }
+
+    // Gets the complex properties mapped to JSON columns, including those
+    // nested in complex properties mapped to columns (table splitting)
+    private static IEnumerable<IComplexProperty> GetJsonComplexProperties(ITypeBase structuralType)
+    {
+        foreach (var complexProperty in structuralType.GetComplexProperties())
+        {
+            if (complexProperty.ComplexType.IsMappedToJson())
+            {
+                yield return complexProperty;
+            }
+            else
+            {
+                foreach (var nestedComplexProperty in GetJsonComplexProperties(complexProperty.ComplexType))
+                {
+                    yield return nestedComplexProperty;
+                }
+            }
+        }
     }
 }

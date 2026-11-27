@@ -137,10 +137,33 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
             Expression materializeExpression,
             MethodCallExpression getValueBufferExpression)
         {
-            // Get all scalar properties of the complex type (including nested ones).
-            var allScalarProperties = complexType.GetFlattenedProperties().ToList();
+            // Get all scalar properties of the complex type (including nested ones). The nested
+            // complex types that aren't read directly (e.g. mapped to JSON in relational) are
+            // checked as a whole, as their properties aren't read.
+            var allScalarProperties = new List<IPropertyBase>();
+            IPropertyBase? requiredProperty = null;
+            foreach (var (property, required) in GetNullCheckProperties(complexType, true))
+            {
+                allScalarProperties.Add(property);
 
-            var requiredProperty = allScalarProperties.Where(p => !p.IsNullable).FirstOrDefault();
+                // A required property in an optional nested complex type is
+                // null when that complex type is, so it can't be used alone
+                if (required)
+                {
+                    requiredProperty ??= property;
+                }
+            }
+
+            // Without properties to check, e.g. for a complex type with only
+            // complex collections in PropertyValues.ToObject(), the complex type
+            // is materialized and whether it's null is determined separately
+            if (allScalarProperties.Count == 0)
+            {
+                return clrType.IsNullableType()
+                    ? Convert(materializeExpression, clrType)
+                    : materializeExpression;
+            }
+
             var nullCheck = requiredProperty is not null
                 // If there's a required property, it's enough to check just that one for null.
                 ? Equal(
@@ -163,6 +186,34 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                 clrType.IsNullableType()
                     ? Convert(materializeExpression, clrType)
                     : materializeExpression);
+        }
+
+        // The properties that show whether the complex type is null, and whether each is required on a path of required properties
+        IEnumerable<(IPropertyBase Property, bool Required)> GetNullCheckProperties(IComplexType type, bool requiredPath)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                yield return (property, requiredPath && !property.IsNullable);
+            }
+
+            foreach (var complexProperty in type.GetComplexProperties())
+            {
+                if (!ReadComplexTypeDirectly(complexProperty.ComplexType))
+                {
+                    yield return (complexProperty, requiredPath && !complexProperty.IsNullable);
+                    continue;
+                }
+
+                if (complexProperty.IsCollection)
+                {
+                    continue;
+                }
+
+                foreach (var nested in GetNullCheckProperties(complexProperty.ComplexType, requiredPath && !complexProperty.IsNullable))
+                {
+                    yield return nested;
+                }
+            }
         }
     }
 

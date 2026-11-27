@@ -2633,12 +2633,33 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
                 && GetProjectionIndex(projectionBindingExpression) is Dictionary<IPropertyBase, int> propertyMap)
             {
+                Dictionary<IComplexProperty, Expression>? nestedJsonValues = null;
                 foreach (var (property, projectionIndex) in propertyMap)
                 {
                     if (property is IComplexProperty { ComplexType: var complexType } complexProperty
                         && complexType.IsMappedToJson())
                     {
                         var jsonReaderDataVariable = GenerateJsonReader(projectionIndex, complexType);
+
+                        if (complexProperty.DeclaringType is IComplexType declaringComplexType
+                            && !declaringComplexType.IsMappedToJson())
+                        {
+                            // A JSON complex property nested in complex types mapped to columns (table splitting).
+                            // The materializer of the containing complex type assigns a placeholder for it,
+                            // which is replaced by the JSON shaper
+                            var value = Visit(
+                                CreateJsonShapers(
+                                    complexType,
+                                    complexProperty.ClrType,
+                                    nullable: shaper.IsNullable || complexProperty.IsNullable,
+                                    jsonReaderDataVariable,
+                                    keyValuesParameter: null,
+                                    containerEntityExpression: null,
+                                    structuralProperty: complexProperty));
+
+                            (nestedJsonValues ??= [])[complexProperty] = value;
+                            continue;
+                        }
 
                         var shaperResult = CreateJsonShapers(
                             complexType,
@@ -2653,12 +2674,49 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         expressions.Add(visitedShaperResult);
                     }
                 }
+
+                if (nestedJsonValues != null)
+                {
+                    var placeholderReplacer = new NestedJsonComplexPropertyReplacingExpressionVisitor(nestedJsonValues);
+                    for (var i = 0; i < expressions.Count; i++)
+                    {
+                        expressions[i] = placeholderReplacer.Visit(expressions[i]);
+                    }
+                }
             }
+        }
+
+        private sealed class NestedJsonComplexPropertyReplacingExpressionVisitor(Dictionary<IComplexProperty, Expression> values)
+            : ExpressionVisitor
+        {
+            // The member can be a readonly field, which can only be assigned using EF's Assign
+            protected override Expression VisitBinary(BinaryExpression node)
+                => node is { NodeType: ExpressionType.Assign, Left: MemberExpression member, Right: NestedJsonComplexPropertyExpression }
+                    ? member.Assign(Visit(node.Right))
+                    : base.VisitBinary(node);
+
+            protected override Expression VisitExtension(Expression node)
+                => node is NestedJsonComplexPropertyExpression placeholder
+                    && values.TryGetValue(placeholder.ComplexProperty, out var value)
+                        ? value.Type == placeholder.Type ? value : Convert(value, placeholder.Type)
+                        // The placeholders are assigned in the materializer, outside other extension nodes
+                        : node;
         }
 
         internal ParameterExpression GenerateJsonReader(int jsonColumnIndex, ITypeBase structuralType, IColumnBase? jsonColumn = null)
         {
             Check.DebugAssert(structuralType.IsMappedToJson());
+
+            // Prefer the model column referenced by the projection: the containing entity type may not be mapped to a table itself
+            // (e.g. an abstract TPC base type, whose JSON column is projected out of the UNION over its concrete tables).
+            if (jsonColumn is null
+                && _selectExpression.Projection[jsonColumnIndex].Expression is JsonScalarExpression
+                {
+                    Json: ColumnExpression { Column: { } projectedColumn }
+                })
+            {
+                jsonColumn = projectedColumn;
+            }
 
             if (jsonColumn is null)
             {

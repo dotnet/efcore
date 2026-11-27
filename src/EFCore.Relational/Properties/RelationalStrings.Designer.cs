@@ -138,6 +138,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexProperty, entityType);
 
         /// <summary>
+        ///     The complex property '{complexProperty}' is mapped to the JSON column '{column}' in '{table}', which the property '{property}' is also mapped to. Configure a different JSON column name by passing it to 'ToJson()'.
+        /// </summary>
+        public static string ComplexPropertyJsonColumnUsedByProperty(object? complexProperty, object? column, object? table, object? property)
+            => string.Format(
+                GetString("ComplexPropertyJsonColumnUsedByProperty", nameof(complexProperty), nameof(column), nameof(table), nameof(property)),
+                complexProperty, column, table, property);
+
+        /// <summary>
         ///     Complex property '{property1}' and '{property2}' are both configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.
         /// </summary>
         public static string ComplexPropertyJsonPropertyNameConflict(object? property1, object? property2, object? jsonPropertyName)
@@ -1948,14 +1956,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NestedComplexPropertyJsonColumn", nameof(complexProperty), nameof(column), nameof(containingType), nameof(containingColumn)),
                 complexProperty, column, containingType, containingColumn);
-
-        /// <summary>
-        ///     Complex property '{complexProperty}' is mapped to JSON but its containing type '{containingType}' is not. Map the root complex type to JSON. See https://github.com/dotnet/efcore/issues/36558.
-        /// </summary>
-        public static string NestedComplexPropertyJsonWithTableSharing(object? complexProperty, object? containingType)
-            => string.Format(
-                GetString("NestedComplexPropertyJsonWithTableSharing", nameof(complexProperty), nameof(containingType)),
-                complexProperty, containingType);
 
         /// <summary>
         ///     The connection does not have any active transactions.

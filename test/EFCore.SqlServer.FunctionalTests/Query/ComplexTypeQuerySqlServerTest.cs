@@ -1338,6 +1338,28 @@ FROM [TpcChild2] AS [t0]
 
     #endregion 35025
 
+    #region 39814
+
+    public override async Task Select_TPC_base_with_json_complex_property()
+    {
+        await base.Select_TPC_base_with_json_complex_property();
+
+        AssertSql(
+            """
+SELECT [u].[Id], [u].[Document], [u].[Documents], [u].[Discriminator]
+FROM (
+    SELECT [f].[Id], [f].[Document], [f].[Documents], N'First' AS [Discriminator]
+    FROM [First] AS [f]
+    UNION ALL
+    SELECT [s].[Id], [s].[Document], [s].[Documents], N'Second' AS [Discriminator]
+    FROM [Second] AS [s]
+) AS [u]
+ORDER BY [u].[Id]
+""");
+    }
+
+    #endregion 39814
+
     #region 34706
 
     public override async Task Complex_type_on_an_entity_mapped_to_view_and_table()
@@ -1668,6 +1690,379 @@ LEFT JOIN (
             ) AS [s] ON [p3].[Id] = [s].[ParentsId]
             ORDER BY [p3].[Id]
             """);
+    }
+
+    public override async Task Json_complex_property_nested_in_table_split_complex_property()
+    {
+        await base.Json_complex_property_nested_in_table_split_complex_property();
+
+        AssertSql(
+            """
+SELECT TOP(2) [o].[Id], [o].[Shipping_Carrier], [o].[Shipping_Address], [o].[Shipping_Customs_Code], [o].[Shipping_Customs_Declaration], [o].[Shipping_Parcels]
+FROM [Order] AS [o]
+""",
+            //
+            """
+@p0='{"City":"Melbourne","PostCode":"2000"}' (Nullable = false) (Size = 38)
+@p1='{"Contents":"Toys"}' (Nullable = false) (Size = 19)
+@p2='[{"Weight":1.5},{"Weight":3},{"Weight":0.5}]' (Nullable = false) (Size = 44)
+@p4='1'
+@p3='Courier' (Nullable = false) (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Order] SET [Shipping_Address] = @p0, [Shipping_Customs_Declaration] = @p1, [Shipping_Parcels] = @p2, [Shipping_Carrier] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+""",
+            //
+            """
+SELECT TOP(2) [o].[Id], [o].[Shipping_Carrier], [o].[Shipping_Address], [o].[Shipping_Customs_Code], [o].[Shipping_Customs_Declaration], [o].[Shipping_Parcels]
+FROM [Order] AS [o]
+WHERE JSON_VALUE([o].[Shipping_Address], '$.City') = N'Melbourne' AND CAST(JSON_VALUE([o].[Shipping_Parcels], '$[1].Weight') AS float) = 3.0E0 AND JSON_VALUE([o].[Shipping_Customs_Declaration], '$.Contents') = N'Toys'
+""");
+    }
+
+    public override async Task ExecuteUpdate_json_complex_property_nested_in_table_split_complex_property()
+    {
+        await base.ExecuteUpdate_json_complex_property_nested_in_table_split_complex_property();
+
+        AssertSql(
+            """
+@p='Perth' (Size = 4000)
+@complex_type_p1='{"Contents":"Toys"}' (Size = 19)
+
+SET NOCOUNT OFF;
+UPDATE [o]
+SET [o].[Shipping_Address] = JSON_MODIFY([o].[Shipping_Address], '$.City', @p),
+    [o].[Shipping_Customs_Declaration] = @complex_type_p1
+FROM [Order] AS [o]
+""",
+            //
+            """
+SELECT TOP(2) [o].[Id], [o].[Shipping_Carrier], [o].[Shipping_Address], [o].[Shipping_Customs_Code], [o].[Shipping_Customs_Declaration], [o].[Shipping_Parcels]
+FROM [Order] AS [o]
+""");
+    }
+
+    public override async Task Json_complex_property_nested_in_table_split_complex_property_set_through_property()
+    {
+        await base.Json_complex_property_nested_in_table_split_complex_property_set_through_property();
+
+        AssertSql(
+            """
+SELECT TOP(2) [o].[Id], [o].[Shipping_Carrier], [o].[Shipping_Address]
+FROM [Order] AS [o]
+""");
+    }
+
+    public override async Task Optional_owned_dependent_identified_by_json_complex_property_nested_in_table_split_complex_property()
+    {
+        await base.Optional_owned_dependent_identified_by_json_complex_property_nested_in_table_split_complex_property();
+
+        AssertSql(
+            """
+SELECT [c].[Id], [c].[Billing_Contact_Phone], [c].[Billing_Contact_Address], [c].[Billing_Terms_Days]
+FROM [Customer] AS [c]
+ORDER BY [c].[Id]
+""",
+            //
+            """
+SELECT [c].[Id]
+FROM [Customer] AS [c]
+WHERE [c].[Billing_Contact_Address] IS NULL
+""",
+            //
+            """
+SELECT [c].[Id], [c].[Billing_Contact_Phone], [c].[Billing_Contact_Address], [c].[Billing_Terms_Days]
+FROM [Customer] AS [c]
+ORDER BY [c].[Id]
+""");
+    }
+
+    public override async Task Json_struct_nested_in_optional_table_split_complex_property_is_stored_as_null_when_it_is_null()
+    {
+        await base.Json_struct_nested_in_optional_table_split_complex_property_is_stored_as_null_when_it_is_null();
+
+        AssertSql(
+            """
+@p0=NULL (Nullable = false)
+@p1='1'
+@p2=NULL (Size = 4000)
+@p3='{"Number":0}' (Nullable = false) (Size = 12)
+@p4='2'
+@p5='m' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Row] ([PayloadJson], [Id], [Outer_Marker])
+VALUES (@p0, @p1, @p2),
+(@p3, @p4, @p5);
+""",
+            //
+            """
+SELECT CASE WHEN "PayloadJson" IS NULL THEN 1 ELSE 0 END AS "Value" FROM "Row" ORDER BY "Id"
+""",
+            //
+            """
+SELECT TOP(2) [r].[Id], [r].[Outer_Marker], [r].[PayloadJson]
+FROM [Row] AS [r]
+WHERE [r].[Id] = 2
+""",
+            //
+            """
+@p0=NULL (Nullable = false)
+@p2='2'
+@p1=NULL (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Row] SET [PayloadJson] = @p0, [Outer_Marker] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT CASE WHEN "PayloadJson" IS NULL THEN 1 ELSE 0 END AS "Value" FROM "Row" ORDER BY "Id"
+""",
+            //
+            """
+SELECT [r].[Id], [r].[Outer_Marker], [r].[PayloadJson]
+FROM [Row] AS [r]
+""");
+    }
+
+    public override async Task Json_complex_property_nested_in_table_split_complex_property_with_default_name_used_by_another_column()
+    {
+        await base.Json_complex_property_nested_in_table_split_complex_property_with_default_name_used_by_another_column();
+
+        AssertSql(
+            """
+SELECT TOP(2) [o].[Id], [o].[Shipping_Address], [o].[Shipping_Address1]
+FROM [Order] AS [o]
+""");
+    }
+
+    public override async Task Table_split_complex_property_identified_by_nested_json_complex_property_projected_over_left_join()
+    {
+        await base.Table_split_complex_property_identified_by_nested_json_complex_property_projected_over_left_join();
+
+        AssertSql(
+            """
+SELECT [o1].[c], [o1].[c0]
+FROM [Order] AS [o]
+LEFT JOIN (
+    SELECT [o0].[Id], [o0].[Shipping_Address] AS [c], [o0].[Shipping_Parcels] AS [c0]
+    FROM [Order] AS [o0]
+    WHERE [o0].[Id] = 1
+) AS [o1] ON [o].[Id] = [o1].[Id]
+ORDER BY [o].[Id]
+""");
+    }
+
+    public override async Task Table_split_complex_property_with_nested_json_complex_collection_compared_to_inline_instance()
+    {
+        await base.Table_split_complex_property_with_nested_json_complex_collection_compared_to_inline_instance();
+
+        AssertSql(
+            """
+SELECT [o].[Id]
+FROM [Order] AS [o]
+WHERE [o].[Shipping_Address] = '{"City":"Sydney"}' AND [o].[Shipping_Parcels] = '[{"Weight":2}]'
+""");
+    }
+
+    public override async Task Change_in_optional_table_split_complex_property_doesnt_overwrite_its_nested_json_complex_property()
+    {
+        await base.Change_in_optional_table_split_complex_property_doesnt_overwrite_its_nested_json_complex_property();
+
+        AssertSql(
+            """
+SELECT TOP(2) [r].[Id], [r].[Outer_Marker], [r].[Outer_Document]
+FROM [Row] AS [r]
+""",
+            //
+            """
+@p='Perth' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [r]
+SET [r].[Outer_Document] = JSON_MODIFY([r].[Outer_Document], '$.Value', @p)
+FROM [Row] AS [r]
+""",
+            //
+            """
+@p1='1'
+@p0='Renamed' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Row] SET [Outer_Marker] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [r].[Id], [r].[Outer_Marker], [r].[Outer_Document]
+FROM [Row] AS [r]
+""");
+    }
+
+    public override async Task Optional_table_split_complex_property_identified_by_nested_json_complex_property()
+    {
+        await base.Optional_table_split_complex_property_identified_by_nested_json_complex_property();
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Outer_Document]
+FROM [Row] AS [r]
+ORDER BY [r].[Id]
+""",
+            //
+            """
+SELECT [r].[Id]
+FROM [Row] AS [r]
+WHERE [r].[Outer_Document] IS NULL
+""");
+    }
+
+    public override async Task Table_split_complex_property_with_optional_sibling_identified_by_nested_json_complex_property_over_left_join()
+    {
+        await base.Table_split_complex_property_with_optional_sibling_identified_by_nested_json_complex_property_over_left_join();
+
+        AssertSql(
+            """
+SELECT [r1].[Outer_Annex_Marker], [r1].[c]
+FROM [Row] AS [r]
+LEFT JOIN (
+    SELECT [r0].[Id], [r0].[Outer_Annex_Marker], [r0].[Outer_Document] AS [c]
+    FROM [Row] AS [r0]
+    WHERE [r0].[Id] = 1
+) AS [r1] ON [r].[Id] = [r1].[Id]
+ORDER BY [r].[Id]
+""",
+            //
+            """
+SELECT [r].[Id]
+FROM [Row] AS [r]
+LEFT JOIN (
+    SELECT [r0].[Id], [r0].[Outer_Annex_Marker], [r0].[Outer_Document] AS [c]
+    FROM [Row] AS [r0]
+    WHERE [r0].[Id] = 1
+) AS [r1] ON [r].[Id] = [r1].[Id]
+WHERE [r1].[Outer_Annex_Marker] IS NULL AND [r1].[c] IS NULL
+""");
+    }
+
+    public override async Task Current_values_of_json_complex_property_nested_in_table_split_complex_property_are_copied_to_object()
+    {
+        await base.Current_values_of_json_complex_property_nested_in_table_split_complex_property_are_copied_to_object();
+
+        AssertSql();
+    }
+
+    public override async Task Optional_complex_property_identified_by_required_property_in_nested_complex_property()
+    {
+        await base.Optional_complex_property_identified_by_required_property_in_nested_complex_property();
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Outer_Inner_Value]
+FROM [Row] AS [r]
+ORDER BY [r].[Id]
+""",
+            //
+            """
+SELECT [r].[Id]
+FROM [Row] AS [r]
+WHERE [r].[Outer_Inner_Value] IS NULL
+""");
+    }
+
+    public override async Task Database_values_of_optional_complex_property_identified_by_nested_json_complex_property_with_null_optional_sibling()
+    {
+        await base.Database_values_of_optional_complex_property_identified_by_nested_json_complex_property_with_null_optional_sibling();
+
+        AssertSql(
+            """
+SELECT TOP(2) [r].[Id], [r].[Outer_Annex_Value], [r].[Outer_Document]
+FROM [Row] AS [r]
+""",
+            //
+            """
+@p='1'
+
+SELECT TOP(1) [r].[Id], [r].[Outer_Annex_Value], JSON_VALUE([r].[Outer_Document], '$.Value')
+FROM [Row] AS [r]
+WHERE [r].[Id] = @p
+""",
+            //
+            """
+@p='1'
+
+SELECT TOP(1) [r].[Id], [r].[Outer_Annex_Value], JSON_VALUE([r].[Outer_Document], '$.Value')
+FROM [Row] AS [r]
+WHERE [r].[Id] = @p
+""",
+            //
+            """
+@p='1'
+
+SELECT TOP(1) [r].[Id], [r].[Outer_Annex_Value], JSON_VALUE([r].[Outer_Document], '$.Value')
+FROM [Row] AS [r]
+WHERE [r].[Id] = @p
+""",
+            //
+            """
+@p='1'
+
+SELECT TOP(1) [r].[Id], [r].[Outer_Annex_Value], JSON_VALUE([r].[Outer_Document], '$.Value')
+FROM [Row] AS [r]
+WHERE [r].[Id] = @p
+""");
+    }
+
+    public override async Task Current_values_of_json_complex_property_in_optional_table_split_complex_property_are_copied_to_object()
+    {
+        await base.Current_values_of_json_complex_property_in_optional_table_split_complex_property_are_copied_to_object();
+
+        AssertSql();
+    }
+
+    public override async Task Current_values_of_json_complex_collection_in_table_split_complex_property_are_copied_to_object()
+    {
+        await base.Current_values_of_json_complex_collection_in_table_split_complex_property_are_copied_to_object();
+
+        AssertSql();
+    }
+
+    public override async Task Json_complex_property_nested_in_table_split_complex_property_with_readonly_backing_field()
+    {
+        await base.Json_complex_property_nested_in_table_split_complex_property_with_readonly_backing_field();
+
+        AssertSql(
+            """
+SELECT TOP(2) [r].[Id], [r].[Envelope_Document]
+FROM [Row] AS [r]
+""");
+    }
+
+    public override async Task Select_TPC_base_with_json_complex_property_nested_in_table_split_complex_property()
+    {
+        await base.Select_TPC_base_with_json_complex_property_nested_in_table_split_complex_property();
+
+        AssertSql(
+            """
+SELECT [u].[Id], [u].[Envelope_Marker], [u].[Envelope_Document], [u].[Envelope_Documents], [u].[Discriminator]
+FROM (
+    SELECT [f].[Id], [f].[Envelope_Marker], [f].[Envelope_Document], [f].[Envelope_Documents], N'First' AS [Discriminator]
+    FROM [First] AS [f]
+    UNION ALL
+    SELECT [s].[Id], [s].[Envelope_Marker], [s].[Envelope_Document], [s].[Envelope_Documents], N'Second' AS [Discriminator]
+    FROM [Second] AS [s]
+) AS [u]
+ORDER BY [u].[Id]
+""");
     }
 
     public override async Task Json_complex_properties_on_sibling_types_mapped_to_same_column()

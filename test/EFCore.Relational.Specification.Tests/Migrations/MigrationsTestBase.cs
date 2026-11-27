@@ -2853,7 +2853,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("NestedCollection", c.Name);
+                        Assert.Equal("MyComplex_NestedCollection", c.Name);
                         Assert.True(c.IsNullable);
                     });
             });
@@ -2910,7 +2910,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("NestedCollection", c.Name);
+                        Assert.Equal("MyComplex_NestedCollection", c.Name);
                         Assert.True(c.IsNullable);
                     });
             });
@@ -2973,7 +2973,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                                 "Owned_Complex_Date",
                                 "Owned_Complex_Nested_Foo",
                                 "Owned_Complex_Nested_Bar",
-                                "NestedCollection"
+                                "Owned_Complex_NestedCollection"
                             ],
                             t.Columns.Select(c => c.Name));
                     });

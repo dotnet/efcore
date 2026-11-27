@@ -1219,14 +1219,24 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 eb.OwnsOne(
                     e => e.Owned, ob =>
                     {
-                        ob.ComplexProperty(o => o.Location, lb => lb.ComplexProperty(l => l.Coordinates));
+                        ob.ComplexProperty(
+                            o => o.Location, lb =>
+                            {
+                                lb.ComplexProperty(l => l.Coordinates);
+                                lb.ComplexProperty(l => l.Landmark).ToJson();
+                            });
                         ob.ComplexCollection(o => o.Tags, tb => tb.ToJson());
                     });
                 eb.OwnsOne(
                     e => e.JsonOwned, ob =>
                     {
                         ob.ToJson();
-                        ob.ComplexProperty(o => o.Location, lb => lb.ComplexProperty(l => l.Coordinates));
+                        ob.ComplexProperty(
+                            o => o.Location, lb =>
+                            {
+                                lb.ComplexProperty(l => l.Coordinates);
+                                lb.ComplexProperty(l => l.Landmark);
+                            });
                         ob.ComplexCollection(o => o.Tags);
                     });
             }),
@@ -1242,6 +1252,15 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.Equal(
                     "Owned_Tags",
                     owned.GetTableMappings().Single().Table.FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.Tags))!)!.Name);
+
+                // A JSON complex property nested in a table-split complex property keeps the default (empty) container column name,
+                // which is prefixed in the table and in the default mapping
+                var landmark = location.ComplexType.FindComplexProperty(nameof(LocationComplex.Landmark))!;
+                Assert.Equal("Landmark", landmark.ComplexType.GetContainerColumnName());
+                Assert.Equal("Owned_Location_Landmark", owned.GetTableMappings().Single().Table.FindColumn(landmark)!.Name);
+                Assert.Equal(
+                    "Location_Landmark",
+                    landmark.ComplexType.GetDefaultMappings().Single().Table.FindColumn(landmark)!.Name);
 
                 var jsonOwned = owner.FindNavigation(nameof(OwnerWithComplex.JsonOwned))!.TargetEntityType;
                 Assert.Equal("JsonOwned", jsonOwned.GetContainerColumnName());
@@ -1263,6 +1282,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 var owner = await c.Set<OwnerWithComplex>().SingleAsync();
                 Assert.Equal("Sydney", owner.Owned.Location.City);
                 Assert.Equal(1.5m, owner.Owned.Location.Coordinates.Latitude);
+                Assert.Equal("Opera House", owner.Owned.Location.Landmark!.Text);
                 Assert.Equal(["a", "b"], owner.Owned.Tags.Select(t => t.Text));
                 Assert.Equal("Berlin", owner.JsonOwned.Location.City);
                 Assert.Equal(["a", "b"], owner.JsonOwned.Tags.Select(t => t.Text));
@@ -1275,7 +1295,8 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                         Location = new LocationComplex
                         {
                             City = city,
-                            Coordinates = new CoordinatesComplex { Latitude = 1.5m, Longitude = 2.5m }
+                            Coordinates = new CoordinatesComplex { Latitude = 1.5m, Longitude = 2.5m },
+                            Landmark = new TagComplex { Text = "Opera House" }
                         },
                         Tags = [new TagComplex { Text = "a" }, new TagComplex { Text = "b" }]
                     };
@@ -1719,6 +1740,7 @@ public partial class DbContextModel
     {
         public string City { get; set; } = null!;
         public CoordinatesComplex Coordinates { get; set; } = null!;
+        public TagComplex? Landmark { get; set; }
     }
 
     public class CoordinatesComplex

@@ -373,6 +373,17 @@ public class ChangeDetector : IChangeDetector
                 }
             }
 
+            // The complex collections are marked too, since the complex type might not have any other properties,
+            // e.g. when it only contains a complex property mapped to JSON that contains an optional complex collection
+            foreach (var innerComplexProperty in complexProperty.ComplexType.GetFlattenedComplexProperties())
+            {
+                if (innerComplexProperty.IsCollection
+                    && innerComplexProperty.GetOriginalValueIndex() >= 0)
+                {
+                    entry.SetPropertyModified(innerComplexProperty);
+                }
+            }
+
             return true;
         }
 

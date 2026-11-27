@@ -15,4 +15,7 @@ public static class LocationComplexUnsafeAccessors
 
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Coordinates>k__BackingField")]
     public static extern ref CompiledModelRelationalTestBase.CoordinatesComplex Coordinates(CompiledModelRelationalTestBase.LocationComplex @this);
+
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Landmark>k__BackingField")]
+    public static extern ref CompiledModelRelationalTestBase.TagComplex Landmark(CompiledModelRelationalTestBase.LocationComplex @this);
 }

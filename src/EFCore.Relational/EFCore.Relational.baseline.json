@@ -15313,6 +15313,9 @@
           "Member": "static string ComplexPropertyInJsonOwnedCollection(object? complexProperty, object? entityType);"
         },
         {
+          "Member": "static string ComplexPropertyJsonColumnUsedByProperty(object? complexProperty, object? column, object? table, object? property);"
+        },
+        {
           "Member": "static string ComplexPropertyJsonPropertyNameConflict(object? property1, object? property2, object? jsonPropertyName);"
         },
         {
@@ -15914,9 +15917,6 @@
         },
         {
           "Member": "static string NestedComplexPropertyJsonColumn(object? complexProperty, object? column, object? containingType, object? containingColumn);"
-        },
-        {
-          "Member": "static string NestedComplexPropertyJsonWithTableSharing(object? complexProperty, object? containingType);"
         },
         {
           "Member": "static string NoAliasOnTable(object? table);"

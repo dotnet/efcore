@@ -1060,6 +1060,87 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                     (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
             });
 
+    #region JSON complex properties nested in table-split complex properties
+
+    [Fact]
+    public virtual Task Set_optional_table_split_complex_property_with_json_complex_properties_to_non_null_and_to_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var company = await context.CompaniesWithSplitDepartments.SingleAsync();
+                company.FormerDepartment = new SplitDepartment
+                {
+                    Name = "Former Department",
+                    Budget = 500.00m,
+                    Location = new Address
+                    {
+                        Street = "3 Old St",
+                        City = "Old City",
+                        PostalCode = "00003",
+                        Country = "USA"
+                    },
+                    Teams = [new Contact { Name = "Former Team" }]
+                };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.CompaniesWithSplitDepartments.SingleAsync();
+                    Assert.NotNull(company.FormerDepartment);
+                    Assert.Equal("Former Department", company.FormerDepartment.Name);
+                    Assert.Equal("Old City", company.FormerDepartment.Location.City);
+                    Assert.Null(company.FormerDepartment.Annex);
+                    Assert.Equal("Former Team", Assert.Single(company.FormerDepartment.Teams).Name);
+
+                    company.FormerDepartment = null;
+                    await context.SaveChangesAsync();
+                }
+
+                using (SuspendRecordingEvents())
+                {
+                    context.ChangeTracker.Clear();
+                    var company = await context.CompaniesWithSplitDepartments.SingleAsync();
+                    Assert.Null(company.FormerDepartment);
+                }
+            });
+
+    [Fact]
+    public virtual Task Modify_json_complex_property_nested_in_value_type_table_split_complex_property()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var company = await context.CompaniesWithSplitDepartments.SingleAsync();
+                var division = company.Division;
+                var data = division.Data;
+                data.Label = "Modified";
+                data.Tags.Add(new InnerEntry { Value = "t-1" });
+                division.Data = data;
+                company.Division = division;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.CompaniesWithSplitDepartments.SingleAsync();
+                    Assert.Equal("D1", company.Division.Code);
+                    Assert.Equal("Modified", company.Division.Data.Label);
+                    Assert.Equal(["t-0", "t-1"], company.Division.Data.Tags.Select(t => t.Value));
+                }
+            });
+
+    #endregion JSON complex properties nested in table-split complex properties
+
     private static async Task SetStoredDocumentAsync(DbContext context, string table, string column, int id, string json)
     {
         // Identifiers are delimited by the provider so that any provider can run this test; the document is inlined rather than
@@ -1099,6 +1180,35 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public DbSet<OwnedCodeWidget> OwnedCodeWidgets { get; set; } = null!;
         public DbSet<EntityWithNullableMeta> EntitiesWithNullableMeta { get; set; } = null!;
         public DbSet<EntityWithNestedCollections> EntitiesWithNestedCollections { get; set; } = null!;
+        public DbSet<CompanyWithSplitDepartment> CompaniesWithSplitDepartments { get; set; } = null!;
+    }
+
+    protected class CompanyWithSplitDepartment
+    {
+        public int Id { get; set; }
+        public required SplitDepartment Department { get; set; }
+        public SplitDepartment? FormerDepartment { get; set; }
+        public SplitDivision Division { get; set; }
+    }
+
+    // Mapped to columns in the table of its entity, while its complex properties are mapped to JSON columns
+    protected class SplitDepartment
+    {
+        public required string Name { get; set; }
+        public decimal Budget { get; set; }
+        public required Address Location { get; set; }
+        public Address? Annex { get; set; }
+        public List<Contact> Teams { get; set; } = [];
+    }
+
+    protected struct SplitDivision
+    {
+        public SplitDivision()
+        {
+        }
+
+        public required string Code { get; set; }
+        public StructData Data { get; set; }
     }
 
     protected class CompanyWithComplexCollections
@@ -1435,6 +1545,29 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         ib.ComplexCollection(i => i.Others);
                     });
             });
+
+            modelBuilder.Entity<CompanyWithSplitDepartment>(b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.ComplexProperty(x => x.Department, ConfigureSplitDepartment);
+                b.ComplexProperty(x => x.FormerDepartment, ConfigureSplitDepartment);
+                b.ComplexProperty(
+                    x => x.Division, db => db.ComplexProperty(
+                        d => d.Data, ddb =>
+                        {
+                            ddb.ToJson();
+                            ddb.ComplexCollection(d => d.Tags);
+                        }));
+
+                static void ConfigureSplitDepartment(ComplexPropertyBuilder<SplitDepartment> db)
+                {
+                    db.Property(d => d.Budget).HasPrecision(18, 2);
+                    db.ComplexProperty(d => d.Location).ToJson();
+                    db.ComplexProperty(d => d.Annex).ToJson();
+                    db.ComplexCollection(d => d.Teams, tb => tb.ToJson());
+                }
+            });
         }
 
         protected override Task SeedAsync(DbContext context)
@@ -1553,6 +1686,30 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         },
                         new DeepItem { Title = "Item2", Inner = [new InnerEntry { Value = "inner-2" }], Others = [] }
                     ]
+                });
+
+            context.Add(
+                new CompanyWithSplitDepartment
+                {
+                    Id = 1,
+                    Department = new SplitDepartment
+                    {
+                        Name = "Initial Department",
+                        Budget = 10000.00m,
+                        Location = new Address
+                        {
+                            Street = "1 Main St",
+                            City = "Initial City",
+                            PostalCode = "00001",
+                            Country = "USA"
+                        },
+                        Teams = [new Contact { Name = "Initial Team", PhoneNumbers = ["555-0001"] }]
+                    },
+                    Division = new SplitDivision
+                    {
+                        Code = "D1",
+                        Data = new StructData { Label = "S1", Tags = [new InnerEntry { Value = "t-0" }] }
+                    }
                 });
 
             return context.SaveChangesAsync();

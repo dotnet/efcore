@@ -53,6 +53,8 @@ public class SharedTableConvention : IModelFinalizingConvention
         var checkConstraints = new Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)>();
         var defaultConstraints = new Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)>();
         var triggers = new Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)>();
+        var storeObjects = new Dictionary<StoreObjectIdentifier, (List<IConventionEntityType> EntityTypes, HashSet<string> Columns)>();
+
         foreach (var schemaGroup in tables.GroupBy(t => t.Key.Schema).OrderBy(g => g.Key))
         {
             if (!KeysUniqueAcrossSchemas)
@@ -105,8 +107,12 @@ public class SharedTableConvention : IModelFinalizingConvention
                     UniquifyDefaultConstraintNames(entityType, defaultConstraints, storeObject, maxLength);
                     UniquifyTriggerNames(entityType, triggers, storeObject, maxLength);
                 }
+
+                storeObjects[storeObject] = (conventionEntityTypes, [.. columns.Keys]);
             }
         }
+
+        UniquifyContainerColumnNames(modelBuilder.Metadata, storeObjects, maxLength);
     }
 
     /// <summary>
@@ -348,6 +354,202 @@ public class SharedTableConvention : IModelFinalizingConvention
                 && otherType is IComplexType othertComplexType
                     ? CreatePrefix(complexType.ComplexProperty.DeclaringType, othertComplexType.ComplexProperty.DeclaringType)
                     : prefix;
+        }
+    }
+
+    // The default name of a JSON column (from ToJson() without a name) can be the name of another column,
+    // e.g. the default name of a JSON complex property Address nested in Shipping is Shipping_Address. Such
+    // a name is replaced by one that's free in all the tables and views the complex property is mapped to, as
+    // the name isn't specific to a store object. JSON columns that only have the same name as each other are
+    // left as they are, as complex properties on sibling types can share one (that is validated instead).
+    private static void UniquifyContainerColumnNames(
+        IConventionModel model,
+        Dictionary<StoreObjectIdentifier, (List<IConventionEntityType> EntityTypes, HashSet<string> Columns)> storeObjects,
+        int maxLength)
+    {
+        // The columns of views and of the tables of keyless entity types aren't made unique,
+        // but JSON columns still can't have the name of another column
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (StoreObjectIdentifier.Create(entityType, StoreObjectType.View) is { } view)
+            {
+                AddStoreObject(entityType, view);
+            }
+
+            if (entityType.FindPrimaryKey() == null
+                && StoreObjectIdentifier.Create(entityType, StoreObjectType.Table) is { } table)
+            {
+                AddStoreObject(entityType, table);
+            }
+        }
+
+        var jsonColumns = new Dictionary<IConventionComplexType, List<(StoreObjectIdentifier StoreObject, string Name)>>();
+        var usedNames = new Dictionary<StoreObjectIdentifier, HashSet<string>>();
+        var ownedJsonNames = new Dictionary<StoreObjectIdentifier, HashSet<string>>();
+        var complexJsonNames = new Dictionary<StoreObjectIdentifier, Dictionary<string, List<IConventionComplexType>>>();
+
+        foreach (var (storeObject, (entityTypes, columns)) in storeObjects)
+        {
+            var names = new HashSet<string>(columns);
+            var ownedNames = new HashSet<string>();
+            var complexNames = new Dictionary<string, List<IConventionComplexType>>();
+            usedNames[storeObject] = names;
+            ownedJsonNames[storeObject] = ownedNames;
+            complexJsonNames[storeObject] = complexNames;
+            foreach (var entityType in entityTypes)
+            {
+                // The JSON column of an owned entity type mapped to JSON is used, but isn't made unique
+                if (entityType.IsMappedToJson())
+                {
+                    if (entityType.GetContainerColumnName() is { } ownedColumnName)
+                    {
+                        names.Add(ownedColumnName);
+                        ownedNames.Add(ownedColumnName);
+                    }
+
+                    continue;
+                }
+
+                CollectJsonColumns(entityType, storeObject, jsonColumns, names, complexNames);
+            }
+        }
+
+        foreach (var (complexType, columns) in jsonColumns)
+        {
+            if ((string?)complexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value != string.Empty
+                || columns.FirstOrDefault(c => IsUsedByOtherColumn(complexType, c.StoreObject, c.Name)) is not { Name: { } columnName })
+            {
+                continue;
+            }
+
+            var otherNames = new HashSet<string>();
+            foreach (var (storeObject, _) in columns)
+            {
+                otherNames.UnionWith(usedNames[storeObject]);
+            }
+
+            var newColumnName = Uniquifier.Uniquify(columnName, otherNames, maxLength);
+            complexType.SetContainerColumnName(newColumnName);
+            foreach (var (storeObject, oldColumnName) in columns)
+            {
+                usedNames[storeObject].Add(newColumnName);
+
+                var complexNames = complexJsonNames[storeObject];
+                complexNames[oldColumnName].Remove(complexType);
+                if (!complexNames.TryGetValue(newColumnName, out var complexTypes))
+                {
+                    complexTypes = [];
+                    complexNames[newColumnName] = complexTypes;
+                }
+
+                complexTypes.Add(complexType);
+            }
+        }
+
+        return;
+
+        // A column of a property or of an owned entity type mapped to JSON, or the JSON column of a complex property on a type that
+        // shares a row with this one. Complex properties on sibling types in a hierarchy never share a row, so they can share a column.
+        bool IsUsedByOtherColumn(IConventionComplexType complexType, StoreObjectIdentifier storeObject, string columnName)
+            => storeObjects[storeObject].Columns.Contains(columnName)
+                || ownedJsonNames[storeObject].Contains(columnName)
+                || (complexJsonNames[storeObject].TryGetValue(columnName, out var complexTypes)
+                    && complexTypes.Any(other => other != complexType && SharesRow(complexType, other)));
+
+        static bool SharesRow(IConventionComplexType complexType, IConventionComplexType otherComplexType)
+        {
+            var rootType = GetRootPrincipal(complexType.ContainingEntityType);
+            var otherRootType = GetRootPrincipal(otherComplexType.ContainingEntityType);
+            return rootType.GetRootType() != otherRootType.GetRootType()
+                || rootType.IsAssignableFrom(otherRootType)
+                || otherRootType.IsAssignableFrom(rootType);
+        }
+
+        static IConventionEntityType GetRootPrincipal(IConventionEntityType entityType)
+        {
+            while (entityType.FindOwnership() is { } ownership)
+            {
+                entityType = ownership.PrincipalEntityType;
+            }
+
+            return entityType;
+        }
+
+        void AddStoreObject(IConventionEntityType entityType, in StoreObjectIdentifier storeObject)
+        {
+            if (!storeObjects.TryGetValue(storeObject, out var mapped))
+            {
+                mapped = ([], []);
+                storeObjects[storeObject] = mapped;
+            }
+
+            mapped.EntityTypes.Add(entityType);
+            CollectColumns(entityType, storeObject, mapped.Columns);
+        }
+
+        static void CollectColumns(IConventionTypeBase type, in StoreObjectIdentifier storeObject, HashSet<string> columns)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                if (property.GetColumnName(storeObject) is { } columnName)
+                {
+                    columns.Add(columnName);
+                }
+            }
+
+            foreach (var complexProperty in type.GetComplexProperties())
+            {
+                if (!complexProperty.ComplexType.IsMappedToJson())
+                {
+                    CollectColumns(complexProperty.ComplexType, storeObject, columns);
+                }
+            }
+        }
+
+        static void CollectJsonColumns(
+            IConventionTypeBase type,
+            in StoreObjectIdentifier storeObject,
+            Dictionary<IConventionComplexType, List<(StoreObjectIdentifier StoreObject, string Name)>> jsonColumns,
+            HashSet<string> names,
+            Dictionary<string, List<IConventionComplexType>> complexNames)
+        {
+            foreach (var complexProperty in type.GetComplexProperties())
+            {
+                var complexType = complexProperty.ComplexType;
+                if (!complexType.IsMappedToJson())
+                {
+                    CollectJsonColumns(complexType, storeObject, jsonColumns, names, complexNames);
+                    continue;
+                }
+
+                if (complexType.GetContainerColumnName(storeObject) is not { } columnName)
+                {
+                    continue;
+                }
+
+                if (!jsonColumns.TryGetValue(complexType, out var columns))
+                {
+                    columns = [];
+                    jsonColumns[complexType] = columns;
+                }
+
+                if (!columns.Contains((storeObject, columnName)))
+                {
+                    columns.Add((storeObject, columnName));
+                }
+
+                names.Add(columnName);
+                if (!complexNames.TryGetValue(columnName, out var complexTypes))
+                {
+                    complexTypes = [];
+                    complexNames[columnName] = complexTypes;
+                }
+
+                if (!complexTypes.Contains(complexType))
+                {
+                    complexTypes.Add(complexType);
+                }
+            }
         }
     }
 

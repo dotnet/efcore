@@ -10654,6 +10654,86 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [Fact]
+    public virtual void Json_column_renamed_for_new_column_with_its_default_name_keeps_its_data()
+        => Execute(
+            common => common.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.ComplexProperty<MyJsonComplex>(
+                        "Document", cp =>
+                        {
+                            cp.ToJson();
+                            cp.Property(x => x.Value);
+                            cp.Property(x => x.Date);
+                        });
+                }),
+            _ => { },
+            // The new property takes the default name of the JSON column, so the JSON column is renamed to Document1
+            target => target.Entity("Entity").Property<string>("Raw").HasColumnName("Document"),
+            upOps =>
+            {
+                Assert.Equal(2, upOps.Count);
+
+                var renameOperation = Assert.IsType<RenameColumnOperation>(upOps[0]);
+                Assert.Equal("Entity", renameOperation.Table);
+                Assert.Equal("Document", renameOperation.Name);
+                Assert.Equal("Document1", renameOperation.NewName);
+
+                var addOperation = Assert.IsType<AddColumnOperation>(upOps[1]);
+                Assert.Equal("Document", addOperation.Name);
+                Assert.Equal(typeof(string), addOperation.ClrType);
+            },
+            downOps =>
+            {
+                Assert.Equal(2, downOps.Count);
+
+                var dropOperation = Assert.IsType<DropColumnOperation>(downOps[0]);
+                Assert.Equal("Document", dropOperation.Name);
+
+                var renameOperation = Assert.IsType<RenameColumnOperation>(downOps[1]);
+                Assert.Equal("Document1", renameOperation.Name);
+                Assert.Equal("Document", renameOperation.NewName);
+            });
+
+    [Fact]
+    public void Renaming_nested_json_column_preserves_other_document_with_same_property_name()
+        => Execute(
+            common => common.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexProperty<JsonDocumentWrapper>(
+                        "Alpha", wrapper => wrapper.ComplexProperty(x => x.Document, document => document.ToJson()));
+                    e.ComplexProperty<JsonDocumentWrapper>(
+                        "Beta", wrapper => wrapper.ComplexProperty(x => x.Document, document => document.ToJson()));
+                }),
+            _ => { },
+            target => target.Entity("Entity").ComplexProperty<JsonDocumentWrapper>("Alpha")
+                .ComplexProperty(x => x.Document).ToJson("Zulu_Document"),
+            upOps =>
+            {
+                var operation = Assert.IsType<RenameColumnOperation>(Assert.Single(upOps));
+                Assert.Equal("Entity", operation.Table);
+                Assert.Equal("Alpha_Document", operation.Name);
+                Assert.Equal("Zulu_Document", operation.NewName);
+            },
+            downOps =>
+            {
+                var operation = Assert.IsType<RenameColumnOperation>(Assert.Single(downOps));
+                Assert.Equal("Entity", operation.Table);
+                Assert.Equal("Zulu_Document", operation.Name);
+                Assert.Equal("Alpha_Document", operation.NewName);
+            });
+
+    private sealed class JsonDocumentWrapper
+    {
+        public MyJsonComplex Document { get; set; } = null!;
+    }
+
+    [Fact]
     public virtual void Add_complex_collection_mapped_to_json_uses_empty_array_as_default_value()
         => Execute(
             _ => { },
