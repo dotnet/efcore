@@ -767,6 +767,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return source1;
     }
 
+    /// <summary>
+    ///     Whether the provider supports looking up the winning nullable MinBy or MaxBy key using INTERSECT.
+    /// </summary>
+    protected virtual bool SupportsExtremalKeyLookup
+        => false;
+
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateFirstOrDefault(
         ShapedQueryExpression source,
@@ -794,7 +800,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
 
-        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
+        var one = TranslateExpression(Expression.Constant(1))!;
+        if (SupportsExtremalKeyLookup && _isRootOperator && _queryCompilationContext.IsMinMaxBy == true)
+        {
+            selectExpression.TryApplyExtremalKeyLookup(_sqlExpressionFactory, one);
+        }
+
+        ApplyLimit(selectExpression, one);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))

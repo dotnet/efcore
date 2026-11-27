@@ -295,6 +295,24 @@ internal abstract class SqliteValueReader
         }
 
         var type = typeof(T).UnwrapNullableType().UnwrapEnumType();
+        if (Nullable.GetUnderlyingType(typeof(T)) is { IsEnum: true } enumType)
+        {
+            // A boxed integer can be unboxed to an enum, but not to a nullable enum.
+            object value = Type.GetTypeCode(type) switch
+            {
+                TypeCode.Byte => GetByte(ordinal),
+                TypeCode.SByte => checked((sbyte)GetInt64(ordinal)),
+                TypeCode.Int16 => GetInt16(ordinal),
+                TypeCode.UInt16 => checked((ushort)GetInt64(ordinal)),
+                TypeCode.Int32 => GetInt32(ordinal),
+                TypeCode.UInt32 => checked((uint)GetInt64(ordinal)),
+                TypeCode.UInt64 => (ulong)GetInt64(ordinal),
+                _ => GetInt64(ordinal)
+            };
+
+            return (T)Enum.ToObject(enumType, value);
+        }
+
         if (type == typeof(bool))
         {
             return (T)(object)GetBoolean(ordinal);

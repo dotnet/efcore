@@ -14,6 +14,37 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : QuerySqlGenerator(dependencies)
 {
+    /// <inheritdoc />
+    protected override void GenerateExists(ExistsExpression existsExpression, bool negated)
+    {
+        // Two singleton projections intersect exactly when the values compare equal, including two nulls.
+        // Comparing the same mapped column preserves the set operation's affinity and collation.
+        if (existsExpression.Subquery is
+            {
+                Predicate: null, Having: null, GroupBy: [], Offset: null, Limit: null,
+                Projection: [] or [{ Expression: ColumnExpression }],
+                Tables: [IntersectExpression { Source1: var left, Source2: var right }]
+            }
+            && SingletonValue(left) is ColumnExpression { Column: IColumn column } key
+            && SingletonValue(right) is ScalarSubqueryExpression { Subquery.Projection: [{ Expression: ColumnExpression innerKey }] } value
+            && innerKey.Column == column)
+        {
+            Sql.Append("(");
+            Visit(key);
+            Sql.Append(negated ? " IS NOT " : " IS ");
+            Visit(value);
+            Sql.Append(")");
+            return;
+        }
+
+        base.GenerateExists(existsExpression, negated);
+
+        static SqlExpression? SingletonValue(SelectExpression select)
+            => select is { Tables: [], Predicate: null, Having: null, GroupBy: [], Offset: null, Limit: null, Projection: [var projection] }
+                ? projection.Expression
+                : null;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

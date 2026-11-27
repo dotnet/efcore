@@ -1111,6 +1111,32 @@ public class SqliteDataReaderTest
             MyEnum.One);
 
     [Fact]
+    public void GetFieldValue_of_nullable_Enum_works()
+        => GetFieldValue_works<MyEnum?>(
+            "SELECT 1;",
+            MyEnum.One);
+
+    [Theory]
+    [InlineData("SELECT 1;", MyByteEnum.One)]
+    [InlineData("SELECT 255;", MyByteEnum.Max)]
+    public void GetFieldValue_of_nullable_Enum_works_when_not_int(string sql, MyByteEnum expected)
+        => GetFieldValue_works<MyByteEnum?>(sql, expected);
+
+    [Fact]
+    public void GetFieldValue_of_nullable_Enum_throws_when_out_of_range()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 256;");
+        var hasData = reader.Read();
+
+        Assert.True(hasData);
+        Assert.Throws<OverflowException>(() => reader.GetFieldValue<MyByteEnum>(0));
+        Assert.Throws<OverflowException>(() => reader.GetFieldValue<MyByteEnum?>(0));
+    }
+
+    [Fact]
     public void GetFieldValue_of_Guid_works()
         => GetFieldValue_works(
             "SELECT X'0E7E0DDC5D364849AB9B8CA8056BF93A';",
@@ -2535,5 +2561,11 @@ public class SqliteDataReaderTest
     private enum MyEnum
     {
         One = 1
+    }
+
+    public enum MyByteEnum : byte
+    {
+        One = 1,
+        Max = 255
     }
 }

@@ -818,7 +818,13 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         return methodCallExpression;
     }
 
-    private MethodCallExpression TryNormalizeMaxByMinBy(MethodCallExpression methodCallExpression)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual MethodCallExpression TryNormalizeMaxByMinBy(MethodCallExpression methodCallExpression)
     {
         /*
             MinBy(x => x.Prop) --> OrderBy(x => x.Prop).First/FirstOrDefault()
@@ -847,12 +853,64 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 ? QueryableMethods.OrderBy
                 : QueryableMethods.OrderByDescending;
 
-            return Expression.Call(
-                firstMethod.MakeGenericMethod(sourceType),
-                Expression.Call(
-                    orderingMethod.MakeGenericMethod(sourceType, keySelector.ReturnType),
-                    methodCallExpression.Arguments[0],
-                    Expression.Quote(keySelector)));
+            var source = methodCallExpression.Arguments[0];
+            var keyExpression = keySelector.Body;
+            if (keyExpression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Method: null } conversion
+                && !conversion.Operand.Type.IsNullableType())
+            {
+                keyExpression = conversion.Operand;
+            }
+
+            var ordered = keyExpression.Type.IsNullableType()
+                ? Expression.Call(
+                    genericMethod == QueryableMethods.MinBy
+                        ? QueryableMethods.ThenBy.MakeGenericMethod(sourceType, keySelector.ReturnType)
+                        : QueryableMethods.ThenByDescending.MakeGenericMethod(sourceType, keySelector.ReturnType),
+                    Expression.Call(
+                        QueryableMethods.OrderBy.MakeGenericMethod(sourceType, typeof(bool)),
+                        source,
+                        Expression.Quote(Expression.Lambda(
+                            Expression.Equal(keySelector.Body, Expression.Constant(null, keySelector.ReturnType)), keySelector.Parameters))),
+                    Expression.Quote(keySelector))
+                : Expression.Call(orderingMethod.MakeGenericMethod(sourceType, keySelector.ReturnType), source, Expression.Quote(keySelector));
+
+            var sourceOrderings = new Stack<(MethodInfo Method, LambdaExpression KeySelector)>();
+            var orderingSource = source;
+            while (orderingSource is MethodCallExpression { Method.IsGenericMethod: true } sourceCall)
+            {
+                var sourceMethod = sourceCall.Method.GetGenericMethodDefinition();
+                if (sourceMethod == QueryableMethods.OrderBy
+                    || sourceMethod == QueryableMethods.OrderByDescending
+                    || sourceMethod == QueryableMethods.ThenBy
+                    || sourceMethod == QueryableMethods.ThenByDescending)
+                {
+                    sourceOrderings.Push(
+                        (sourceMethod == QueryableMethods.OrderBy || sourceMethod == QueryableMethods.ThenBy
+                            ? QueryableMethods.ThenBy
+                            : QueryableMethods.ThenByDescending,
+                            sourceCall.Arguments[1].UnwrapLambdaFromQuote()));
+                    if (sourceMethod == QueryableMethods.OrderBy || sourceMethod == QueryableMethods.OrderByDescending)
+                    {
+                        break;
+                    }
+                }
+                else if (sourceMethod != QueryableMethods.Where
+                         && sourceMethod != QueryableMethods.Skip
+                         && sourceMethod != QueryableMethods.Take)
+                {
+                    break;
+                }
+
+                orderingSource = sourceCall.Arguments[0];
+            }
+
+            foreach (var (method, selector) in sourceOrderings)
+            {
+                ordered = Expression.Call(
+                    method.MakeGenericMethod(sourceType, selector.ReturnType), ordered, Expression.Quote(selector));
+            }
+
+            return Expression.Call(firstMethod.MakeGenericMethod(sourceType), ordered);
         }
 
         return methodCallExpression;

@@ -56,6 +56,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         SqlAliasManager = relationalDependencies.SqlAliasManagerFactory.Create();
     }
 
+    internal bool? IsMinMaxBy { get; set; }
+
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
