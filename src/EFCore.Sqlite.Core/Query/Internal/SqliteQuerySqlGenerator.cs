@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -14,6 +15,92 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : QuerySqlGenerator(dependencies)
 {
+    /// <inheritdoc />
+    protected override void GenerateRootCommand(Expression queryExpression)
+    {
+        if (queryExpression is not SelectExpression { Predicate: ColumnExpression flag, Tables: [TableExpression table] } select
+            || table.FindAnnotation(SqliteParameterBasedSqlProcessor.NonCoveringBooleanFilter) == null)
+        {
+            base.GenerateRootCommand(queryExpression);
+            return;
+        }
+
+        GenerateTagsHeaderComment(select.Tags);
+        var helper = Dependencies.SqlGenerationHelper;
+        var name = "ef_density";
+        while (name.Equals(table.Name, StringComparison.OrdinalIgnoreCase) || name.Equals(table.Alias, StringComparison.OrdinalIgnoreCase))
+        {
+            name += "_";
+        }
+
+        var gate = helper.DelimitIdentifier(name);
+        var source = helper.DelimitIdentifier(table.Name, table.Schema);
+        var column = helper.DelimitIdentifier(flag.Name);
+        if (Sql is SqliteRelationalCommandBuilderFactory.Builder builder)
+        {
+            // Only sample density if the Boolean index can skip more than 1,024 zero or NULL entries.
+            // Both queries independently evaluate the original predicate if the table changes between reads.
+            var probe = Dependencies.RelationalCommandBuilderFactory.Create();
+            if (select.Tags.Count > 0)
+            {
+                // The builder contains only the query tag header at this point.
+                probe.Append(builder.ToString());
+            }
+
+            builder.IndexProbe = probe.Append("SELECT 1 FROM ").Append(source).Append(" WHERE ").Append(column).AppendLine(" = 0")
+                .Append("UNION ALL SELECT 1 FROM ").Append(source).Append(" WHERE ").Append(column).Append(" IS NULL LIMIT 1 OFFSET 1024")
+                .Build();
+            builder.ScanQuery = new QuerySqlGenerator(Dependencies).GetCommand(select);
+        }
+
+        // Estimate density with bounded table reads so streaming one result never requires
+        // counting all rows or walking a table-sized fraction of the Boolean index.
+        Sql.Append("WITH ").Append(gate).AppendLine("(dense) AS (");
+        if (table.Table is ITable { PrimaryKey.Columns: [{ StoreType: "INTEGER" } key] })
+        {
+            // Sample across the key range so a cluster at one position does not decide the plan.
+            var id = helper.DelimitIdentifier(key.Name);
+            Sql.AppendLine("    SELECT SUM((SELECT COUNT(*) FROM (")
+                .Append("        SELECT ").Append(column).Append(" FROM ").Append(source).Append(" WHERE ").Append(id).AppendLine(" >= (")
+                .Append("            (SELECT MIN(").Append(id).Append(") FROM ").Append(source).Append(") * ((16 - ")
+                .Append(gate).AppendLine(".column1) / 16.0)")
+                .Append("            + (SELECT MAX(").Append(id).Append(") FROM ").Append(source).Append(") * (")
+                .Append(gate).AppendLine(".column1 / 16.0))")
+                .Append("        ORDER BY ").Append(id).Append(" LIMIT 100) WHERE ").Append(column).AppendLine(")) > 100")
+                .Append("    FROM (VALUES (1), (3), (5), (7), (9), (11), (13), (15)) AS ").Append(gate).AppendLine(")");
+        }
+        else
+        {
+            // Without an integer key, sample in table order rather than in Boolean index order.
+            Sql.Append("    SELECT EXISTS (SELECT 1 FROM (SELECT ").Append(column).Append(" FROM ").Append(source)
+                .Append(" NOT INDEXED LIMIT 400) WHERE ").Append(column).AppendLine(" LIMIT 1 OFFSET 50))");
+        }
+
+        // CROSS JOIN keeps the one-row decision outside the table loop; the inactive arm does no row lookups.
+        void GenerateArm(bool dense)
+        {
+            Sql.Append("SELECT ");
+            GenerateProjection(select);
+            Sql.AppendLine().Append("FROM ").Append(gate).Append(" CROSS JOIN ");
+            Visit(table);
+            Sql.AppendLine().Append("WHERE ").Append(dense ? "" : "NOT ").Append(gate).Append(".dense AND ");
+            if (!dense)
+            {
+                Sql.Append("(");
+                Visit(flag);
+                Sql.Append(" > 0 OR ");
+                Visit(flag);
+                Sql.Append(" < 0) AND ");
+            }
+
+            Visit(flag);
+        }
+
+        GenerateArm(dense: false);
+        Sql.AppendLine().AppendLine("UNION ALL");
+        GenerateArm(dense: true);
+    }
+
     /// <inheritdoc />
     protected override void GenerateExists(ExistsExpression existsExpression, bool negated)
     {
