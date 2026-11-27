@@ -658,11 +658,23 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     innerExpression = unaryExpression.Operand;
                 }
 
+                // A single-result subquery whose entity has included (e.g. owned) navigations, such as the element of a grouping.
+                // The includes are kept aside, so that a reference navigation accessed on the entity can be bound over the subquery
+                // (see TryBindMember).
+                Dictionary<INavigationBase, Expression>? includedNavigations = null;
+                while (innerExpression is IncludeExpression includeExpression)
+                {
+                    includedNavigations ??= [];
+                    includedNavigations[includeExpression.Navigation] = includeExpression.NavigationExpression;
+                    innerExpression = includeExpression.EntityExpression;
+                }
+
                 if (innerExpression is StructuralTypeShaperExpression ese
                     && (convertedType == null
                         || convertedType.IsAssignableFrom(ese.Type)))
                 {
-                    return new StructuralTypeReferenceExpression(shapedQueryExpression.UpdateShaperExpression(innerExpression));
+                    return new StructuralTypeReferenceExpression(
+                        shapedQueryExpression.UpdateShaperExpression(innerExpression), includedNavigations);
                 }
 
                 if (innerExpression is ProjectionBindingExpression pbe
@@ -1367,9 +1379,49 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         if (complexProperty is not null)
         {
+            if (complexProperty.IsCollection && typeReference.Subquery is not null)
+            {
+                // A complex collection can't be bound over a single-result subquery, fail translation
+                // so that a projection of the collection can still be evaluated on the client.
+                AddTranslationErrorDetails(
+                    CoreStrings.QueryUnableToTranslateMember(member.Name, typeReference.StructuralType.DisplayName()));
+
+                expression = null;
+                property = null;
+                return false;
+            }
+
             expression = BindComplexProperty(typeReference, complexProperty);
             property = complexProperty;
             return true;
+        }
+
+        // A reference navigation on an entity produced by a single-result subquery
+        if (typeReference is { Subquery: { } subquery }
+            && structuralType is IEntityType entityType
+            && (member.MemberInfo != null
+                ? entityType.FindNavigation(member.MemberInfo)
+                : entityType.FindNavigation(member.Name!)) is { IsCollection: false } navigation)
+        {
+            // The subquery already includes the navigation (e.g. an owned navigation):
+            // bind it over the same subquery, projecting the navigation's target instead of the entity.
+            if (typeReference.IncludedNavigations?.TryGetValue(navigation, out var navigationExpression) == true
+                && Visit(subquery.UpdateShaperExpression(navigationExpression)) is StructuralTypeReferenceExpression navigationReference)
+            {
+                expression = navigationReference;
+                property = navigation;
+                return true;
+            }
+
+            // The entity is owned and mapped to JSON: the includes of its navigations are pruned, since the JSON document
+            // is materialized as a whole, so bind the navigation within the document instead.
+            if (!navigation.IsOnDependent
+                && GetSubqueryProjection(subquery) is JsonQueryExpression)
+            {
+                expression = BindStructuralPropertyOverSubquery(subquery, navigation);
+                property = navigation;
+                return true;
+            }
         }
 
         AddTranslationErrorDetails(
@@ -1394,89 +1446,106 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     return jsonQueryExpression.BindProperty(property);
                 }
 
-                var projection = (StructuralTypeProjectionExpression)valueBufferExpression;
-                var propertyAccess = projection.BindProperty(property);
-
-                if (typeReference.StructuralType is not IEntityType entityType
-                    || entityType.FindDiscriminatorProperty() != null
-                    || entityType.FindPrimaryKey() == null
-                    || entityType.GetRootType() != entityType
-                    || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
-                {
-                    return propertyAccess;
-                }
-
-                // Scope to actually-projected tables when known (entity-splitting).
-                var table = entityType.GetProjectedQueryMappings(projection.TableMap)
-                    .Single(e => e.IsSplitEntityTypePrincipal ?? true).Table;
-                if (!table.IsOptional(entityType))
-                {
-                    return propertyAccess;
-                }
-
-                // this is optional dependent sharing table
-                var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
-                if (nonPrincipalSharedNonPkProperties.Contains(property))
-                {
-                    // The column is not being shared with principal side so we can always use directly
-                    return propertyAccess;
-                }
-
-                SqlExpression? condition = null;
-                // Property is being shared with principal side, so we need to make it conditional access
-                var allRequiredNonPkProperties = entityType.GetRequiredNonPkProperties();
-                if (allRequiredNonPkProperties.Count > 0)
-                {
-                    condition = allRequiredNonPkProperties.Select(projection.BindColumn)
-                        .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
-                        .Aggregate(_sqlExpressionFactory.AndAlso);
-                }
-
-                if (nonPrincipalSharedNonPkProperties.Count != 0
-                    && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable()))
-                {
-                    // If all non principal shared properties are nullable then we need additional condition
-                    var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
-                        .Select(projection.BindColumn)
-                        .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
-                        .Aggregate(_sqlExpressionFactory.OrElse);
-
-                    condition = condition == null
-                        ? atLeastOneNonNullValueInNullableColumnsCondition
-                        : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
-                }
-
-                if (condition == null)
-                {
-                    // if we cannot compute condition then we just return property access (and hope for the best)
-                    return propertyAccess;
-                }
-
-                return _sqlExpressionFactory.Case(
-                    [new CaseWhenClause(condition, propertyAccess)],
-                    elseResult: null);
-
-                // We don't do above processing for subquery entity since it comes from after subquery which has been
-                // single result so either it is regular entity or a collection which always have their own table.
+                return BindProperty(
+                    (StructuralTypeProjectionExpression)valueBufferExpression, typeReference.StructuralType, property);
             }
 
             case { Subquery: { } subquery }:
-            {
-                var entityShaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
-                var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
+                return BindOverSubquery(
+                    subquery,
+                    projection => projection switch
+                    {
+                        // An included owned navigation can be an optional dependent sharing its owner's table (see TryBindMember)
+                        StructuralTypeProjectionExpression structuralTypeProjection
+                            => BindProperty(structuralTypeProjection, typeReference.StructuralType, property),
 
-                var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
-                var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
-                var innerProjection = projection.BindProperty(property);
-                subSelectExpression.ReplaceProjection([innerProjection]);
-                subSelectExpression.ApplyProjection();
+                        // A JSON complex type bound over a subquery (see BindComplexProperty)
+                        JsonQueryExpression jsonQuery => jsonQuery.BindProperty(property),
 
-                return new ScalarSubqueryExpression(subSelectExpression);
-            }
+                        _ => throw new UnreachableException()
+                    });
 
             default:
                 throw new UnreachableException();
         }
+    }
+
+    // Binds a scalar over the row of a single-result subquery: the scalar is computed from the subquery's projection of the structural
+    // type, and projected from a clone of the subquery.
+    private static ScalarSubqueryExpression BindOverSubquery(ShapedQueryExpression subquery, Func<Expression, SqlExpression> bind)
+    {
+        var shaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
+        var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
+
+        var projection = subSelectExpression.GetProjection((ProjectionBindingExpression)shaper.ValueBufferExpression);
+        subSelectExpression.ReplaceProjection([bind(projection)]);
+        subSelectExpression.ApplyProjection();
+
+        return new ScalarSubqueryExpression(subSelectExpression);
+    }
+
+    private SqlExpression BindProperty(StructuralTypeProjectionExpression projection, ITypeBase structuralType, IProperty property)
+    {
+        var propertyAccess = projection.BindProperty(property);
+
+        if (structuralType is not IEntityType entityType
+            || entityType.FindDiscriminatorProperty() != null
+            || entityType.FindPrimaryKey() == null
+            || entityType.GetRootType() != entityType
+            || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            return propertyAccess;
+        }
+
+        // Scope to actually-projected tables when known (entity-splitting).
+        var table = entityType.GetProjectedQueryMappings(projection.TableMap)
+            .Single(e => e.IsSplitEntityTypePrincipal ?? true).Table;
+        if (!table.IsOptional(entityType))
+        {
+            return propertyAccess;
+        }
+
+        // this is optional dependent sharing table
+        var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
+        if (nonPrincipalSharedNonPkProperties.Contains(property))
+        {
+            // The column is not being shared with principal side so we can always use directly
+            return propertyAccess;
+        }
+
+        SqlExpression? condition = null;
+        // Property is being shared with principal side, so we need to make it conditional access
+        var allRequiredNonPkProperties = entityType.GetRequiredNonPkProperties();
+        if (allRequiredNonPkProperties.Count > 0)
+        {
+            condition = allRequiredNonPkProperties.Select(projection.BindColumn)
+                .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
+                .Aggregate(_sqlExpressionFactory.AndAlso);
+        }
+
+        if (nonPrincipalSharedNonPkProperties.Count != 0
+            && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable()))
+        {
+            // If all non principal shared properties are nullable then we need additional condition
+            var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
+                .Select(projection.BindColumn)
+                .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
+                .Aggregate(_sqlExpressionFactory.OrElse);
+
+            condition = condition == null
+                ? atLeastOneNonNullValueInNullableColumnsCondition
+                : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
+        }
+
+        if (condition == null)
+        {
+            // if we cannot compute condition then we just return property access (and hope for the best)
+            return propertyAccess;
+        }
+
+        return _sqlExpressionFactory.Case(
+            [new CaseWhenClause(condition, propertyAccess)],
+            elseResult: null);
     }
 
     private Expression BindComplexProperty(StructuralTypeReferenceExpression typeReference, IComplexProperty complexProperty)
@@ -1514,13 +1583,64 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         throw new UnreachableException();
                 }
 
-            case { Subquery: not null }:
-                throw new InvalidOperationException("Complex property binding over a subquery"); // TODO: #36296
+            case { Subquery: { } subquery }:
+                Check.DebugAssert(!complexProperty.IsCollection, "Complex collections over a subquery are rejected in TryBindMember");
+
+                return BindStructuralPropertyOverSubquery(subquery, complexProperty);
 
             default:
                 throw new UnreachableException();
         }
     }
+
+    // Binds a complex property, or a navigation within a JSON document, of the structural type on the row of a single-result subquery:
+    // the property is bound inside a copy of the subquery, which then projects the property's type instead.
+    // Its properties are then bound as scalar subqueries (see BindProperty), and nested structural properties come back here.
+    private static StructuralTypeReferenceExpression BindStructuralPropertyOverSubquery(
+        ShapedQueryExpression subquery,
+        IPropertyBase structuralProperty)
+    {
+        var shaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
+        var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
+
+        var (projection, isNullable) = subSelectExpression.GetProjection((ProjectionBindingExpression)shaper.ValueBufferExpression) switch
+        {
+            StructuralTypeProjectionExpression structuralTypeProjection
+                => structuralProperty is IComplexProperty complexProperty
+                    && structuralTypeProjection.BindComplexProperty(complexProperty) is StructuralTypeShaperExpression complexShaper
+                        ? (complexShaper.ValueBufferExpression, complexShaper.IsNullable)
+                        : throw new UnreachableException(),
+
+            JsonQueryExpression jsonQuery
+                => jsonQuery.BindStructuralProperty(structuralProperty) is var nestedJsonQuery
+                    ? (nestedJsonQuery, nestedJsonQuery.IsNullable)
+                    : throw new UnreachableException(),
+
+            _ => throw new UnreachableException()
+        };
+
+        var projectionMember = new ProjectionMember();
+        subSelectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression> { [projectionMember] = projection });
+
+        var structuralType = structuralProperty switch
+        {
+            IComplexProperty complexProperty => (ITypeBase)complexProperty.ComplexType,
+            INavigation navigation => navigation.TargetEntityType,
+            _ => throw new UnreachableException()
+        };
+
+        return new StructuralTypeReferenceExpression(
+            subquery.Update(
+                subSelectExpression,
+                new RelationalStructuralTypeShaperExpression(
+                    structuralType,
+                    new ProjectionBindingExpression(subSelectExpression, projectionMember, typeof(ValueBuffer)),
+                    shaper.IsNullable || isNullable)));
+    }
+
+    private static Expression GetSubqueryProjection(ShapedQueryExpression subquery)
+        => ((SelectExpression)subquery.QueryExpression).GetProjection(
+            (ProjectionBindingExpression)((StructuralTypeShaperExpression)subquery.ShaperExpression).ValueBufferExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2293,9 +2413,12 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             StructuralType = parameter.StructuralType;
         }
 
-        public StructuralTypeReferenceExpression(ShapedQueryExpression subquery)
+        public StructuralTypeReferenceExpression(
+            ShapedQueryExpression subquery,
+            IReadOnlyDictionary<INavigationBase, Expression>? includedNavigations = null)
         {
             Subquery = subquery;
+            IncludedNavigations = includedNavigations;
             StructuralType = ((StructuralTypeShaperExpression)subquery.ShaperExpression).StructuralType;
         }
 
@@ -2303,11 +2426,15 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         {
             Parameter = typeReference.Parameter;
             Subquery = typeReference.Subquery;
+            IncludedNavigations = typeReference.IncludedNavigations;
             StructuralType = structuralType;
         }
 
         public new StructuralTypeShaperExpression? Parameter { get; }
         public ShapedQueryExpression? Subquery { get; }
+
+        // For a subquery reference: the navigations the subquery includes, with the shapers of their targets.
+        public IReadOnlyDictionary<INavigationBase, Expression>? IncludedNavigations { get; }
         public ITypeBase StructuralType { get; }
 
         public override Type Type

@@ -127,18 +127,22 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 var nonNullEntityReference = (left is SqlConstantExpression { Value: null } ? rightReference : leftReference)!;
                 var nullComparedEntityType = (IEntityType)nonNullEntityReference.StructuralType;
 
-                if (nonNullEntityReference is { Parameter.ValueBufferExpression: JsonQueryExpression jsonQueryExpression })
+                SqlExpression? jsonDocument = nonNullEntityReference switch
                 {
-                    var jsonScalarExpression = new JsonScalarExpression(
-                        jsonQueryExpression.JsonColumn,
-                        jsonQueryExpression.Path,
-                        jsonQueryExpression.JsonColumn.Type,
-                        jsonQueryExpression.JsonColumn.TypeMapping!,
-                        jsonQueryExpression.IsNullable);
+                    { Parameter.ValueBufferExpression: JsonQueryExpression jsonQueryExpression } => JsonDocument(jsonQueryExpression),
 
+                    // An owned JSON entity on the row of a single-result subquery (see TryBindMember)
+                    { Subquery: { } subquery } when GetSubqueryProjection(subquery) is JsonQueryExpression
+                        => BindOverSubquery(subquery, projection => JsonDocument((JsonQueryExpression)projection)),
+
+                    _ => null
+                };
+
+                if (jsonDocument != null)
+                {
                     result = nodeType == ExpressionType.Equal
-                        ? _sqlExpressionFactory.IsNull(jsonScalarExpression)
-                        : _sqlExpressionFactory.IsNotNull(jsonScalarExpression);
+                        ? _sqlExpressionFactory.IsNull(jsonDocument)
+                        : _sqlExpressionFactory.IsNotNull(jsonDocument);
 
                     return true;
                 }
@@ -283,6 +287,14 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                         : Expression.OrElse(l, r)));
 
             return true;
+
+            static JsonScalarExpression JsonDocument(JsonQueryExpression jsonQueryExpression)
+                => new(
+                    jsonQueryExpression.JsonColumn,
+                    jsonQueryExpression.Path,
+                    jsonQueryExpression.JsonColumn.Type,
+                    jsonQueryExpression.JsonColumn.TypeMapping!,
+                    jsonQueryExpression.IsNullable);
         }
 
         bool TryRewriteComplexTypeEquality(bool collection, [NotNullWhen(true)] out SqlExpression? result)

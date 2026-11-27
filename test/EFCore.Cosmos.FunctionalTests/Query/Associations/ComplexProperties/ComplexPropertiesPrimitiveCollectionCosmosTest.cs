@@ -119,6 +119,9 @@ WHERE (c["RequiredAssociate"]["Ints"] = [1,2,3])
 """);
     }
 
+    public override Task Any_predicate_on_GroupBy_First()
+        => AssertTranslationFailed(base.Any_predicate_on_GroupBy_First);
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

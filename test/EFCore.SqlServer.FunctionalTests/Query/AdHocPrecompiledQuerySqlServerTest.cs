@@ -241,6 +241,47 @@ FROM [Owners] AS [o]
 """);
     }
 
+    public override async Task Complex_properties_on_owned_types_on_GroupBy_First()
+    {
+        await base.Complex_properties_on_owned_types_on_GroupBy_First();
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [o3].[Id]
+    FROM [Owners] AS [o3]
+    WHERE [o].[Id] = [o3].[Id] AND [o3].[Id] > 0
+    ORDER BY [o3].[Id]) AS [Id], (
+    SELECT TOP(1) [o4].[Owned_Address_Country_Code]
+    FROM [Owners] AS [o4]
+    WHERE [o].[Id] = [o4].[Id] AND [o4].[Id] > 0
+    ORDER BY [o4].[Id]) AS [Code], (
+    SELECT TOP(1) JSON_VALUE([o5].[Owned_JsonAddress], '$.City')
+    FROM [Owners] AS [o5]
+    WHERE [o].[Id] = [o5].[Id] AND [o5].[Id] > 0
+    ORDER BY [o5].[Id]) AS [JsonAddressCity], (
+    SELECT TOP(1) JSON_VALUE([o6].[JsonOwned], '$.Address.City')
+    FROM [Owners] AS [o6]
+    WHERE [o].[Id] = [o6].[Id] AND [o6].[Id] > 0
+    ORDER BY [o6].[Id]) AS [JsonOwnedCity]
+FROM [Owners] AS [o]
+GROUP BY [o].[Id]
+HAVING (
+    SELECT TOP(1) [o0].[Owned_Address_City]
+    FROM [Owners] AS [o0]
+    WHERE [o].[Id] = [o0].[Id] AND [o0].[Id] > 0
+    ORDER BY [o0].[Id]) = N'Sydney' AND (
+    SELECT TOP(1) JSON_VALUE([o1].[Owned_JsonAddress], '$.City')
+    FROM [Owners] AS [o1]
+    WHERE [o].[Id] = [o1].[Id] AND [o1].[Id] > 0
+    ORDER BY [o1].[Id]) = N'Melbourne' AND (
+    SELECT TOP(1) JSON_VALUE([o2].[JsonOwned], '$.Address.City')
+    FROM [Owners] AS [o2]
+    WHERE [o].[Id] = [o2].[Id] AND [o2].[Id] > 0
+    ORDER BY [o2].[Id]) = N'Hobart'
+""");
+    }
+
     public override async Task Materialize_sealed_entity()
     {
         await base.Materialize_sealed_entity();
