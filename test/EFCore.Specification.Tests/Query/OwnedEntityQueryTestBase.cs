@@ -840,6 +840,281 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #endregion
 
+    #region ComposedProjectionNestedOwnedCollection
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Composed_projection_over_nested_owned_collection_with_same_shape(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextNestedOwnedCollection>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = ContextNestedOwnedCollection.ProjectToDto(context.Orders)
+            .Select(d => new ContextNestedOwnedCollection.OrderDto
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Shipping = d.Shipping == null
+                    ? null
+                    : new ContextNestedOwnedCollection.ShippingDto
+                    {
+                        Address = d.Shipping.Address,
+                        Items = d.Shipping.Items.Select(i => new ContextNestedOwnedCollection.ItemDto
+                        {
+                            Name = i.Name, Quantity = i.Quantity
+                        }).ToList()
+                    }
+            })
+            .OrderBy(d => d.Id);
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+        var expected = ContextNestedOwnedCollection.ProjectToDto(context.Orders).OrderBy(d => d.Id).ToList();
+
+        ContextNestedOwnedCollection.AssertEqual(expected, result);
+        Assert.Null(result.Single(r => r.Name == "NoShipping").Shipping);
+        Assert.Equal(2, result.Single(r => r.Name == "TwoItems").Shipping!.Items.Count);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Composed_projection_over_nested_owned_collection_selecting_subset(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextNestedOwnedCollection>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = ContextNestedOwnedCollection.ProjectToDto(context.Orders)
+            .Select(d => new ContextNestedOwnedCollection.OrderDto
+            {
+                Id = d.Id,
+                Shipping = d.Shipping != null
+                    ? new ContextNestedOwnedCollection.ShippingDto
+                    {
+                        Items = d.Shipping.Items.Select(i => new ContextNestedOwnedCollection.ItemDto { Name = i.Name }).ToList()
+                    }
+                    : null
+            })
+            .OrderBy(d => d.Id);
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        var expectedQuery = context.Orders
+            .Select(o => new ContextNestedOwnedCollection.OrderDto
+            {
+                Id = o.Id,
+                Shipping = o.Shipping != null
+                    ? new ContextNestedOwnedCollection.ShippingDto
+                    {
+                        Items = o.Shipping.Items.Select(i => new ContextNestedOwnedCollection.ItemDto { Name = i.Name }).ToList()
+                    }
+                    : null
+            })
+            .OrderBy(d => d.Id);
+        var expected = expectedQuery.ToList();
+
+        ContextNestedOwnedCollection.AssertEqual(expected, result);
+        Assert.Null(result.Single(r => r.Id == 3).Shipping);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Composed_projection_over_nested_owned_collection_projecting_collection_only(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextNestedOwnedCollection>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = ContextNestedOwnedCollection.ProjectToDto(context.Orders)
+            .OrderBy(d => d.Id)
+            .Select(d => new
+            {
+                d.Id,
+                Names = d.Shipping == null ? null : d.Shipping.Items.Select(i => i.Name).ToList(),
+                Count = d.Shipping == null ? 0 : d.Shipping.Items.Count()
+            });
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(["A", "B"], result[0].Names!.OrderBy(n => n));
+        Assert.Equal(2, result[0].Count);
+        Assert.Empty(result[1].Names!);
+        Assert.Equal(0, result[1].Count);
+        Assert.Null(result[2].Names);
+        Assert.Equal(0, result[2].Count);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Composed_projection_over_nested_owned_collection_with_not_equal_null_checks(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextNestedOwnedCollection>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Orders
+            .Select(o => new ContextNestedOwnedCollection.OrderDto
+            {
+                Id = o.Id,
+                Name = o.Name,
+                Shipping = o.Shipping != null
+                    ? new ContextNestedOwnedCollection.ShippingDto
+                    {
+                        Address = o.Shipping.Address,
+                        Items = o.Shipping.Items
+                            .Select(i => new ContextNestedOwnedCollection.ItemDto { Name = i.Name, Quantity = i.Quantity }).ToList()
+                    }
+                    : null
+            })
+            .Select(d => new ContextNestedOwnedCollection.OrderDto
+            {
+                Id = d.Id,
+                Shipping = d.Shipping != null
+                    ? new ContextNestedOwnedCollection.ShippingDto
+                    {
+                        Items = d.Shipping.Items
+                            .Where(i => i.Quantity > 1)
+                            .Select(i => new ContextNestedOwnedCollection.ItemDto { Quantity = i.Quantity }).ToList()
+                    }
+                    : null
+            })
+            .OrderBy(d => d.Id);
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        var expected = context.Orders
+            .Select(o => new ContextNestedOwnedCollection.OrderDto
+            {
+                Id = o.Id,
+                Shipping = o.Shipping != null
+                    ? new ContextNestedOwnedCollection.ShippingDto
+                    {
+                        Items = o.Shipping.Items
+                            .Where(i => i.Quantity > 1)
+                            .Select(i => new ContextNestedOwnedCollection.ItemDto { Quantity = i.Quantity }).ToList()
+                    }
+                    : null
+            })
+            .OrderBy(d => d.Id)
+            .ToList();
+
+        ContextNestedOwnedCollection.AssertEqual(expected, result);
+        Assert.Equal(2, Assert.Single(result[0].Shipping!.Items).Quantity);
+        Assert.Empty(result[1].Shipping!.Items);
+        Assert.Null(result[2].Shipping);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class ContextNestedOwnedCollection(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Order> Orders { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Order>(
+                b =>
+                {
+                    b.Property(o => o.Id).ValueGeneratedNever();
+                    b.OwnsOne(
+                        o => o.Shipping, s =>
+                        {
+                            s.OwnsMany(x => x.Items, i => i.Property(x => x.Id).ValueGeneratedNever());
+                        });
+                });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Order
+                {
+                    Id = 1,
+                    Name = "TwoItems",
+                    Shipping = new Shipping
+                    {
+                        Address = "Street 1",
+                        Items = [new Item { Id = 1, Name = "A", Quantity = 1 }, new Item { Id = 2, Name = "B", Quantity = 2 }]
+                    }
+                },
+                new Order
+                {
+                    Id = 2,
+                    Name = "NoItems",
+                    Shipping = new Shipping { Address = "Street 2" }
+                },
+                new Order { Id = 3, Name = "NoShipping" });
+
+            return SaveChangesAsync();
+        }
+
+        public static IQueryable<OrderDto> ProjectToDto(IQueryable<Order> orders)
+            => orders.Select(o => new OrderDto
+            {
+                Id = o.Id,
+                Name = o.Name,
+                Shipping = o.Shipping == null
+                    ? null
+                    : new ShippingDto
+                    {
+                        Address = o.Shipping.Address,
+                        Items = o.Shipping.Items.Select(i => new ItemDto { Name = i.Name, Quantity = i.Quantity }).ToList()
+                    }
+            });
+
+        public static void AssertEqual(List<OrderDto> expected, List<OrderDto> actual)
+        {
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert.Equal(expected[i].Id, actual[i].Id);
+                Assert.Equal(expected[i].Name, actual[i].Name);
+                if (expected[i].Shipping == null)
+                {
+                    Assert.Null(actual[i].Shipping);
+                    continue;
+                }
+
+                Assert.NotNull(actual[i].Shipping);
+                Assert.Equal(expected[i].Shipping!.Address, actual[i].Shipping!.Address);
+                Assert.Equal(
+                    expected[i].Shipping!.Items.Select(x => (x.Name, x.Quantity)).OrderBy(x => x.Name),
+                    actual[i].Shipping!.Items.Select(x => (x.Name, x.Quantity)).OrderBy(x => x.Name));
+            }
+        }
+
+        public class Order
+        {
+            public int Id { get; set; }
+            public string? Name { get; set; }
+            public Shipping? Shipping { get; set; }
+        }
+
+        public class Shipping
+        {
+            public string? Address { get; set; }
+            public List<Item> Items { get; set; } = [];
+        }
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public string? Name { get; set; }
+            public int Quantity { get; set; }
+        }
+
+        public class OrderDto
+        {
+            public int Id { get; set; }
+            public string? Name { get; set; }
+            public ShippingDto? Shipping { get; set; }
+        }
+
+        public class ShippingDto
+        {
+            public string? Address { get; set; }
+            public List<ItemDto> Items { get; set; } = null!;
+        }
+
+        public class ItemDto
+        {
+            public string? Name { get; set; }
+            public int Quantity { get; set; }
+        }
+    }
+
+    #endregion
+
     protected virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take_helper(
         MyContext26592Base context,
         bool async)

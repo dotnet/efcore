@@ -1107,24 +1107,32 @@ public partial class NavigationExpandingExpressionVisitor
         }
     }
 
+    /// <summary>
+    ///     Simplifies member accesses over a previous projection which was composed over, e.g.
+    ///     <c>(o.Shipping == null ? null : new ShippingDto { Items = ... }).Items</c>, when the access is guarded by a test which
+    ///     makes the null branch unreachable (e.g. <c>d.Shipping == null ? null : d.Shipping.Items.Select(...)</c>).
+    ///     This makes the member access fold to the expression which was projected for it, so that navigations and
+    ///     collection subqueries (e.g. over owned collections) inside it can still be expanded and translated.
+    /// </summary>
     private sealed class NavigationTreeMemberPruningVisitor : ExpressionVisitor
     {
-        private readonly Stack<Expression> _knownFalseTests = new();
+        // Tests which are known to have a particular value in the part of the tree currently being visited,
+        // because we are inside the corresponding branch of a conditional expression.
+        private readonly Stack<(Expression Test, bool Value)> _knownTests = new();
 
         protected override Expression VisitConditional(ConditionalExpression node)
         {
-            if (node.IfTrue is ConstantExpression { Value: null })
-            {
-                var test = Visit(node.Test);
+            var test = Visit(node.Test);
 
-                _knownFalseTests.Push(test);
-                var ifFalse = Visit(node.IfFalse);
-                _knownFalseTests.Pop();
+            PushKnownTest(test, value: true);
+            var ifTrue = Visit(node.IfTrue);
+            _knownTests.Pop();
 
-                return node.Update(test, node.IfTrue, ifFalse);
-            }
+            PushKnownTest(test, value: false);
+            var ifFalse = Visit(node.IfFalse);
+            _knownTests.Pop();
 
-            return base.VisitConditional(node);
+            return node.Update(test, ifTrue, ifFalse);
         }
 
         protected override Expression VisitMember(MemberExpression node)
@@ -1142,16 +1150,20 @@ public partial class NavigationExpandingExpressionVisitor
                 }
             }
 
-            if (innerExpression is ConditionalExpression { IfTrue: ConstantExpression { Value: null } } conditional
-                && node.Member.DeclaringType!.IsAssignableFrom(conditional.IfFalse.Type))
+            if (innerExpression.UnwrapTypeConversion(out _) is MemberInitExpression memberInitExpression
+                && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.IsSameAs(node.Member)) is MemberAssignment
+                    memberAssignment)
             {
-                foreach (var knownFalseTest in _knownFalseTests)
-                {
-                    if (ExpressionEqualityComparer.Instance.Equals(knownFalseTest, conditional.Test))
-                    {
-                        return VisitMember(Expression.MakeMemberAccess(conditional.IfFalse, node.Member));
-                    }
-                }
+                return memberAssignment.Expression;
+            }
+
+            if (innerExpression is ConditionalExpression conditional
+                && TryGetNonNullBranch(conditional, out var nonNullBranch, out var nullWhenTestIs)
+                && node.Member.DeclaringType!.IsAssignableFrom(nonNullBranch.Type)
+                && TryGetKnownTestValue(conditional.Test, out var knownValue)
+                && knownValue != nullWhenTestIs)
+            {
+                return VisitMember(Expression.MakeMemberAccess(nonNullBranch, node.Member));
             }
 
             return node.Update(innerExpression);
@@ -1164,26 +1176,94 @@ public partial class NavigationExpandingExpressionVisitor
                 var left = Visit(node.Left);
                 var right = Visit(node.Right);
 
-                Expression? conditionalTest = null;
-                if (left is ConditionalExpression { IfTrue: ConstantExpression { Value: null }, IfFalse: NewExpression } leftCond
+                ConditionalExpression? conditional = null;
+                if (left is ConditionalExpression leftCond
                     && right is ConstantExpression { Value: null })
                 {
-                    conditionalTest = leftCond.Test;
+                    conditional = leftCond;
                 }
-                else if (right is ConditionalExpression { IfTrue: ConstantExpression { Value: null }, IfFalse: NewExpression } rightCond
+                else if (right is ConditionalExpression rightCond
                          && left is ConstantExpression { Value: null })
                 {
-                    conditionalTest = rightCond.Test;
+                    conditional = rightCond;
                 }
 
-                return conditionalTest != null
-                    ? node.NodeType == ExpressionType.Equal
-                        ? conditionalTest
-                        : Expression.Not(conditionalTest)
-                    : node.Update(left, node.Conversion, right);
+                // (test ? null : new X { ... }) == null is the same as test
+                // (test ? new X { ... } : null) == null is the same as !test
+                if (conditional != null
+                    && TryGetNonNullBranch(conditional, out var nonNullBranch, out var nullWhenTestIs)
+                    && nonNullBranch is NewExpression or MemberInitExpression)
+                {
+                    var isNullTest = nullWhenTestIs ? conditional.Test : Expression.Not(conditional.Test);
+
+                    return node.NodeType == ExpressionType.Equal
+                        ? isNullTest
+                        : Expression.Not(isNullTest);
+                }
+
+                return node.Update(left, node.Conversion, right);
             }
 
             return base.VisitBinary(node);
+        }
+
+        private static bool TryGetNonNullBranch(
+            ConditionalExpression conditional,
+            [NotNullWhen(true)] out Expression? nonNullBranch,
+            out bool nullWhenTestIs)
+        {
+            switch (conditional)
+            {
+                case { IfTrue: ConstantExpression { Value: null }, IfFalse: not ConstantExpression { Value: null } }:
+                    nonNullBranch = conditional.IfFalse;
+                    nullWhenTestIs = true;
+                    return true;
+
+                case { IfFalse: ConstantExpression { Value: null }, IfTrue: not ConstantExpression { Value: null } }:
+                    nonNullBranch = conditional.IfTrue;
+                    nullWhenTestIs = false;
+                    return true;
+
+                default:
+                    nonNullBranch = null;
+                    nullWhenTestIs = false;
+                    return false;
+            }
+        }
+
+        private void PushKnownTest(Expression test, bool value)
+        {
+            while (test is UnaryExpression { NodeType: ExpressionType.Not } not
+                   && not.Type == typeof(bool))
+            {
+                test = not.Operand;
+                value = !value;
+            }
+
+            _knownTests.Push((test, value));
+        }
+
+        private bool TryGetKnownTestValue(Expression test, out bool value)
+        {
+            var negated = false;
+            while (test is UnaryExpression { NodeType: ExpressionType.Not } not
+                   && not.Type == typeof(bool))
+            {
+                test = not.Operand;
+                negated = !negated;
+            }
+
+            foreach (var (knownTest, knownValue) in _knownTests)
+            {
+                if (ExpressionEqualityComparer.Instance.Equals(knownTest, test))
+                {
+                    value = knownValue != negated;
+                    return true;
+                }
+            }
+
+            value = false;
+            return false;
         }
     }
 
